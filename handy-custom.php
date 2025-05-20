@@ -70,7 +70,7 @@ function handy_custom_add_taxonomy_columns($columns) {
 	$post_type_taxonomies = array(
 		'product' => array('cooking-method', 'grade', 'market-segment', 'menu-occasion',
 			'product-category', 'product-type', 'size'),
-		'recipe'  => array('cooking-method', 'recipe-category')
+		'recipe'  => array('cooking-method', 'recipe-category', 'menu-occasion')
 	);
 
 	// Only proceed if we have taxonomies defined for this post type
@@ -124,7 +124,7 @@ function handy_custom_make_taxonomy_columns_sortable($sortable_columns) {
 		$taxonomies = array('cooking-method', 'grade', 'market-segment', 'menu-occasion',
 			'product-category', 'product-type', 'size');
 	} elseif ($post_type === 'recipe') {
-		$taxonomies = array('cooking-method', 'recipe-category');
+		$taxonomies = array('cooking-method', 'recipe-category', 'menu-occasion');
 	}
 
 	foreach ($taxonomies as $tax) {
