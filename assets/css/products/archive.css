@@ -1,0 +1,265 @@
+/**
+ * Products Archive Styles
+ * Basic CSS structure for products shortcode template
+ */
+
+/* Main Container */
+.handy-products-archive {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+/* Filter Controls */
+.handy-products-filters {
+    background: #f8f9fa;
+    padding: 20px;
+    margin-bottom: 30px;
+    border-radius: 8px;
+    border: 1px solid #e9ecef;
+}
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    align-items: end;
+}
+
+.filter-group {
+    min-width: 160px;
+}
+
+.filter-group label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: 600;
+    color: #495057;
+    font-size: 14px;
+}
+
+.product-filter {
+    width: 100%;
+    padding: 8px 12px;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    background: white;
+    font-size: 14px;
+}
+
+.product-filter:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
+}
+
+/* Products Grid */
+.handy-products-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 30px;
+}
+
+/* Category Cards */
+.product-category-card {
+    background: white;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.product-category-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* Category Image */
+.category-image {
+    position: relative;
+    height: 200px;
+    overflow: hidden;
+}
+
+.category-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.image-placeholder {
+    width: 100%;
+    height: 100%;
+    background: #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #6c757d;
+    font-size: 18px;
+    font-weight: 500;
+}
+
+/* Category Info */
+.category-info {
+    padding: 20px;
+}
+
+.category-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 15px;
+}
+
+.category-icon {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.icon-placeholder {
+    width: 32px;
+    height: 32px;
+    background: #dee2e6;
+    border-radius: 4px;
+    /* TODO: Remove when icons are added */
+}
+
+.category-title {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #212529;
+}
+
+/* Category Description */
+.category-description {
+    margin-bottom: 20px;
+}
+
+.description-text {
+    margin: 0;
+    line-height: 1.6;
+    color: #495057;
+    font-size: 14px;
+}
+
+.description-toggle {
+    color: #007cba;
+    cursor: pointer;
+    text-decoration: underline;
+}
+
+.description-toggle:hover {
+    color: #005a87;
+}
+
+/* Action Buttons */
+.category-actions {
+    display: flex;
+    gap: 12px;
+}
+
+.btn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 6px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: inline-block;
+    text-align: center;
+    flex: 1;
+}
+
+.btn-shop {
+    background: #007cba;
+    color: white;
+}
+
+.btn-shop:hover {
+    background: #005a87;
+    color: white;
+}
+
+.btn-learn {
+    background: transparent;
+    color: #007cba;
+    border: 2px solid #007cba;
+}
+
+.btn-learn:hover {
+    background: #007cba;
+    color: white;
+}
+
+.btn-clear-filters {
+    background: #6c757d;
+    color: white;
+}
+
+.btn-clear-filters:hover {
+    background: #5a6268;
+}
+
+/* No Results */
+.no-results {
+    text-align: center;
+    padding: 60px 20px;
+    color: #6c757d;
+}
+
+.no-results p {
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Loading Indicator */
+.loading-indicator {
+    text-align: center;
+    padding: 40px;
+    color: #6c757d;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .handy-products-archive {
+        padding: 15px;
+    }
+    
+    .filters-row {
+        flex-direction: column;
+    }
+    
+    .filter-group {
+        min-width: auto;
+    }
+    
+    .handy-products-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .category-actions {
+        flex-direction: column;
+    }
+    
+    .btn {
+        flex: none;
+    }
+}
+
+@media (max-width: 480px) {
+    .category-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .category-info {
+        padding: 15px;
+    }
+}
