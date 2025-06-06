@@ -8,11 +8,13 @@ This is a WordPress plugin called "Handy Custom" that provides shortcode-based p
 
 ## Architecture
 
-The plugin follows a modular, object-oriented architecture:
+The plugin follows a modular, object-oriented architecture with optimized base classes:
 
 - **Main Plugin File**: `handy-custom.php` - Entry point with logging control
 - **Core Classes**: `/includes/` - Main functionality and utilities
+- **Base Utilities**: `/includes/class-base-utils.php` - Shared caching and utility methods
 - **Product Classes**: `/includes/products/` - Product-specific functionality
+- **Recipe Classes**: `/includes/recipes/` - Recipe-specific functionality  
 - **Templates**: `/templates/shortcodes/` - Shortcode output templates
 - **Assets**: `/assets/` - Organized by post type (products/recipes)
 
@@ -37,6 +39,12 @@ The plugin follows a modular, object-oriented architecture:
 3. **URL Rewrite System**: `/products/{category}/{subcategory}/` URLs
 4. **Contextual Filtering**: Smart filter dropdowns based on subcategory context
 5. **URL Integration**: Automatic parameter detection from URLs
+
+### Phase 4 - Code Optimization (Completed)
+1. **Base Utility Class**: Shared caching and utility methods for DRY compliance
+2. **Performance Caching**: WordPress object cache integration for taxonomy queries
+3. **Asset Loading Optimization**: Consolidated enqueue methods to eliminate duplication
+4. **Architecture Improvements**: Inheritance-based design with abstract base classes
 
 ### Future Phases
 - Single post type templates
@@ -92,14 +100,15 @@ URL parameters take precedence over shortcode attributes, enabling clean URLs wh
 /includes/
 ├── class-handy-custom.php        # Main plugin class
 ├── class-logger.php              # Centralized logging
+├── class-base-utils.php          # Base utility class with caching
 ├── class-shortcodes.php          # Shortcode handlers & AJAX
 ├── /products/
-│   ├── class-products-utils.php      # Shared utilities
+│   ├── class-products-utils.php      # Product utilities (extends base)
 │   ├── class-products-filters.php    # Filtering logic
 │   ├── class-products-display.php    # Display helpers
 │   └── class-products-renderer.php   # Main renderer
 └── /recipes/
-    ├── class-recipes-utils.php       # Recipe utilities
+    ├── class-recipes-utils.php       # Recipe utilities (extends base)
     ├── class-recipes-filters.php     # Recipe filtering logic
     ├── class-recipes-display.php     # Recipe display helpers
     └── class-recipes-renderer.php    # Recipe renderer
@@ -156,6 +165,7 @@ define('HANDY_CUSTOM_DEBUG', false); // Set to true to enable logging
 - **Cache Busting**: Uses `filemtime()` for versioning
 - **Organized Structure**: Separate assets by post type
 - **Legacy Support**: Maintains compatibility with existing custom.css/js
+- **Optimized Enqueuing**: Consolidated method eliminates duplication between post types
 
 ## Category Icons
 
@@ -171,6 +181,13 @@ define('HANDY_CUSTOM_DEBUG', false); // Set to true to enable logging
 3. **Customize Styling**: Edit `/assets/css/products/archive.css`
 4. **Template Changes**: Modify `/templates/shortcodes/products/archive.php`
 5. **New Filters**: Add to `Handy_Custom_Products_Utils::get_taxonomy_mapping()`
+
+## Performance Optimizations
+
+- **Taxonomy Caching**: WordPress object cache with static fallback for term queries
+- **Code Deduplication**: Base utility classes eliminate repeated functionality
+- **Efficient Asset Loading**: Shared enqueue methods reduce code duplication
+- **Cache Management**: Built-in cache clearing and statistics for debugging
 
 ## Helpful documentation when needed
 https://docs.uxthemes.com/
