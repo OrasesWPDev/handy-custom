@@ -105,6 +105,7 @@ class Handy_Custom_Shortcodes {
 
 	/**
 	 * AJAX handler for product filtering
+	 * Now supports display parameter for categories/list modes
 	 */
 	public static function ajax_filter_products() {
 		// Verify nonce
@@ -117,9 +118,13 @@ class Handy_Custom_Shortcodes {
 		foreach (array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()) as $key) {
 			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
 		}
+		
+		// Add display parameter
+		$raw_filters['display'] = isset($_POST['display']) ? sanitize_text_field($_POST['display']) : 'categories';
+		
 		$filters = Handy_Custom_Products_Utils::sanitize_filters($raw_filters);
 
-		Handy_Custom_Logger::log('AJAX filter request: ' . wp_json_encode($filters));
+		Handy_Custom_Logger::log('AJAX filter request with display mode: ' . wp_json_encode($filters));
 
 		try {
 			// Load the products renderer
