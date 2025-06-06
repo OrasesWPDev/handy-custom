@@ -23,7 +23,7 @@ node_modules/
 /logs/
 
 # CSV imports and data files
-/assets/CSV*
+/assets/csv/
 *.csv
 
 

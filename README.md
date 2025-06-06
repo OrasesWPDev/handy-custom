@@ -13,7 +13,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 
 ### Key Problems Solved
 - **Static product displays** → Dynamic AJAX-powered filtering
-- **Poor SEO URLs** → Clean, hierarchical URL structures (`/products/dairy/cheese/`)
+- **Poor SEO URLs** → Clean, hierarchical URL structures (`/products/crab/crab-cakes/`)
 - **Performance issues** → Built-in caching and optimized asset loading
 - **Complex category relationships** → Automatic parent/child category detection
 
@@ -95,16 +95,16 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 
 ```php
 // Filter by category
-[products category="dairy"]
+[products category="crab"]
 
 // Filter by subcategory (auto-detects parent)
-[products subcategory="cheese"]
+[products subcategory="crab-cakes"]
 
 // Multiple filters
-[products category="dairy" grade="premium" cooking_method="baking"]
+[products category="shrimp" grade="premium" cooking_method="frying"]
 
 // Market-specific filtering
-[products market_segment="retail" product_type="frozen"]
+[products market_segment="retail" product_type="appetizers"]
 ```
 
 ### Recipe Filtering
@@ -126,9 +126,9 @@ The plugin automatically supports clean URLs:
 
 ```
 /products/                          → Main products page
-/products/dairy/                    → Dairy category
-/products/dairy/cheese/             → Cheese subcategory
-/products/meat/frozen/              → Frozen meat products
+/products/crab/                     → Crab category
+/products/crab/crab-cakes/          → Crab cakes subcategory
+/products/appetizers/specialty/     → Specialty appetizers
 ```
 
 URL parameters automatically merge with shortcode attributes.
@@ -155,7 +155,7 @@ Add category icons to enhance visual appeal:
 /assets/images/{category-slug}-icon.png
 ```
 
-Example: `dairy-icon.png`, `meat-icon.png`
+Example: `crab-icon.png`, `shrimp-icon.png`, `appetizers-icon.png`
 
 ### Debug Logging
 
@@ -167,6 +167,32 @@ define('HANDY_CUSTOM_DEBUG', true);
 ```
 
 Logs are stored in `/logs/` directory (automatically secured).
+
+### Product Categories & Subcategories
+
+**Main Categories:**
+- **Shrimp** (`shrimp`) - Premium shrimp products
+- **Crab** (`crab`) - Fresh and processed crab products  
+- **Appetizers** (`appetizers`) - Ready-to-serve appetizer items
+- **Dietary Alternatives** (`dietary-alternatives`) - Specialized dietary options
+
+**Subcategories by Parent:**
+
+*Crab Products:*
+- Crab Cakes (`crab-cakes`)
+- Crab Meat (`crab-meat`) 
+- Soft Shell Crab (`soft-shell-crab`)
+
+*Appetizers:*
+- Crab Cake Minis (`crab-cake-minis`)
+- Specialty (`specialty`)
+- Soft Crab (`soft-crab`)
+- Shrimp (`appetizer-shrimp`)
+
+*Dietary Alternatives:*
+- Gluten Free (`gluten-free`)
+- Keto Friendly (`keto-friendly`)
+- Plant Based (`plant-based`)
 
 ### Filter Parameters Reference
 
