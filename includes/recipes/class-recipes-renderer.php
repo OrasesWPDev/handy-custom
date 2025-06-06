@@ -141,8 +141,11 @@ class Handy_Custom_Recipes_Renderer {
 			return;
 		}
 
-		// Extract variables for use in template
-		extract($variables);
+		// Extract variables for use in template - explicit assignments for security
+		$filters = isset($variables['filters']) ? $variables['filters'] : array();
+		$recipes = isset($variables['recipes']) ? $variables['recipes'] : array();
+		$filter_options = isset($variables['filter_options']) ? $variables['filter_options'] : array();
+		$total_recipes = isset($variables['total_recipes']) ? $variables['total_recipes'] : 0;
 		
 		Handy_Custom_Logger::log("Loading recipe template: {$template}", 'info');
 		

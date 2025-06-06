@@ -65,8 +65,10 @@ class Handy_Custom_Products_Renderer {
 			return;
 		}
 
-		// Extract variables for use in template
-		extract($variables);
+		// Extract variables for use in template - explicit assignments for security
+		$filters = isset($variables['filters']) ? $variables['filters'] : array();
+		$categories = isset($variables['categories']) ? $variables['categories'] : array();
+		$filter_options = isset($variables['filter_options']) ? $variables['filter_options'] : array();
 		
 		// Include template
 		include $template_path;
