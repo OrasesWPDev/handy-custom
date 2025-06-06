@@ -14,19 +14,34 @@ class Handy_Custom_Products_Renderer {
 	/**
 	 * Render products display
 	 *
-	 * @param array $filters Filter parameters
+	 * @param array $filters Filter parameters including display mode
 	 * @return string
 	 */
 	public function render($filters = array()) {
 		// Start output buffering
 		ob_start();
 
-		// Load the main archive template
-		$this->load_template('products/archive', array(
+		// Get display mode (default to 'categories')
+		$display_mode = isset($filters['display']) ? $filters['display'] : 'categories';
+		
+		// Determine if we should include category filter (only for list mode)
+		$include_category_filter = ($display_mode === 'list');
+
+		// Load the main archive template with appropriate data
+		$template_vars = array(
 			'filters' => $filters,
-			'categories' => $this->get_filtered_categories($filters),
-			'filter_options' => $this->get_filter_options()
-		));
+			'display_mode' => $display_mode,
+			'filter_options' => $this->get_filter_options($include_category_filter)
+		);
+
+		// Add data based on display mode
+		if ($display_mode === 'list') {
+			$template_vars['products'] = $this->get_filtered_products($filters);
+		} else {
+			$template_vars['categories'] = $this->get_filtered_categories($filters);
+		}
+
+		$this->load_template('products/archive', $template_vars);
 
 		return ob_get_clean();
 	}
@@ -42,12 +57,23 @@ class Handy_Custom_Products_Renderer {
 	}
 
 	/**
+	 * Get filtered products for list display mode
+	 *
+	 * @param array $filters Filter parameters
+	 * @return WP_Query
+	 */
+	private function get_filtered_products($filters) {
+		return Handy_Custom_Products_Filters::get_filtered_products($filters);
+	}
+
+	/**
 	 * Get filter options for dropdowns
 	 *
+	 * @param bool $include_category_filter Whether to include category filter
 	 * @return array
 	 */
-	private function get_filter_options() {
-		return Handy_Custom_Products_Filters::get_filter_options();
+	private function get_filter_options($include_category_filter = false) {
+		return Handy_Custom_Products_Filters::get_filter_options(array(), $include_category_filter);
 	}
 
 	/**
@@ -68,6 +94,8 @@ class Handy_Custom_Products_Renderer {
 		// Extract variables for use in template - explicit assignments for security
 		$filters = isset($variables['filters']) ? $variables['filters'] : array();
 		$categories = isset($variables['categories']) ? $variables['categories'] : array();
+		$products = isset($variables['products']) ? $variables['products'] : null;
+		$display_mode = isset($variables['display_mode']) ? $variables['display_mode'] : 'categories';
 		$filter_options = isset($variables['filter_options']) ? $variables['filter_options'] : array();
 		
 		// Include template

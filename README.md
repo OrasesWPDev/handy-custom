@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.2.2-green.svg)
+![Version](https://img.shields.io/badge/version-1.3.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -94,17 +94,23 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 ### Advanced Product Filtering
 
 ```php
-// Filter by category
-[products category="crab"]
+// Display top-level categories (default)
+[products]
+
+// Display all products alphabetically (product catalog mode)
+[products display="list"]
+
+// Filter by category in list mode
+[products display="list" category="crab"]
 
 // Filter by subcategory (auto-detects parent)
 [products subcategory="crab-cakes"]
 
-// Multiple filters
-[products category="shrimp" grade="premium" cooking_method="frying"]
+// Multiple filters in list mode
+[products display="list" category="shrimp" grade="premium" cooking_method="frying"]
 
 // Market-specific filtering
-[products market_segment="retail" product_type="appetizers"]
+[products display="list" market_segment="retail" product_type="appetizers"]
 ```
 
 ### Recipe Filtering
@@ -194,18 +200,32 @@ Logs are stored in `/logs/` directory (automatically secured).
 - Keto Friendly (`keto-friendly`)
 - Plant Based (`plant-based`)
 
+### Display Modes
+
+The `[products]` shortcode supports two display modes:
+
+| Mode | Parameter | Description | Use Case |
+|------|-----------|-------------|----------|
+| **Categories** | `display="categories"` (default) | Shows top-level category cards only | Main product browsing page |
+| **List** | `display="list"` | Shows individual products alphabetically | Product catalog page |
+
+**Key Differences:**
+- **Categories mode**: No category filter, shows 4 top-level categories in specified order
+- **List mode**: Includes category filter, shows all products with thumbnails and excerpts
+
 ### Filter Parameters Reference
 
-| Parameter | Taxonomy | Description |
-|-----------|----------|-------------|
-| `category` | `product-category` | Main product categories |
-| `subcategory` | `product-category` | Child categories |
-| `grade` | `grade` | Product quality grades |
-| `market_segment` | `market-segment` | Target markets |
-| `cooking_method` | `product-cooking-method` | Cooking methods |
-| `menu_occasion` | `product-menu-occasion` | Meal occasions |
-| `product_type` | `product-type` | Product classifications |
-| `size` | `size` | Product sizes |
+| Parameter | Taxonomy | Description | Available In |
+|-----------|----------|-------------|--------------|
+| `display` | - | Display mode: 'categories' or 'list' | Both modes |
+| `category` | `product-category` | Main product categories | List mode only |
+| `subcategory` | `product-category` | Child categories | Both modes |
+| `grade` | `grade` | Product quality grades | Both modes |
+| `market_segment` | `market-segment` | Target markets | Both modes |
+| `cooking_method` | `product-cooking-method` | Cooking methods | Both modes |
+| `menu_occasion` | `product-menu-occasion` | Meal occasions | Both modes |
+| `product_type` | `product-type` | Product classifications | Both modes |
+| `size` | `size` | Product sizes | Both modes |
 
 ## 🛠️ Development
 
@@ -294,7 +314,16 @@ Handy_Custom_Base_Utils::clear_term_cache('product-category');
 
 ## 📝 Changelog
 
-### Version 1.2.2 (Latest)
+### Version 1.3.0 (Latest)
+- **New display parameter**: Added `display="list"` mode for product catalog pages
+- **Product list view**: Individual product cards with thumbnails, excerpts, and links
+- **Enhanced filtering**: Category filter now available in list mode only
+- **Custom category ordering**: Top-level categories display in specified order (crab, shrimp, appetizers, dietary alternatives)
+- **Responsive design**: 3-column desktop, 2-column tablet, 1-column mobile layout
+- **URL parameter support**: AJAX filtering updates URLs with query parameters (?filter=value)
+- **Standardized breakpoints**: Desktop 850px+, Tablet 550-849px, Mobile 549px-
+
+### Version 1.2.2
 - **Code optimization phase 1**: Consolidated asset loading to eliminate duplication
 - **Enhanced caching**: Updated recipes and products utils to extend base class
 - **Performance improvements**: Reduced code duplication across modules
@@ -350,7 +379,8 @@ This plugin is licensed under the [GPL v2 or later](http://www.gnu.org/licenses/
 
 - **Repository**: [https://github.com/OrasesWPDev/handy-custom](https://github.com/OrasesWPDev/handy-custom)
 - **Author**: [Orases](https://orases.com)
-- **WordPress Plugin Directory**: Coming soon
+
+**Note**: This is a custom plugin built specifically for this project and is not intended for public distribution on WordPress.org.
 
 ---
 

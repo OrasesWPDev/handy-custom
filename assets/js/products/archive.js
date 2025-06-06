@@ -25,7 +25,36 @@
          */
         init: function() {
             this.bindEvents();
+            this.initializeFromUrl();
             console.log('Products Archive initialized');
+        },
+
+        /**
+         * Initialize filters from URL parameters
+         */
+        initializeFromUrl: function() {
+            var urlParams = new URLSearchParams(window.location.search);
+            var hasFilters = false;
+            
+            // Set filter values from URL
+            urlParams.forEach(function(value, key) {
+                if (key !== 'display') {
+                    var $filter = $('.product-filter[name="' + key + '"]');
+                    if ($filter.length) {
+                        $filter.val(value);
+                        hasFilters = true;
+                    }
+                }
+            });
+            
+            // If we have filters from URL, trigger a filter change to update display
+            if (hasFilters) {
+                console.log('Initializing with URL filters');
+                // Small delay to ensure everything is loaded
+                setTimeout(function() {
+                    $('.product-filter').first().trigger('change');
+                }, 100);
+            }
         },
         
         /**
@@ -47,7 +76,8 @@
          */
         handleFilterChange: function() {
             var $container = $('.handy-products-archive');
-            var filters = {};
+            var displayMode = $container.data('display-mode') || 'categories';
+            var filters = { display: displayMode };
             
             // Collect all filter values
             $('.product-filter').each(function() {
@@ -58,7 +88,10 @@
                 }
             });
             
-            console.log('Filters changed:', filters);
+            console.log('Filters changed:', filters, 'Display mode:', displayMode);
+            
+            // Update URL with query parameters
+            ProductsArchive.updateUrl(filters);
             
             // Show loading
             ProductsArchive.showLoading();
@@ -75,7 +108,7 @@
                 success: function(response) {
                     if (response.success) {
                         $('#products-results').html($(response.data.html).find('#products-results').html());
-                        console.log('Products filtered successfully');
+                        console.log('Products filtered successfully for', displayMode, 'mode');
                     } else {
                         console.error('Filter error:', response.data);
                         ProductsArchive.showError('Failed to filter products');
@@ -98,9 +131,50 @@
             e.preventDefault();
             
             $('.product-filter').val('');
+            
+            // Clear URL parameters but preserve display mode
+            var $container = $('.handy-products-archive');
+            var displayMode = $container.data('display-mode') || 'categories';
+            var cleanUrl = window.location.pathname;
+            if (displayMode === 'list') {
+                cleanUrl += '?display=list';
+            }
+            window.history.pushState({}, '', cleanUrl);
+            
             $('.product-filter').first().trigger('change');
             
             console.log('Filters cleared');
+        },
+
+        /**
+         * Update URL with query parameters
+         */
+        updateUrl: function(filters) {
+            var url = new URL(window.location);
+            
+            // Clear existing parameters except display
+            var searchParams = new URLSearchParams();
+            
+            // Add filters as query parameters
+            Object.keys(filters).forEach(function(key) {
+                if (filters[key] && key !== 'display') {
+                    searchParams.set(key, filters[key]);
+                }
+            });
+            
+            // Add display parameter if it's list mode
+            if (filters.display === 'list') {
+                searchParams.set('display', 'list');
+            }
+            
+            // Update URL without page reload
+            var newUrl = url.pathname;
+            if (searchParams.toString()) {
+                newUrl += '?' + searchParams.toString();
+            }
+            
+            window.history.pushState({}, '', newUrl);
+            console.log('URL updated:', newUrl);
         },
         
         /**
