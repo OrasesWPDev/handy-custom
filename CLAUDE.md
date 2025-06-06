@@ -90,6 +90,38 @@ AJAX filtering automatically updates URLs with query parameters:
 - Supports deep linking and shareable filtered states
 - Browser back/forward navigation preserved
 
+## Data Import System
+
+### Product Import (One-time Use)
+
+**Location**: Root directory scripts for initial data migration
+- `import-products.php` - Main CSV import script
+- `test-import.php` - Pre-import validation and testing
+- `IMPORT_README.md` - Comprehensive documentation
+
+**Purpose**: One-time import of product data from CSV exports. After import completion, these scripts can be safely removed.
+
+**Field Mapping**: Comprehensive mapping system between CSV columns and WordPress:
+- Core fields: `product_title` → post_title, `description` → post_content
+- ACF fields: All custom fields mapped (sub_header, item_number, gtin_code, upc_number, etc.)
+- Taxonomies: Comma-separated CSV values mapped to existing taxonomy terms
+- Auto-categorization: Products automatically assigned to categories based on title/description analysis
+
+**Safety Features**:
+- Duplicate prevention (by title, item number, UPC)
+- Data validation (required fields, format checking)
+- Import as drafts for review
+- Comprehensive reporting system
+- ACF plugin dependency checking
+
+**Reports Generated**: Detailed JSON reports in `import-reports/` directory:
+- Successful imports with complete field mapping
+- Failed taxonomy mappings with reasons
+- Validation errors and duplicate skips
+- Summary statistics
+
+**Note**: A similar import script will be created for recipes when needed. Import scripts are designed for one-time use during initial setup and can be removed after successful import.
+
 ## Development Notes
 
 - Plugin version is defined in two places: main file header and class constant
@@ -97,3 +129,4 @@ AJAX filtering automatically updates URLs with query parameters:
 - AJAX handlers include nonce verification
 - Error handling with try/catch blocks and proper logging
 - Subcategory filtering includes automatic parent category detection
+- Import scripts include memory management and execution time controls for large datasets

@@ -42,6 +42,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 - **Conditional Asset Loading**: CSS/JS only loaded when needed
 - **Debug Logging**: Comprehensive logging system for troubleshooting
 - **Template System**: Customizable templates for complete control
+- **Data Import Tools**: One-time CSV import scripts for initial product data migration
 
 ## 📋 Requirements
 
@@ -289,6 +290,25 @@ $stats = Handy_Custom_Base_Utils::get_cache_stats();
 Handy_Custom_Base_Utils::clear_term_cache('product-category');
 ```
 
+## 📥 Data Import
+
+For initial data migration, the plugin includes comprehensive CSV import tools:
+
+- **Product Import**: `import-products.php` - One-time import script for product data
+- **Testing**: `test-import.php` - Validates setup before running import
+- **Documentation**: `IMPORT_README.md` - Complete import guide with troubleshooting
+
+### Quick Import Guide
+
+1. **Backup your database** before running any import
+2. **Test setup**: Run `php test-import.php` to validate configuration
+3. **Run import**: Execute `php import-products.php` from WordPress root
+4. **Review reports**: Check generated reports in `import-reports/` directory
+
+See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field mapping information.
+
+**Note**: Import scripts are designed for one-time use during initial setup. A similar script will be available for recipe imports.
+
 ## 🔍 Troubleshooting
 
 ### Common Issues
@@ -311,6 +331,11 @@ Handy_Custom_Base_Utils::clear_term_cache('product-category');
 - Enable term caching
 - Check for conflicting plugins
 - Monitor database queries with debug logging
+
+**Import issues?**
+- Ensure ACF is active before running import
+- Check CSV file format and location
+- Review generated error reports for specific issues
 
 ## 📝 Changelog
 
