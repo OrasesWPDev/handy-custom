@@ -69,7 +69,6 @@ class Handy_Custom_Products_Renderer {
 		$filters = isset($variables['filters']) ? $variables['filters'] : array();
 		$categories = isset($variables['categories']) ? $variables['categories'] : array();
 		$filter_options = isset($variables['filter_options']) ? $variables['filter_options'] : array();
-		$subcategory_context = isset($variables['subcategory_context']) ? $variables['subcategory_context'] : '';
 		
 		// Include template
 		include $template_path;
