@@ -8,23 +8,54 @@
  * @package Handy_Custom
  * 
  * Available variables:
- * @var array $filters Current filter values
+ * @var array $filters Current filter values (includes subcategory if specified)
  * @var array $categories Product categories to display
  * @var array $filter_options All available filter options
+ * @var string $subcategory_context Current subcategory slug if filtering by subcategory
  */
 
 if (!defined('ABSPATH')) {
     exit;
 }
 
-Handy_Custom_Logger::log('Loading products archive template with ' . count($categories) . ' categories');
+# Log template context
+$context_info = 'Loading products archive template with ' . count($categories) . ' categories';
+if (!empty($filters['subcategory'])) {
+    $context_info .= " (subcategory: {$filters['subcategory']})";
+}
+Handy_Custom_Logger::log($context_info, 'info');
 ?>
 
-<div class="handy-products-archive" data-shortcode="products">
+<div class="handy-products-archive" data-shortcode="products" 
+     <?php if (!empty($filters['subcategory'])): ?>data-subcategory="<?php echo esc_attr($filters['subcategory']); ?>"<?php endif; ?>>
     
-    <?php if (!empty($filter_options) && empty(array_filter($filters))): ?>
-    <!-- Filter Controls - Only show on main archive (no filters applied) -->
+    <?php if (!empty($filter_options) && (empty(array_filter($filters)) || !empty($filters['subcategory']))): ?>
+    <!-- Filter Controls - Show on main archive or when subcategory filtering -->
     <div class="handy-products-filters">
+        
+        <?php if (!empty($filters['subcategory'])): ?>
+        <!-- Subcategory Context Header -->
+        <div class="subcategory-context">
+            <?php 
+            $subcategory_term = get_term_by('slug', $filters['subcategory'], 'product-category');
+            if ($subcategory_term && !is_wp_error($subcategory_term)):
+                $parent_term = !empty($subcategory_term->parent) ? get_term($subcategory_term->parent, 'product-category') : null;
+            ?>
+            <h2 class="subcategory-title">
+                <?php if ($parent_term && !is_wp_error($parent_term)): ?>
+                    <span class="parent-category"><?php echo esc_html($parent_term->name); ?></span>
+                    <span class="separator"> > </span>
+                <?php endif; ?>
+                <span class="current-subcategory"><?php echo esc_html($subcategory_term->name); ?></span>
+            </h2>
+            <?php if (!empty($subcategory_term->description)): ?>
+                <div class="subcategory-description">
+                    <p><?php echo esc_html($subcategory_term->description); ?></p>
+                </div>
+            <?php endif; ?>
+            <?php endif; ?>
+        </div>
+        <?php endif; ?>
         <div class="filters-row">
             
             <?php foreach ($filter_options as $filter_key => $terms): ?>

@@ -24,14 +24,21 @@ The plugin follows a modular, object-oriented architecture:
 3. **Category Display**: Cards with featured images, icons, descriptions
 4. **Template System**: Modular, reusable template structure
 
-### Phase 2 - Recipes (Current)
+### Phase 2 - Recipes (Completed)
 1. **Shortcode System**: `[recipes]` with filtering parameters
 2. **AJAX Filtering**: Live filtering with 3 taxonomy dropdowns
 3. **Recipe Display**: Cards with featured images, prep time, servings
 4. **Clickable Cards**: Link to single recipe posts
 5. **Template System**: Recipe-specific template structure
 
+### Phase 3 - Product URL Structure (Current)
+1. **Subcategory Support**: `[products subcategory="crab-cakes"]` parameter
+2. **Hierarchical Filtering**: Auto-detect parent categories from subcategories
+3. **URL Structure**: Preparation for `/products/{category}/{subcategory}/` URLs
+4. **Contextual Filtering**: Smart filter dropdowns based on subcategory context
+
 ### Future Phases
+- URL rewrite rules for `/products/{category}/{subcategory}/` structure
 - Single post type templates
 
 ## Shortcode Usage
@@ -40,7 +47,10 @@ The plugin follows a modular, object-oriented architecture:
 ```php
 [products] // All products with filter dropdowns
 [products category="crab"] // Filtered by category
+[products subcategory="crab-cakes"] // Filtered by subcategory (auto-detects parent)
+[products category="crab" subcategory="crab-cakes"] // Explicit parent + child
 [products grade="premium" market_segment="retail"] // Multiple filters
+[products subcategory="gluten-free" grade="premium"] // Subcategory + additional filters
 ```
 
 ### Main Recipes Shortcode
@@ -53,7 +63,8 @@ The plugin follows a modular, object-oriented architecture:
 ### Available Filter Parameters
 
 #### Product Filters
-- `category` - Product category
+- `category` - Product category (top-level)
+- `subcategory` - Product subcategory (auto-detects parent category)
 - `grade` - Product grade  
 - `market_segment` - Market segment
 - `cooking_method` - Cooking method

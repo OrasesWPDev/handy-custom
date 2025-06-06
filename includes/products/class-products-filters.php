@@ -13,16 +13,29 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Get all filter options for product dropdowns
+	 * Handles both category and subcategory contexts
 	 *
+	 * @param array $context_filters Applied filters for context (e.g., subcategory filter)
 	 * @return array
 	 */
-	public static function get_filter_options() {
+	public static function get_filter_options($context_filters = array()) {
 		$mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
 		$options = array();
 
 		foreach ($mapping as $key => $taxonomy) {
+			// Skip subcategory in dropdown options - it's handled separately
+			if ($key === 'subcategory') {
+				continue;
+			}
+
 			$label = str_replace('_', ' ', $key);
-			$options[$key . 's'] = Handy_Custom_Products_Utils::get_taxonomy_terms($taxonomy);
+			
+			// For categories, respect subcategory context
+			if ($key === 'category') {
+				$options[$key . 's'] = self::get_contextual_categories($context_filters);
+			} else {
+				$options[$key . 's'] = Handy_Custom_Products_Utils::get_taxonomy_terms($taxonomy);
+			}
 		}
 
 		return $options;
@@ -30,6 +43,7 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Build tax query from filter parameters
+	 * Handles hierarchical filtering for subcategories
 	 *
 	 * @param array $filters Filter parameters
 	 * @return array
@@ -41,11 +55,29 @@ class Handy_Custom_Products_Filters {
 			if (!empty($value)) {
 				$taxonomy = Handy_Custom_Products_Utils::get_taxonomy_name($key);
 				if ($taxonomy) {
-					$tax_query[] = array(
-						'taxonomy' => $taxonomy,
-						'field'    => 'slug',
-						'terms'    => $value,
-					);
+					// Handle subcategory filtering
+					if ($key === 'subcategory') {
+						$tax_query[] = array(
+							'taxonomy' => $taxonomy,
+							'field'    => 'slug',
+							'terms'    => $value,
+							'include_children' => false // Exact match for subcategory
+						);
+						
+						// Auto-detect and add parent category if not explicitly set
+						if (empty($filters['category'])) {
+							$parent_slug = Handy_Custom_Products_Utils::get_parent_category_from_subcategory($value);
+							if ($parent_slug && $parent_slug !== $value) {
+								Handy_Custom_Logger::log("Auto-detected parent category: {$parent_slug} for subcategory: {$value}", 'info');
+							}
+						}
+					} else {
+						$tax_query[] = array(
+							'taxonomy' => $taxonomy,
+							'field'    => 'slug',
+							'terms'    => $value,
+						);
+					}
 				}
 			}
 		}
@@ -105,6 +137,68 @@ class Handy_Custom_Products_Filters {
 		));
 
 		return is_wp_error($categories) ? array() : $categories;
+	}
+
+	/**
+	 * Get contextual categories based on applied filters
+	 * If subcategory is specified, return relevant categories
+	 *
+	 * @param array $context_filters Applied context filters
+	 * @return array Array of category terms
+	 */
+	private static function get_contextual_categories($context_filters = array()) {
+		// If subcategory is specified, get its parent and siblings
+		if (!empty($context_filters['subcategory'])) {
+			$subcategory_slug = $context_filters['subcategory'];
+			$parent_slug = Handy_Custom_Products_Utils::get_parent_category_from_subcategory($subcategory_slug);
+			
+			if ($parent_slug) {
+				// Return parent category and its subcategories
+				$parent_term = get_term_by('slug', $parent_slug, 'product-category');
+				if ($parent_term && !is_wp_error($parent_term)) {
+					$subcategories = Handy_Custom_Products_Utils::get_subcategories($parent_slug);
+					$categories = array($parent_term);
+					
+					if (!empty($subcategories)) {
+						$categories = array_merge($categories, $subcategories);
+					}
+					
+					return $categories;
+				}
+			}
+		}
+		
+		// Default: return all categories
+		return self::get_all_categories();
+	}
+
+	/**
+	 * Get filtered products with subcategory support
+	 *
+	 * @param array $filters Filter parameters including subcategory
+	 * @param array $args Additional WP_Query arguments
+	 * @return WP_Query Query object with filtered products
+	 */
+	public static function get_filtered_products($filters, $args = array()) {
+		$default_args = array(
+			'post_type' => 'product',
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+			'orderby' => 'title',
+			'order' => 'ASC'
+		);
+
+		// Build tax query if filters exist
+		if (!empty(array_filter($filters))) {
+			$default_args['tax_query'] = self::build_tax_query($filters);
+		}
+
+		// Merge with any additional arguments
+		$query_args = wp_parse_args($args, $default_args);
+		
+		Handy_Custom_Logger::log("Executing product query with subcategory support. Filters: " . wp_json_encode($filters), 'info');
+		
+		return new WP_Query($query_args);
 	}
 
 	/**
