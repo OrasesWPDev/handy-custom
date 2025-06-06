@@ -210,6 +210,20 @@ class Handy_Product_Importer {
     public function run_import() {
         $this->log_message("=== Starting Product Import Process ===");
         
+        // Set memory and time limits for large imports
+        ini_set('memory_limit', '512M');
+        if (php_sapi_name() === 'cli') {
+            ini_set('max_execution_time', 0); // No limit for CLI
+        } else {
+            ini_set('max_execution_time', 300); // 5 minutes for web
+        }
+        
+        // Check if ACF is available
+        if (!function_exists('update_field')) {
+            $this->add_error("ACF (Advanced Custom Fields) plugin is not active or available");
+            return false;
+        }
+        
         // Validate CSV file
         if (!file_exists($this->csv_file)) {
             $this->add_error("CSV file not found: " . $this->csv_file);
@@ -259,13 +273,24 @@ class Handy_Product_Importer {
         while (($row = fgetcsv($handle)) !== false) {
             $row_count++;
             
+            // Skip empty rows
+            if (empty(array_filter($row))) {
+                continue;
+            }
+            
             if (count($row) !== count($headers)) {
-                $this->add_error("Row $row_count: Column count mismatch");
+                $this->add_error("Row $row_count: Column count mismatch - expected " . count($headers) . ", got " . count($row));
                 continue;
             }
             
             // Combine headers with row data
             $product_data = array_combine($headers, $row);
+            
+            // Skip if no product title
+            if (empty(trim($product_data['product_title']))) {
+                $this->add_error("Row $row_count: Empty product title, skipping");
+                continue;
+            }
             
             // Import product
             $result = $this->import_product($product_data, $row_count);
