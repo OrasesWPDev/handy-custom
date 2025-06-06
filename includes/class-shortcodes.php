@@ -27,6 +27,7 @@ class Handy_Custom_Shortcodes {
 
 	/**
 	 * Products shortcode handler
+	 * Now supports subcategory parameter with automatic parent detection
 	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string
@@ -38,14 +39,28 @@ class Handy_Custom_Shortcodes {
 		// Sanitize attributes
 		$atts = Handy_Custom_Products_Utils::sanitize_filters($atts);
 
-		Handy_Custom_Logger::log('Products shortcode called with attributes: ' . wp_json_encode($atts));
+		// Handle subcategory auto-detection
+		if (!empty($atts['subcategory']) && empty($atts['category'])) {
+			$parent_category = Handy_Custom_Products_Utils::get_parent_category_from_subcategory($atts['subcategory']);
+			if ($parent_category && $parent_category !== $atts['subcategory']) {
+				$atts['category'] = $parent_category;
+				Handy_Custom_Logger::log("Auto-detected parent category '{$parent_category}' for subcategory '{$atts['subcategory']}'", 'info');
+			}
+		}
+
+		// Log shortcode usage with subcategory support
+		$log_message = 'Products shortcode called with attributes: ' . wp_json_encode($atts);
+		if (!empty($atts['subcategory'])) {
+			$log_message .= " (subcategory filtering enabled)";
+		}
+		Handy_Custom_Logger::log($log_message, 'info');
 
 		try {
 			$renderer = new Handy_Custom_Products_Renderer();
 			return $renderer->render($atts);
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('Products shortcode error: ' . $e->getMessage(), 'error');
-			return '<p>Error loading products.</p>';
+			return '<div class="product-error"><p>Error loading products. Please try again later.</p></div>';
 		}
 	}
 
