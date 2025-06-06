@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-class Handy_Custom_Recipes_Utils {
+class Handy_Custom_Recipes_Utils extends Handy_Custom_Base_Utils {
 
 	/**
 	 * Taxonomy mapping for recipe filter keys
@@ -23,60 +23,6 @@ class Handy_Custom_Recipes_Utils {
 			'cooking_method' => 'recipe-cooking-method',
 			'menu_occasion' => 'recipe-menu-occasion'
 		);
-	}
-
-	/**
-	 * Convert filter key to taxonomy name
-	 *
-	 * @param string $key Filter key from shortcode
-	 * @return string|false Taxonomy name or false if not found
-	 */
-	public static function get_taxonomy_name($key) {
-		$mapping = self::get_taxonomy_mapping();
-		return isset($mapping[$key]) ? $mapping[$key] : false;
-	}
-
-	/**
-	 * Get terms for a specific recipe taxonomy with error handling
-	 *
-	 * @param string $taxonomy Taxonomy name
-	 * @param array $args Additional arguments for get_terms()
-	 * @return array Array of term objects or empty array on error
-	 */
-	public static function get_taxonomy_terms($taxonomy, $args = array()) {
-		$default_args = array(
-			'taxonomy' => $taxonomy,
-			'hide_empty' => false,
-			'orderby' => 'name',
-			'order' => 'ASC'
-		);
-
-		$args = wp_parse_args($args, $default_args);
-		$terms = get_terms($args);
-
-		if (is_wp_error($terms)) {
-			Handy_Custom_Logger::log("Error getting terms for recipe taxonomy {$taxonomy}: " . $terms->get_error_message(), 'error');
-			return array();
-		}
-
-		return $terms;
-	}
-
-	/**
-	 * Validate and sanitize recipe filter parameters
-	 *
-	 * @param array $filters Raw filter parameters from shortcode or AJAX
-	 * @return array Sanitized filters with only allowed keys
-	 */
-	public static function sanitize_filters($filters) {
-		$allowed_keys = array_keys(self::get_taxonomy_mapping());
-		$sanitized = array();
-
-		foreach ($allowed_keys as $key) {
-			$sanitized[$key] = isset($filters[$key]) ? sanitize_text_field($filters[$key]) : '';
-		}
-
-		return $sanitized;
 	}
 
 	/**
