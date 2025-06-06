@@ -52,6 +52,8 @@ class Handy_Product_Importer {
         'failed_mappings' => [],
         'skipped_fields' => [],
         'taxonomy_mappings' => [],
+        'duplicates_skipped' => [],
+        'validation_errors' => [],
         'errors' => []
     ];
     
@@ -283,6 +285,30 @@ class Handy_Product_Importer {
     private function import_product($product_data, $row_number) {
         $this->log_message("Processing row $row_number: " . $product_data['product_title']);
         
+        // Validate required fields
+        $validation_result = $this->validate_product_data($product_data, $row_number);
+        if (!$validation_result['valid']) {
+            $this->reports['validation_errors'][] = [
+                'row_number' => $row_number,
+                'title' => $product_data['product_title'],
+                'errors' => $validation_result['errors']
+            ];
+            return false;
+        }
+        
+        // Check for duplicates
+        $duplicate_check = $this->check_for_duplicates($product_data, $row_number);
+        if ($duplicate_check['is_duplicate']) {
+            $this->reports['duplicates_skipped'][] = [
+                'row_number' => $row_number,
+                'title' => $product_data['product_title'],
+                'existing_post_id' => $duplicate_check['existing_post_id'],
+                'reason' => $duplicate_check['reason']
+            ];
+            $this->log_message("Skipping duplicate: " . $product_data['product_title']);
+            return false;
+        }
+        
         // Prepare post data
         $post_data = [
             'post_type' => 'product',
@@ -498,6 +524,113 @@ class Handy_Product_Importer {
     }
     
     /**
+     * Validate product data before import
+     */
+    private function validate_product_data($product_data, $row_number) {
+        $errors = [];
+        $required_fields = ['product_title', 'item_number', 'upc_number', 'gtin_number'];
+        
+        // Check required fields
+        foreach ($required_fields as $field) {
+            if (empty(trim($product_data[$field]))) {
+                $errors[] = "Missing required field: $field";
+            }
+        }
+        
+        // Validate title length
+        if (strlen($product_data['product_title']) > 200) {
+            $errors[] = "Product title too long (max 200 characters)";
+        }
+        
+        // Validate numeric fields
+        $numeric_fields = ['item_number', 'upc_number', 'gtin_number'];
+        foreach ($numeric_fields as $field) {
+            if (!empty($product_data[$field]) && !is_numeric(str_replace(['/', '-', ' '], '', $product_data[$field]))) {
+                // Allow some formatting in numbers but check if basically numeric
+                if (!preg_match('/^[\d\s\-\/]+$/', $product_data[$field])) {
+                    $errors[] = "Invalid format for $field: should be numeric";
+                }
+            }
+        }
+        
+        // Note: Duplicate checking is handled separately in check_for_duplicates method
+        
+        return [
+            'valid' => empty($errors),
+            'errors' => $errors
+        ];
+    }
+    
+    /**
+     * Check for duplicate products
+     */
+    private function check_for_duplicates($product_data, $row_number) {
+        $title = trim($product_data['product_title']);
+        
+        // Check by exact title match
+        $existing_post = get_page_by_title($title, OBJECT, 'product');
+        if ($existing_post) {
+            return [
+                'is_duplicate' => true,
+                'existing_post_id' => $existing_post->ID,
+                'reason' => 'Exact title match'
+            ];
+        }
+        
+        // Check by item number if provided
+        if (!empty(trim($product_data['item_number']))) {
+            $existing_posts = get_posts([
+                'post_type' => 'product',
+                'meta_query' => [
+                    [
+                        'key' => 'item_number',
+                        'value' => trim($product_data['item_number']),
+                        'compare' => '='
+                    ]
+                ],
+                'post_status' => ['publish', 'draft', 'private'],
+                'numberposts' => 1
+            ]);
+            
+            if (!empty($existing_posts)) {
+                return [
+                    'is_duplicate' => true,
+                    'existing_post_id' => $existing_posts[0]->ID,
+                    'reason' => 'Item number match'
+                ];
+            }
+        }
+        
+        // Check by UPC if provided
+        if (!empty(trim($product_data['upc_number']))) {
+            $existing_posts = get_posts([
+                'post_type' => 'product',
+                'meta_query' => [
+                    [
+                        'key' => 'upc_number',
+                        'value' => trim($product_data['upc_number']),
+                        'compare' => '='
+                    ]
+                ],
+                'post_status' => ['publish', 'draft', 'private'],
+                'numberposts' => 1
+            ]);
+            
+            if (!empty($existing_posts)) {
+                return [
+                    'is_duplicate' => true,
+                    'existing_post_id' => $existing_posts[0]->ID,
+                    'reason' => 'UPC number match'
+                ];
+            }
+        }
+        
+        return [
+            'is_duplicate' => false
+        ];
+    }
+    
+    /**
      * Map allergen values to ACF radio options
      */
     private function map_allergen_value($csv_value) {
@@ -549,12 +682,28 @@ class Handy_Product_Importer {
             'Successful Taxonomy Mappings'
         );
         
+        // Validation errors report
+        $this->write_report_file(
+            $reports_dir . "/validation-errors-{$timestamp}.json",
+            $this->reports['validation_errors'],
+            'Validation Errors'
+        );
+        
+        // Duplicates skipped report
+        $this->write_report_file(
+            $reports_dir . "/duplicates-skipped-{$timestamp}.json",
+            $this->reports['duplicates_skipped'],
+            'Duplicate Products Skipped'
+        );
+        
         // Summary report
         $summary = [
             'import_date' => date('Y-m-d H:i:s'),
             'total_imported' => count($this->reports['successful_imports']),
             'total_failed_mappings' => count($this->reports['failed_mappings']),
             'total_taxonomy_mappings' => count($this->reports['taxonomy_mappings']),
+            'total_validation_errors' => count($this->reports['validation_errors']),
+            'total_duplicates_skipped' => count($this->reports['duplicates_skipped']),
             'errors' => $this->reports['errors']
         ];
         
