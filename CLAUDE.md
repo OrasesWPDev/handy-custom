@@ -18,14 +18,20 @@ The plugin follows a modular, object-oriented architecture:
 
 ## Core Functionality
 
-### Phase 1 - Products (Current)
+### Phase 1 - Products (Completed)
 1. **Shortcode System**: `[products]` with filtering parameters
 2. **AJAX Filtering**: Live filtering with 7 taxonomy dropdowns
 3. **Category Display**: Cards with featured images, icons, descriptions
 4. **Template System**: Modular, reusable template structure
 
+### Phase 2 - Recipes (Current)
+1. **Shortcode System**: `[recipes]` with filtering parameters
+2. **AJAX Filtering**: Live filtering with 3 taxonomy dropdowns
+3. **Recipe Display**: Cards with featured images, prep time, servings
+4. **Clickable Cards**: Link to single recipe posts
+5. **Template System**: Recipe-specific template structure
+
 ### Future Phases
-- Recipe functionality (`[recipes]` shortcode)
 - Single post type templates
 
 ## Shortcode Usage
@@ -37,7 +43,16 @@ The plugin follows a modular, object-oriented architecture:
 [products grade="premium" market_segment="retail"] // Multiple filters
 ```
 
+### Main Recipes Shortcode
+```php
+[recipes] // All recipes with filter dropdowns
+[recipes category="appetizers"] // Filtered by category
+[recipes cooking_method="baked" menu_occasion="dinner"] // Multiple filters
+```
+
 ### Available Filter Parameters
+
+#### Product Filters
 - `category` - Product category
 - `grade` - Product grade  
 - `market_segment` - Market segment
@@ -46,6 +61,11 @@ The plugin follows a modular, object-oriented architecture:
 - `product_type` - Product type
 - `size` - Product size
 
+#### Recipe Filters
+- `category` - Recipe category
+- `cooking_method` - Recipe cooking method
+- `menu_occasion` - Recipe menu occasion
+
 ## File Structure
 
 ```
@@ -53,21 +73,30 @@ The plugin follows a modular, object-oriented architecture:
 ├── class-handy-custom.php        # Main plugin class
 ├── class-logger.php              # Centralized logging
 ├── class-shortcodes.php          # Shortcode handlers & AJAX
-└── /products/
-    ├── class-products-utils.php      # Shared utilities
-    ├── class-products-filters.php    # Filtering logic
-    ├── class-products-display.php    # Display helpers
-    └── class-products-renderer.php   # Main renderer
+├── /products/
+│   ├── class-products-utils.php      # Shared utilities
+│   ├── class-products-filters.php    # Filtering logic
+│   ├── class-products-display.php    # Display helpers
+│   └── class-products-renderer.php   # Main renderer
+└── /recipes/
+    ├── class-recipes-utils.php       # Recipe utilities
+    ├── class-recipes-filters.php     # Recipe filtering logic
+    ├── class-recipes-display.php     # Recipe display helpers
+    └── class-recipes-renderer.php    # Recipe renderer
 
 /templates/shortcodes/
 ├── /products/
 │   └── archive.php               # Products shortcode template
 └── /recipes/
-    └── archive.php               # Recipes template (placeholder)
+    └── archive.php               # Recipes shortcode template
 
 /assets/
-├── /css/products/archive.css     # Products styling
-├── /js/products/archive.js       # Products AJAX functionality
+├── /css/
+│   ├── products/archive.css      # Products styling
+│   └── recipes/archive.css       # Recipes styling
+├── /js/
+│   ├── products/archive.js       # Products AJAX functionality
+│   └── recipes/archive.js        # Recipes AJAX functionality
 └── /images/                      # Category icons ({slug}-icon.png)
 ```
 
