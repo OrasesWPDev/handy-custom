@@ -19,6 +19,7 @@ class Handy_Custom_Products_Utils {
 	public static function get_taxonomy_mapping() {
 		return array(
 			'category' => 'product-category',
+			'subcategory' => 'product-category',
 			'grade' => 'grade',
 			'market_segment' => 'market-segment',
 			'cooking_method' => 'product-cooking-method',
@@ -80,5 +81,92 @@ class Handy_Custom_Products_Utils {
 		}
 
 		return $sanitized;
+	}
+
+	/**
+	 * Get parent category slug from subcategory slug
+	 *
+	 * @param string $subcategory_slug Subcategory slug
+	 * @return string|false Parent category slug or false if not found
+	 */
+	public static function get_parent_category_from_subcategory($subcategory_slug) {
+		if (empty($subcategory_slug)) {
+			return false;
+		}
+
+		$term = get_term_by('slug', $subcategory_slug, 'product-category');
+		
+		if (!$term || is_wp_error($term)) {
+			Handy_Custom_Logger::log("Subcategory not found: {$subcategory_slug}", 'warning');
+			return false;
+		}
+
+		// If term has no parent, it's already a top-level category
+		if (empty($term->parent)) {
+			return $subcategory_slug;
+		}
+
+		// Get parent term
+		$parent_term = get_term($term->parent, 'product-category');
+		
+		if (!$parent_term || is_wp_error($parent_term)) {
+			Handy_Custom_Logger::log("Parent category not found for subcategory: {$subcategory_slug}", 'warning');
+			return false;
+		}
+
+		return $parent_term->slug;
+	}
+
+	/**
+	 * Check if a term is a subcategory (has a parent)
+	 *
+	 * @param string $term_slug Term slug to check
+	 * @return bool True if subcategory, false if top-level category
+	 */
+	public static function is_subcategory($term_slug) {
+		if (empty($term_slug)) {
+			return false;
+		}
+
+		$term = get_term_by('slug', $term_slug, 'product-category');
+		
+		if (!$term || is_wp_error($term)) {
+			return false;
+		}
+
+		return !empty($term->parent);
+	}
+
+	/**
+	 * Get all subcategories for a parent category
+	 *
+	 * @param string $parent_slug Parent category slug
+	 * @return array Array of subcategory term objects
+	 */
+	public static function get_subcategories($parent_slug) {
+		if (empty($parent_slug)) {
+			return array();
+		}
+
+		$parent_term = get_term_by('slug', $parent_slug, 'product-category');
+		
+		if (!$parent_term || is_wp_error($parent_term)) {
+			return array();
+		}
+
+		$subcategories = get_terms(array(
+			'taxonomy' => 'product-category',
+			'parent' => $parent_term->term_id,
+			'hide_empty' => false,
+			'orderby' => 'name',
+			'order' => 'ASC'
+		));
+
+		if (is_wp_error($subcategories)) {
+			Handy_Custom_Logger::log("Error getting subcategories for {$parent_slug}: " . $subcategories->get_error_message(), 'error');
+			return array();
+		}
+
+		return $subcategories;
 	}
 }
