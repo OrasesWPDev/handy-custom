@@ -31,15 +31,16 @@ The plugin follows a modular, object-oriented architecture:
 4. **Clickable Cards**: Link to single recipe posts
 5. **Template System**: Recipe-specific template structure
 
-### Phase 3 - Product URL Structure (Current)
+### Phase 3 - Product URL Structure (Completed)
 1. **Subcategory Support**: `[products subcategory="crab-cakes"]` parameter
 2. **Hierarchical Filtering**: Auto-detect parent categories from subcategories
-3. **URL Structure**: Preparation for `/products/{category}/{subcategory}/` URLs
+3. **URL Rewrite System**: `/products/{category}/{subcategory}/` URLs
 4. **Contextual Filtering**: Smart filter dropdowns based on subcategory context
+5. **URL Integration**: Automatic parameter detection from URLs
 
 ### Future Phases
-- URL rewrite rules for `/products/{category}/{subcategory}/` structure
 - Single post type templates
+- Recipe URL structure (if needed)
 
 ## Shortcode Usage
 
@@ -52,6 +53,14 @@ The plugin follows a modular, object-oriented architecture:
 [products grade="premium" market_segment="retail"] // Multiple filters
 [products subcategory="gluten-free" grade="premium"] // Subcategory + additional filters
 ```
+
+### URL Structure Integration
+The shortcode automatically detects URL parameters when placed on pages with the new URL structure:
+- `/products/` - Shows all products (equivalent to `[products]`)
+- `/products/crab/` - Shows crab category (equivalent to `[products category="crab"]`)
+- `/products/crab/crab-cakes/` - Shows crab cakes subcategory (equivalent to `[products subcategory="crab-cakes"]`)
+
+URL parameters take precedence over shortcode attributes, enabling clean URLs while maintaining shortcode flexibility.
 
 ### Main Recipes Shortcode
 ```php
