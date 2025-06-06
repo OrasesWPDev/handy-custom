@@ -22,6 +22,10 @@ node_modules/
 *.log
 /logs/
 
+# CSV imports and data files
+/assets/CSV*
+*.csv
+
 
 # Environment files
 .env

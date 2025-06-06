@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.2.0';
+	const VERSION = '1.2.1';
 
 	/**
 	 * Single instance of the class
@@ -46,6 +46,11 @@ class Handy_Custom {
 		add_action('plugins_loaded', array($this, 'init'));
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
+		
+		// URL rewrite hooks
+		add_action('init', array($this, 'add_rewrite_rules'));
+		add_filter('query_vars', array($this, 'add_query_vars'));
+		add_action('template_redirect', array($this, 'handle_product_urls'));
 	}
 
 	/**
@@ -246,5 +251,83 @@ class Handy_Custom {
 	 */
 	public function enqueue_admin_assets() {
 		// Admin-specific assets if needed in the future
+	}
+
+	/**
+	 * Add URL rewrite rules for product categories and subcategories
+	 */
+	public function add_rewrite_rules() {
+		// /products/{category}/{subcategory}/ - subcategory page
+		add_rewrite_rule(
+			'^products/([^/]+)/([^/]+)/?$',
+			'index.php?pagename=products&product_category=$matches[1]&product_subcategory=$matches[2]',
+			'top'
+		);
+
+		// /products/{category}/ - category page
+		add_rewrite_rule(
+			'^products/([^/]+)/?$',
+			'index.php?pagename=products&product_category=$matches[1]',
+			'top'
+		);
+
+		Handy_Custom_Logger::log('Product URL rewrite rules added', 'info');
+	}
+
+	/**
+	 * Add custom query variables
+	 */
+	public function add_query_vars($vars) {
+		$vars[] = 'product_category';
+		$vars[] = 'product_subcategory';
+		return $vars;
+	}
+
+	/**
+	 * Handle product URL redirects and parameter injection
+	 */
+	public function handle_product_urls() {
+		$category = get_query_var('product_category');
+		$subcategory = get_query_var('product_subcategory');
+
+		// Only process if we have product URL parameters
+		if (empty($category) && empty($subcategory)) {
+			return;
+		}
+
+		// Validate that we're on the products page
+		if (!is_page('products')) {
+			return;
+		}
+
+		// Store parameters for shortcode access
+		if (!empty($category)) {
+			$GLOBALS['handy_custom_url_category'] = sanitize_text_field($category);
+			Handy_Custom_Logger::log("URL category parameter detected: {$category}", 'info');
+		}
+
+		if (!empty($subcategory)) {
+			$GLOBALS['handy_custom_url_subcategory'] = sanitize_text_field($subcategory);
+			Handy_Custom_Logger::log("URL subcategory parameter detected: {$subcategory}", 'info');
+		}
+	}
+
+	/**
+	 * Get URL-based product parameters for shortcode use
+	 * 
+	 * @return array Array of URL-based parameters
+	 */
+	public static function get_url_parameters() {
+		$params = array();
+
+		if (isset($GLOBALS['handy_custom_url_category'])) {
+			$params['category'] = $GLOBALS['handy_custom_url_category'];
+		}
+
+		if (isset($GLOBALS['handy_custom_url_subcategory'])) {
+			$params['subcategory'] = $GLOBALS['handy_custom_url_subcategory'];
+		}
+
+		return $params;
 	}
 }

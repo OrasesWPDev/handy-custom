@@ -28,6 +28,7 @@ class Handy_Custom_Shortcodes {
 	/**
 	 * Products shortcode handler
 	 * Now supports subcategory parameter with automatic parent detection
+	 * Integrates with URL rewrite system for /products/{category}/{subcategory}/ URLs
 	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string
@@ -35,6 +36,10 @@ class Handy_Custom_Shortcodes {
 	public static function products_shortcode($atts) {
 		$defaults = array_fill_keys(array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()), '');
 		$atts = shortcode_atts($defaults, $atts, 'products');
+
+		// Merge URL parameters with shortcode attributes (URL takes precedence)
+		$url_params = Handy_Custom_Products_Utils::get_current_url_parameters();
+		$atts = array_merge($atts, $url_params);
 
 		// Sanitize attributes
 		$atts = Handy_Custom_Products_Utils::sanitize_filters($atts);
@@ -48,8 +53,11 @@ class Handy_Custom_Shortcodes {
 			}
 		}
 
-		// Log shortcode usage with subcategory support
+		// Enhanced logging with URL context
 		$log_message = 'Products shortcode called with attributes: ' . wp_json_encode($atts);
+		if (!empty($url_params)) {
+			$log_message .= " (URL parameters: " . wp_json_encode($url_params) . ")";
+		}
 		if (!empty($atts['subcategory'])) {
 			$log_message .= " (subcategory filtering enabled)";
 		}
