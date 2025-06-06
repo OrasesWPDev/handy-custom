@@ -50,25 +50,29 @@ class Handy_Custom_Shortcodes {
 	}
 
 	/**
-	 * Recipes shortcode handler (placeholder for future)
+	 * Recipes shortcode handler
+	 * Renders recipe archive with filtering functionality
 	 *
 	 * @param array $atts Shortcode attributes
-	 * @return string
+	 * @return string HTML for recipe archive
 	 */
 	public static function recipes_shortcode($atts) {
-		$atts = shortcode_atts(array(
-			'category' => '',
-			'cooking_method' => '',
-			'menu_occasion' => ''
-		), $atts, 'recipes');
+		// Define defaults based on recipe taxonomy mapping
+		$defaults = array_fill_keys(array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()), '');
+		$atts = shortcode_atts($defaults, $atts, 'recipes');
 
 		// Sanitize attributes
-		$atts = array_map('sanitize_text_field', $atts);
+		$atts = Handy_Custom_Recipes_Utils::sanitize_filters($atts);
 
-		Handy_Custom_Logger::log('Recipes shortcode called with attributes: ' . print_r($atts, true));
+		Handy_Custom_Logger::log('Recipes shortcode called with attributes: ' . wp_json_encode($atts), 'info');
 
-		// TODO: Implement recipes renderer in future phase
-		return '<p>Recipes functionality coming soon...</p>';
+		try {
+			$renderer = new Handy_Custom_Recipes_Renderer();
+			return $renderer->render($atts);
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Recipes shortcode error: ' . $e->getMessage(), 'error');
+			return '<div class="recipe-error"><p>Error loading recipes. Please try again later.</p></div>';
+		}
 	}
 
 	/**
@@ -101,15 +105,35 @@ class Handy_Custom_Shortcodes {
 	}
 
 	/**
-	 * AJAX handler for recipe filtering (placeholder for future)
+	 * AJAX handler for recipe filtering
+	 * Processes recipe filter requests and returns updated HTML
 	 */
 	public static function ajax_filter_recipes() {
-		// Verify nonce
+		// Verify nonce for security
 		if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'handy_custom_nonce')) {
+			Handy_Custom_Logger::log('Recipe AJAX: Security check failed', 'warning');
 			wp_send_json_error('Security check failed');
 		}
 
-		// TODO: Implement recipe filtering in future phase
-		wp_send_json_success(array('html' => '<p>Recipe filtering coming soon...</p>'));
+		// Get filter parameters using recipe utility function
+		$raw_filters = array();
+		foreach (array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()) as $key) {
+			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
+		}
+		$filters = Handy_Custom_Recipes_Utils::sanitize_filters($raw_filters);
+
+		Handy_Custom_Logger::log('Recipe AJAX filter request: ' . wp_json_encode($filters), 'info');
+
+		try {
+			// Load the recipes renderer
+			$renderer = new Handy_Custom_Recipes_Renderer();
+			$output = $renderer->render($filters);
+			
+			Handy_Custom_Logger::log('Recipe AJAX filter successful', 'info');
+			wp_send_json_success(array('html' => $output));
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Recipe AJAX filter error: ' . $e->getMessage(), 'error');
+			wp_send_json_error('Recipe filter processing failed');
+		}
 	}
 }

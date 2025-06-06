@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.0.0';
+	const VERSION = '1.1.0';
 
 	/**
 	 * Single instance of the class
@@ -65,8 +65,11 @@ class Handy_Custom {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-display.php';
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-renderer.php';
 			
-			// Recipe-specific functionality (placeholder for future)
-			// require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
+			// Recipe-specific functionality
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-utils.php';
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-filters.php';
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-display.php';
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
 		}
 	}
 
@@ -109,17 +112,23 @@ class Handy_Custom {
 	 * Enqueue frontend assets
 	 */
 	public function enqueue_frontend_assets() {
-		// Check if we're on a page with products shortcode
+		// Check if we're on a page with shortcodes
 		global $post;
 		$has_products_shortcode = false;
+		$has_recipes_shortcode = false;
 		
-		if ($post && has_shortcode($post->post_content, 'products')) {
-			$has_products_shortcode = true;
+		if ($post) {
+			$has_products_shortcode = has_shortcode($post->post_content, 'products');
+			$has_recipes_shortcode = has_shortcode($post->post_content, 'recipes');
 		}
 		
-		// Enqueue products-specific assets
+		// Enqueue post-type-specific assets
 		if ($has_products_shortcode) {
 			$this->enqueue_products_assets();
+		}
+		
+		if ($has_recipes_shortcode) {
+			$this->enqueue_recipes_assets();
 		}
 		
 		// Legacy support - load old custom files if they exist
@@ -159,6 +168,44 @@ class Handy_Custom {
 			wp_localize_script('handy-custom-products', 'handyCustomAjax', array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'nonce' => wp_create_nonce('handy_custom_nonce')
+			));
+		}
+	}
+	
+	/**
+	 * Enqueue recipes-specific assets
+	 */
+	private function enqueue_recipes_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/recipes/archive.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/recipes/archive.js';
+
+		// Enqueue recipes CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-recipes',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/recipes/archive.css',
+				array(),
+				$css_version
+			);
+		}
+
+		// Enqueue recipes JS
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-recipes',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/recipes/archive.js',
+				array('jquery'),
+				$js_version,
+				true
+			);
+
+			// Localize script for AJAX
+			wp_localize_script('handy-custom-recipes', 'handyCustomRecipesAjax', array(
+				'ajaxUrl' => admin_url('admin-ajax.php'),
+				'nonce' => wp_create_nonce('handy_custom_nonce'),
+				'action' => 'filter_recipes'
 			));
 		}
 	}
