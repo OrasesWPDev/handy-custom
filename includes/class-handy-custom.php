@@ -64,6 +64,9 @@ class Handy_Custom {
 		if (!is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
 			
+			// Base utilities (required by both products and recipes)
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-base-utils.php';
+			
 			// Product-specific functionality
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-utils.php';
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-filters.php';
@@ -141,78 +144,66 @@ class Handy_Custom {
 	}
 	
 	/**
-	 * Enqueue products-specific assets
+	 * Enqueue post-type-specific assets
+	 *
+	 * @param string $type Post type (products or recipes)
+	 * @param array $localize_data Additional data for script localization
 	 */
-	private function enqueue_products_assets() {
-		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/products/archive.css';
-		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/products/archive.js';
+	private function enqueue_post_type_assets($type, $localize_data = array()) {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . "assets/css/{$type}/archive.css";
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . "assets/js/{$type}/archive.js";
 
-		// Enqueue products CSS
+		// Enqueue CSS
 		if (file_exists($css_file)) {
 			$css_version = filemtime($css_file);
 			wp_enqueue_style(
-				'handy-custom-products',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/products/archive.css',
+				"handy-custom-{$type}",
+				HANDY_CUSTOM_PLUGIN_URL . "assets/css/{$type}/archive.css",
 				array(),
 				$css_version
 			);
 		}
 
-		// Enqueue products JS
+		// Enqueue JS
 		if (file_exists($js_file)) {
 			$js_version = filemtime($js_file);
 			wp_enqueue_script(
-				'handy-custom-products',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/products/archive.js',
+				"handy-custom-{$type}",
+				HANDY_CUSTOM_PLUGIN_URL . "assets/js/{$type}/archive.js",
 				array('jquery'),
 				$js_version,
 				true
 			);
 
-			// Localize script for AJAX
-			wp_localize_script('handy-custom-products', 'handyCustomAjax', array(
+			// Default localization data
+			$default_localize_data = array(
 				'ajaxUrl' => admin_url('admin-ajax.php'),
 				'nonce' => wp_create_nonce('handy_custom_nonce')
-			));
+			);
+
+			// Merge with any additional data passed
+			$localize_data = array_merge($default_localize_data, $localize_data);
+
+			// Use appropriate localization variable name
+			$localize_var = ($type === 'recipes') ? 'handyCustomRecipesAjax' : 'handyCustomAjax';
+			wp_localize_script("handy-custom-{$type}", $localize_var, $localize_data);
 		}
+	}
+
+	/**
+	 * Enqueue products-specific assets
+	 */
+	private function enqueue_products_assets() {
+		$this->enqueue_post_type_assets('products');
 	}
 	
 	/**
 	 * Enqueue recipes-specific assets
 	 */
 	private function enqueue_recipes_assets() {
-		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/recipes/archive.css';
-		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/recipes/archive.js';
-
-		// Enqueue recipes CSS
-		if (file_exists($css_file)) {
-			$css_version = filemtime($css_file);
-			wp_enqueue_style(
-				'handy-custom-recipes',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/recipes/archive.css',
-				array(),
-				$css_version
-			);
-		}
-
-		// Enqueue recipes JS
-		if (file_exists($js_file)) {
-			$js_version = filemtime($js_file);
-			wp_enqueue_script(
-				'handy-custom-recipes',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/recipes/archive.js',
-				array('jquery'),
-				$js_version,
-				true
-			);
-
-			// Localize script for AJAX
-			wp_localize_script('handy-custom-recipes', 'handyCustomRecipesAjax', array(
-				'ajaxUrl' => admin_url('admin-ajax.php'),
-				'nonce' => wp_create_nonce('handy_custom_nonce'),
-				'action' => 'filter_recipes'
-			));
-		}
+		$this->enqueue_post_type_assets('recipes', array(
+			'action' => 'filter_recipes'
+		));
 	}
 	
 	/**
