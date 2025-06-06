@@ -29,12 +29,17 @@ class Handy_Custom_Shortcodes {
 	 * Products shortcode handler
 	 * Now supports subcategory parameter with automatic parent detection
 	 * Integrates with URL rewrite system for /products/{category}/{subcategory}/ URLs
+	 * Supports display parameter: 'categories' (default) or 'list' for product catalog
 	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string
 	 */
 	public static function products_shortcode($atts) {
-		$defaults = array_fill_keys(array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()), '');
+		// Include display parameter in defaults
+		$defaults = array_merge(
+			array_fill_keys(array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()), ''),
+			array('display' => 'categories')
+		);
 		$atts = shortcode_atts($defaults, $atts, 'products');
 
 		// Merge URL parameters with shortcode attributes (URL takes precedence)
