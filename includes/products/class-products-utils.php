@@ -9,7 +9,7 @@ if (!defined('ABSPATH')) {
 	exit;
 }
 
-class Handy_Custom_Products_Utils {
+class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 
 	/**
 	 * Taxonomy mapping for filter keys
@@ -30,60 +30,6 @@ class Handy_Custom_Products_Utils {
 	}
 
 	/**
-	 * Convert filter key to taxonomy name
-	 *
-	 * @param string $key Filter key
-	 * @return string|false
-	 */
-	public static function get_taxonomy_name($key) {
-		$mapping = self::get_taxonomy_mapping();
-		return isset($mapping[$key]) ? $mapping[$key] : false;
-	}
-
-	/**
-	 * Get terms for a specific taxonomy with error handling
-	 *
-	 * @param string $taxonomy Taxonomy name
-	 * @param array $args Additional arguments
-	 * @return array
-	 */
-	public static function get_taxonomy_terms($taxonomy, $args = array()) {
-		$default_args = array(
-			'taxonomy' => $taxonomy,
-			'hide_empty' => false,
-			'orderby' => 'name',
-			'order' => 'ASC'
-		);
-
-		$args = wp_parse_args($args, $default_args);
-		$terms = get_terms($args);
-
-		if (is_wp_error($terms)) {
-			Handy_Custom_Logger::log("Error getting terms for taxonomy {$taxonomy}: " . $terms->get_error_message(), 'error');
-			return array();
-		}
-
-		return $terms;
-	}
-
-	/**
-	 * Validate and sanitize filter parameters
-	 *
-	 * @param array $filters Raw filter parameters
-	 * @return array Sanitized filters
-	 */
-	public static function sanitize_filters($filters) {
-		$allowed_keys = array_keys(self::get_taxonomy_mapping());
-		$sanitized = array();
-
-		foreach ($allowed_keys as $key) {
-			$sanitized[$key] = isset($filters[$key]) ? sanitize_text_field($filters[$key]) : '';
-		}
-
-		return $sanitized;
-	}
-
-	/**
 	 * Get parent category slug from subcategory slug
 	 *
 	 * @param string $subcategory_slug Subcategory slug
@@ -94,9 +40,9 @@ class Handy_Custom_Products_Utils {
 			return false;
 		}
 
-		$term = get_term_by('slug', $subcategory_slug, 'product-category');
+		$term = self::get_term_by_slug($subcategory_slug, 'product-category');
 		
-		if (!$term || is_wp_error($term)) {
+		if (!$term) {
 			Handy_Custom_Logger::log("Subcategory not found: {$subcategory_slug}", 'warning');
 			return false;
 		}
@@ -128,9 +74,9 @@ class Handy_Custom_Products_Utils {
 			return false;
 		}
 
-		$term = get_term_by('slug', $term_slug, 'product-category');
+		$term = self::get_term_by_slug($term_slug, 'product-category');
 		
-		if (!$term || is_wp_error($term)) {
+		if (!$term) {
 			return false;
 		}
 
@@ -148,26 +94,18 @@ class Handy_Custom_Products_Utils {
 			return array();
 		}
 
-		$parent_term = get_term_by('slug', $parent_slug, 'product-category');
+		$parent_term = self::get_term_by_slug($parent_slug, 'product-category');
 		
-		if (!$parent_term || is_wp_error($parent_term)) {
+		if (!$parent_term) {
 			return array();
 		}
 
-		$subcategories = get_terms(array(
-			'taxonomy' => 'product-category',
+		return self::get_taxonomy_terms('product-category', array(
 			'parent' => $parent_term->term_id,
 			'hide_empty' => false,
 			'orderby' => 'name',
 			'order' => 'ASC'
 		));
-
-		if (is_wp_error($subcategories)) {
-			Handy_Custom_Logger::log("Error getting subcategories for {$parent_slug}: " . $subcategories->get_error_message(), 'error');
-			return array();
-		}
-
-		return $subcategories;
 	}
 
 	/**
@@ -287,8 +225,8 @@ class Handy_Custom_Products_Utils {
 
 		// Add category if present
 		if (!empty($params['category'])) {
-			$category_term = get_term_by('slug', $params['category'], 'product-category');
-			if ($category_term && !is_wp_error($category_term)) {
+			$category_term = self::get_term_by_slug($params['category'], 'product-category');
+			if ($category_term) {
 				$breadcrumbs[] = array(
 					'title' => $category_term->name,
 					'url' => self::get_category_url($params['category']),
@@ -299,11 +237,11 @@ class Handy_Custom_Products_Utils {
 
 		// Add subcategory if present
 		if (!empty($params['subcategory'])) {
-			$subcategory_term = get_term_by('slug', $params['subcategory'], 'product-category');
-			if ($subcategory_term && !is_wp_error($subcategory_term)) {
+			$subcategory_term = self::get_term_by_slug($params['subcategory'], 'product-category');
+			if ($subcategory_term) {
 				$breadcrumbs[] = array(
 					'title' => $subcategory_term->name,
-					'url' => self::get_subcategory_url($params['subcategory'], $params['category'] ?? ''),
+					'url' => self::get_subcategory_url($params['subcategory'], isset($params['category']) ? $params['category'] : ''),
 					'current' => true
 				);
 			}
