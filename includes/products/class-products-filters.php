@@ -209,7 +209,7 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Get all product categories
-	 * For default display, only return top-level categories (parent = 0)
+	 * For default display, only return top-level categories (parent = 0) in specified order
 	 *
 	 * @param bool $top_level_only Whether to return only top-level categories
 	 * @return array
@@ -221,6 +221,36 @@ class Handy_Custom_Products_Filters {
 			$args['parent'] = 0;
 		}
 		
-		return Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
+		$categories = Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
+		
+		// For top-level categories, apply custom order: crab, shrimp, appetizers, dietary alternatives
+		if ($top_level_only && !empty($categories)) {
+			$ordered_slugs = array('crab', 'shrimp', 'appetizers', 'dietary-alternatives');
+			$ordered_categories = array();
+			$remaining_categories = array();
+			
+			// Create lookup array by slug
+			$categories_by_slug = array();
+			foreach ($categories as $category) {
+				$categories_by_slug[$category->slug] = $category;
+			}
+			
+			// Add categories in specified order
+			foreach ($ordered_slugs as $slug) {
+				if (isset($categories_by_slug[$slug])) {
+					$ordered_categories[] = $categories_by_slug[$slug];
+					unset($categories_by_slug[$slug]);
+				}
+			}
+			
+			// Add any remaining categories at the end
+			foreach ($categories_by_slug as $category) {
+				$remaining_categories[] = $category;
+			}
+			
+			return array_merge($ordered_categories, $remaining_categories);
+		}
+		
+		return $categories;
 	}
 }
