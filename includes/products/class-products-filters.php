@@ -16,15 +16,21 @@ class Handy_Custom_Products_Filters {
 	 * Handles both category and subcategory contexts
 	 *
 	 * @param array $context_filters Applied filters for context (e.g., subcategory filter)
+	 * @param bool $include_category_filter Whether to include category filter (for list display mode)
 	 * @return array
 	 */
-	public static function get_filter_options($context_filters = array()) {
+	public static function get_filter_options($context_filters = array(), $include_category_filter = false) {
 		$mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
 		$options = array();
 
 		foreach ($mapping as $key => $taxonomy) {
 			// Skip subcategory in dropdown options - it's handled separately
 			if ($key === 'subcategory') {
+				continue;
+			}
+
+			// Skip category filter unless explicitly requested (for list display mode)
+			if ($key === 'category' && !$include_category_filter) {
 				continue;
 			}
 
@@ -203,10 +209,18 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Get all product categories
+	 * For default display, only return top-level categories (parent = 0)
 	 *
+	 * @param bool $top_level_only Whether to return only top-level categories
 	 * @return array
 	 */
-	private static function get_all_categories() {
-		return Handy_Custom_Products_Utils::get_taxonomy_terms('product-category');
+	private static function get_all_categories($top_level_only = true) {
+		$args = array();
+		
+		if ($top_level_only) {
+			$args['parent'] = 0;
+		}
+		
+		return Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
 	}
 }

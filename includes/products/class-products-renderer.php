@@ -44,10 +44,11 @@ class Handy_Custom_Products_Renderer {
 	/**
 	 * Get filter options for dropdowns
 	 *
+	 * @param bool $include_category_filter Whether to include category filter
 	 * @return array
 	 */
-	private function get_filter_options() {
-		return Handy_Custom_Products_Filters::get_filter_options();
+	private function get_filter_options($include_category_filter = false) {
+		return Handy_Custom_Products_Filters::get_filter_options(array(), $include_category_filter);
 	}
 
 	/**
