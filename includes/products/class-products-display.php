@@ -34,6 +34,62 @@ class Handy_Custom_Products_Display {
 	}
 
 	/**
+	 * Get product thumbnail URL for list display
+	 * Returns smaller thumbnail than category images
+	 *
+	 * @param int $post_id Product post ID
+	 * @return string|false
+	 */
+	public static function get_product_thumbnail($post_id) {
+		$thumbnail_id = get_post_thumbnail_id($post_id);
+		
+		if ($thumbnail_id) {
+			// Use 'medium' size for smaller product thumbnails (vs 'large' for categories)
+			$thumbnail_url = wp_get_attachment_image_url($thumbnail_id, 'medium');
+			if ($thumbnail_url) {
+				return $thumbnail_url;
+			}
+		}
+		
+		Handy_Custom_Logger::log("No thumbnail found for product ID: {$post_id}", 'info');
+		return false;
+	}
+
+	/**
+	 * Get truncated product excerpt for list display
+	 * Caps at 150 characters with ellipsis
+	 *
+	 * @param int $post_id Product post ID
+	 * @return string
+	 */
+	public static function get_product_excerpt($post_id) {
+		$excerpt = get_the_excerpt($post_id);
+		
+		if (empty($excerpt)) {
+			// Fallback to content if no excerpt
+			$content = get_post_field('post_content', $post_id);
+			$excerpt = wp_strip_all_tags($content);
+		}
+		
+		// Truncate to 150 characters
+		if (strlen($excerpt) > 150) {
+			$excerpt = substr($excerpt, 0, 147) . '...';
+		}
+		
+		return $excerpt;
+	}
+
+	/**
+	 * Get product single post URL
+	 *
+	 * @param int $post_id Product post ID
+	 * @return string
+	 */
+	public static function get_product_single_url($post_id) {
+		return get_permalink($post_id);
+	}
+
+	/**
 	 * Get category icon URL
 	 *
 	 * @param string $category_slug Category slug
