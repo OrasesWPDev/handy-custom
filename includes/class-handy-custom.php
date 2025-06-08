@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.3.0';
+	const VERSION = '1.4.0';
 
 	/**
 	 * Single instance of the class
@@ -60,6 +60,11 @@ class Handy_Custom {
 		// Core functionality
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-logger.php';
 		
+		// Admin functionality (load conditionally)
+		if (is_admin()) {
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-admin.php';
+		}
+		
 		// Frontend functionality (load conditionally)
 		if (!is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
@@ -92,6 +97,11 @@ class Handy_Custom {
 		
 		// Initialize logger
 		Handy_Custom_Logger::init();
+		
+		// Initialize admin functionality
+		if (is_admin()) {
+			Handy_Custom_Admin::init();
+		}
 		
 		// Initialize frontend functionality
 		if (!is_admin()) {

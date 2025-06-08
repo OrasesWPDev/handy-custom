@@ -10,8 +10,43 @@
  * @package Handy_Custom
  */
 
-// Prevent direct access if not running from command line
-if (!defined('ABSPATH') && !defined('WP_CLI') && php_sapi_name() !== 'cli') {
+// Set environment variables for CLI execution
+if (php_sapi_name() === 'cli') {
+    // Detect environment domain
+    $domain = 'handycrab.com'; // default to production
+    
+    // Check for staging environment
+    if (isset($_ENV['WPE_APIKEY']) || strpos(__DIR__, 'wpengine') !== false || strpos(__DIR__, 'handycrabstg') !== false) {
+        if (strpos(__DIR__, 'handycrabstg') !== false || strpos(getcwd(), 'handycrabstg') !== false) {
+            $domain = 'handycrabstg.wpenginepowered.com';
+        } elseif (strpos(__DIR__, 'handycrab') !== false || strpos(getcwd(), 'handycrab') !== false) {
+            // Check if it's production or staging based on path/environment
+            if (isset($_ENV['WPE_APIKEY'])) {
+                $domain = 'handycrab.wpenginepowered.com';
+            } else {
+                $domain = 'handycrab.com';
+            }
+        }
+    }
+    
+    // Allow manual override via environment variable
+    if (isset($_ENV['SITE_DOMAIN'])) {
+        $domain = $_ENV['SITE_DOMAIN'];
+    }
+    
+    $_SERVER['HTTP_HOST'] = $domain;
+    $_SERVER['SERVER_NAME'] = $domain;
+    $_SERVER['REQUEST_URI'] = '/';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = '443';
+    
+    echo "[INFO] Using domain: $domain\n";
+}
+
+// Load WordPress if not already loaded
+if (!defined('ABSPATH') && !defined('WP_CLI')) {
     // Load WordPress if running standalone
     $wp_load_paths = [
         __DIR__ . '/wp-load.php',
@@ -70,11 +105,20 @@ class Handy_Product_Importer {
     /**
      * Constructor
      */
-    public function __construct($csv_file = null) {
-        $this->csv_file = $csv_file ?: __DIR__ . '/assets/csv/HC - Product Export - 5.15.25v1 - full export.csv';
+    public function __construct($csv_file = null, $start_row = 1, $batch_size = 250) {
+        // Increase memory and execution limits for large imports
+        ini_set('memory_limit', '512M');
+        ini_set('max_execution_time', 600); // 10 minutes
+        
+        $this->csv_file = $csv_file ?: __DIR__ . '/assets/csv/products_clean.csv';
+        $this->start_row = $start_row;
+        $this->batch_size = $batch_size;
         $this->init_field_mapping();
         $this->load_existing_taxonomies();
     }
+    
+    private $start_row = 1;
+    private $batch_size = 250;
     
     /**
      * Initialize field mapping between CSV columns and WordPress fields
@@ -100,7 +144,7 @@ class Handy_Product_Importer {
                 'type' => 'acf_field',
                 'acf_name' => 'item_number'
             ],
-            'gtin_number' => [
+            'case_number' => [
                 'type' => 'acf_field',
                 'acf_name' => 'gtin_code'
             ],
@@ -128,6 +172,10 @@ class Handy_Product_Importer {
                 'type' => 'acf_field',
                 'acf_name' => 'features_benefits'
             ],
+            'country_of_origin' => [
+                'type' => 'acf_field',
+                'acf_name' => 'country_of_origin'
+            ],
             
             // Taxonomies (comma-separated values in CSV)
             'grades' => [
@@ -154,19 +202,20 @@ class Handy_Product_Importer {
                 'type' => 'taxonomy',
                 'taxonomy' => 'size'
             ],
-            
-            // Special handling for Allergens (single value, map to ACF radio field)
-            'Allergens' => [
-                'type' => 'acf_field',
-                'acf_name' => 'allergens'
+            'product_species' => [
+                'type' => 'taxonomy',
+                'taxonomy' => 'product-species'
+            ],
+            'brands' => [
+                'type' => 'taxonomy',
+                'taxonomy' => 'brand'
+            ],
+            'certifications' => [
+                'type' => 'taxonomy',
+                'taxonomy' => 'certification'
             ],
             
-            // Skipped fields (images and complex data)
-            'brands' => ['type' => 'skip', 'reason' => 'Brand taxonomy not defined in current system'],
-            'product_species' => ['type' => 'skip', 'reason' => 'Species taxonomy not defined in current system'],
-            'certifications' => ['type' => 'skip', 'reason' => 'Certifications taxonomy not defined in current system'],
-            'market_channels' => ['type' => 'skip', 'reason' => 'Market channels taxonomy not defined in current system'],
-            'country_of_origin' => ['type' => 'skip', 'reason' => 'Country of origin field not defined in ACF'],
+            // Skipped fields
             'product_id' => ['type' => 'skip', 'reason' => 'Using WordPress auto-generated post IDs']
         ];
     }
@@ -182,10 +231,19 @@ class Handy_Product_Importer {
             'product-cooking-method',
             'product-menu-occasion',
             'product-type',
-            'size'
+            'size',
+            'product-species',
+            'brand',
+            'certification'
         ];
         
         foreach ($taxonomies as $taxonomy) {
+            // Check if taxonomy exists first
+            if (!taxonomy_exists($taxonomy)) {
+                $this->log_message("Warning: Taxonomy '$taxonomy' does not exist - skipping");
+                continue;
+            }
+            
             $terms = get_terms([
                 'taxonomy' => $taxonomy,
                 'hide_empty' => false
@@ -268,10 +326,23 @@ class Handy_Product_Importer {
         
         $row_count = 0;
         $imported_count = 0;
+        $processed_count = 0;
+        
+        // Skip to start row if batch processing
+        while ($row_count < $this->start_row - 1 && ($row = fgetcsv($handle)) !== false) {
+            $row_count++;
+        }
         
         // Process each row
         while (($row = fgetcsv($handle)) !== false) {
             $row_count++;
+            $processed_count++;
+            
+            // Stop if we've processed the batch size
+            if ($processed_count > $this->batch_size) {
+                $this->log_message("Batch limit reached. Processed $processed_count rows.");
+                break;
+            }
             
             // Skip empty rows
             if (empty(array_filter($row))) {
@@ -321,7 +392,7 @@ class Handy_Product_Importer {
             return false;
         }
         
-        // Check for duplicates
+        // Check for duplicates based on UPC, item number, and GTIN only (not title)
         $duplicate_check = $this->check_for_duplicates($product_data, $row_number);
         if ($duplicate_check['is_duplicate']) {
             $this->reports['duplicates_skipped'][] = [
@@ -553,7 +624,8 @@ class Handy_Product_Importer {
      */
     private function validate_product_data($product_data, $row_number) {
         $errors = [];
-        $required_fields = ['product_title', 'item_number', 'upc_number', 'gtin_number'];
+        // Only require product_title - other fields can be empty for initial import
+        $required_fields = ['product_title'];
         
         // Check required fields
         foreach ($required_fields as $field) {
@@ -567,12 +639,14 @@ class Handy_Product_Importer {
             $errors[] = "Product title too long (max 200 characters)";
         }
         
-        // Validate numeric fields
-        $numeric_fields = ['item_number', 'upc_number', 'gtin_number'];
+        // Validate numeric fields only if they have values
+        $numeric_fields = ['item_number', 'upc_number', 'case_number'];
         foreach ($numeric_fields as $field) {
-            if (!empty($product_data[$field]) && !is_numeric(str_replace(['/', '-', ' '], '', $product_data[$field]))) {
+            $value = trim($product_data[$field] ?? '');
+            if (!empty($value)) {
                 // Allow some formatting in numbers but check if basically numeric
-                if (!preg_match('/^[\d\s\-\/]+$/', $product_data[$field])) {
+                $clean_value = str_replace(['/', '-', ' '], '', $value);
+                if (!is_numeric($clean_value) && !preg_match('/^[\d\s\-\/]+$/', $value)) {
                     $errors[] = "Invalid format for $field: should be numeric";
                 }
             }
@@ -587,20 +661,10 @@ class Handy_Product_Importer {
     }
     
     /**
-     * Check for duplicate products
+     * Check for duplicate products by UPC, item number, and GTIN only
      */
     private function check_for_duplicates($product_data, $row_number) {
-        $title = trim($product_data['product_title']);
-        
-        // Check by exact title match
-        $existing_post = get_page_by_title($title, OBJECT, 'product');
-        if ($existing_post) {
-            return [
-                'is_duplicate' => true,
-                'existing_post_id' => $existing_post->ID,
-                'reason' => 'Exact title match'
-            ];
-        }
+        // Title-based duplicate checking removed - only check numeric identifiers
         
         // Check by item number if provided
         if (!empty(trim($product_data['item_number']))) {
@@ -646,6 +710,30 @@ class Handy_Product_Importer {
                     'is_duplicate' => true,
                     'existing_post_id' => $existing_posts[0]->ID,
                     'reason' => 'UPC number match'
+                ];
+            }
+        }
+        
+        // Check by case number if provided
+        if (!empty(trim($product_data['case_number']))) {
+            $existing_posts = get_posts([
+                'post_type' => 'product',
+                'meta_query' => [
+                    [
+                        'key' => 'gtin_code',
+                        'value' => trim($product_data['case_number']),
+                        'compare' => '='
+                    ]
+                ],
+                'post_status' => ['publish', 'draft', 'private'],
+                'numberposts' => 1
+            ]);
+            
+            if (!empty($existing_posts)) {
+                return [
+                    'is_duplicate' => true,
+                    'existing_post_id' => $existing_posts[0]->ID,
+                    'reason' => 'Case number match'
                 ];
             }
         }
@@ -769,16 +857,78 @@ class Handy_Product_Importer {
         $timestamp = date('Y-m-d H:i:s');
         echo "[$timestamp] $message\n";
     }
+    
+    /**
+     * Clean up trashed product posts
+     */
+    public function cleanup_trashed_products() {
+        $this->log_message("=== Starting Cleanup of Trashed Products ===");
+        
+        // Get all trashed product posts
+        $trashed_posts = get_posts([
+            'post_type' => 'product',
+            'post_status' => 'trash',
+            'numberposts' => -1
+        ]);
+        
+        $deleted_count = 0;
+        
+        foreach ($trashed_posts as $post) {
+            // Permanently delete the post and all its metadata
+            $result = wp_delete_post($post->ID, true);
+            if ($result) {
+                $deleted_count++;
+                $this->log_message("Permanently deleted: {$post->post_title} (ID: {$post->ID})");
+            } else {
+                $this->log_message("Failed to delete: {$post->post_title} (ID: {$post->ID})");
+            }
+        }
+        
+        $this->log_message("=== Cleanup Complete: Deleted $deleted_count trashed products ===");
+        return $deleted_count;
+    }
 }
 
 // Run the import if this file is executed directly
-if (php_sapi_name() === 'cli' || !empty($_GET['run_import'])) {
-    $importer = new Handy_Product_Importer();
-    $importer->run_import();
+if (php_sapi_name() === 'cli' || !empty($_GET['run_import']) || !empty($_GET['cleanup'])) {
+    // Parse command line arguments for batch processing
+    $start_row = 1;
+    $batch_size = 250;
+    
+    if (php_sapi_name() === 'cli') {
+        foreach ($argv as $arg) {
+            if (strpos($arg, '--start=') === 0) {
+                $start_row = (int)substr($arg, 8);
+            }
+            if (strpos($arg, '--batch=') === 0) {
+                $batch_size = (int)substr($arg, 8);
+            }
+        }
+    } else {
+        if (!empty($_GET['start'])) {
+            $start_row = (int)$_GET['start'];
+        }
+        if (!empty($_GET['batch'])) {
+            $batch_size = (int)$_GET['batch'];
+        }
+    }
+    
+    $importer = new Handy_Product_Importer(null, $start_row, $batch_size);
+    
+    if (!empty($_GET['cleanup']) || (php_sapi_name() === 'cli' && in_array('--cleanup', $argv))) {
+        // Run cleanup instead of import
+        $importer->cleanup_trashed_products();
+    } else {
+        // Run normal import
+        $importer->run_import();
+    }
 } else {
     // Show simple interface if accessed via browser
+    $current_domain = $_SERVER['HTTP_HOST'];
     echo '<h1>Product Import Script</h1>';
     echo '<p>This script will import products from the CSV file.</p>';
+    echo '<p><strong>Current Domain:</strong> ' . htmlspecialchars($current_domain) . '</p>';
     echo '<p><strong>Warning:</strong> Make sure you have a database backup before running this import.</p>';
-    echo '<p><a href="?run_import=1" onclick="return confirm(\'Are you sure you want to run the import? Make sure you have a backup!\')">Run Import</a></p>';
+    echo '<p><a href="?run_import=1" onclick="return confirm(\'Are you sure you want to run the import? Make sure you have a backup!\');">Run Import</a></p>';
+    echo '<p><a href="?cleanup=1" onclick="return confirm(\'Are you sure you want to delete all existing products? This cannot be undone!\');">Clean Up Products</a></p>';
 }

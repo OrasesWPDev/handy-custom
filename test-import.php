@@ -6,6 +6,41 @@
  * It validates the CSV structure and checks the field mappings
  */
 
+// Set environment variables for CLI execution
+if (php_sapi_name() === 'cli') {
+    // Detect environment domain
+    $domain = 'handycrab.com'; // default to production
+    
+    // Check for staging environment
+    if (isset($_ENV['WPE_APIKEY']) || strpos(__DIR__, 'wpengine') !== false || strpos(__DIR__, 'handycrabstg') !== false) {
+        if (strpos(__DIR__, 'handycrabstg') !== false || strpos(getcwd(), 'handycrabstg') !== false) {
+            $domain = 'handycrabstg.wpenginepowered.com';
+        } elseif (strpos(__DIR__, 'handycrab') !== false || strpos(getcwd(), 'handycrab') !== false) {
+            // Check if it's production or staging based on path/environment
+            if (isset($_ENV['WPE_APIKEY'])) {
+                $domain = 'handycrab.wpenginepowered.com';
+            } else {
+                $domain = 'handycrab.com';
+            }
+        }
+    }
+    
+    // Allow manual override via environment variable
+    if (isset($_ENV['SITE_DOMAIN'])) {
+        $domain = $_ENV['SITE_DOMAIN'];
+    }
+    
+    $_SERVER['HTTP_HOST'] = $domain;
+    $_SERVER['SERVER_NAME'] = $domain;
+    $_SERVER['REQUEST_URI'] = '/';
+    $_SERVER['REQUEST_METHOD'] = 'GET';
+    $_SERVER['SCRIPT_NAME'] = '/index.php';
+    $_SERVER['HTTPS'] = 'on';
+    $_SERVER['SERVER_PORT'] = '443';
+    
+    echo "[INFO] Using domain: $domain\n";
+}
+
 // Load WordPress
 $wp_load_paths = [
     __DIR__ . '/wp-load.php',
@@ -38,7 +73,7 @@ class Handy_Import_Tester {
     private $csv_file;
     
     public function __construct() {
-        $this->csv_file = __DIR__ . '/assets/csv/HC - Product Export - 5.15.25v1 - full export.csv';
+        $this->csv_file = __DIR__ . '/assets/csv/products_clean.csv';
     }
     
     /**
@@ -99,7 +134,7 @@ class Handy_Import_Tester {
         echo "   Columns: " . implode(', ', array_slice($headers, 0, 10)) . "...\n";
         
         // Check for required columns
-        $required_columns = ['product_title', 'item_number', 'upc_number', 'gtin_number'];
+        $required_columns = ['product_title'];
         $missing_columns = [];
         
         foreach ($required_columns as $required) {
@@ -140,13 +175,22 @@ class Handy_Import_Tester {
             'product-cooking-method',
             'product-menu-occasion',
             'product-type',
-            'size'
+            'size',
+            'product-species',
+            'brand',
+            'certification'
         ];
         
         $taxonomy_counts = [];
         $total_terms = 0;
         
         foreach ($taxonomies as $taxonomy) {
+            // Check if taxonomy exists first
+            if (!taxonomy_exists($taxonomy)) {
+                echo "   ⚠️  $taxonomy: taxonomy does not exist - skipping\n";
+                continue;
+            }
+            
             $terms = get_terms([
                 'taxonomy' => $taxonomy,
                 'hide_empty' => false
@@ -233,8 +277,10 @@ class Handy_Import_Tester {
         $product_data = array_combine($headers, $sample_row);
         
         echo "📝 Sample product: " . $product_data['product_title'] . "\n";
-        echo "   🔢 Item number: " . $product_data['item_number'] . "\n";
-        echo "   📊 UPC: " . $product_data['upc_number'] . "\n";
+        echo "   🔢 Item number: " . ($product_data['item_number'] ?? 'N/A') . "\n";
+        echo "   📊 UPC: " . ($product_data['upc_number'] ?? 'N/A') . "\n";
+        echo "   📦 Case number: " . ($product_data['case_number'] ?? 'N/A') . "\n";
+        echo "   ⚠️  Note: Duplicate checking only applies to UPC, item number, and GTIN (case number)\n";
         
         // Test validation without actually creating the product
         $importer = new Handy_Product_Importer();
@@ -260,7 +306,9 @@ if (php_sapi_name() === 'cli' || !empty($_GET['run_test'])) {
     $tester = new Handy_Import_Tester();
     $tester->run_tests();
 } else {
+    $current_domain = $_SERVER['HTTP_HOST'];
     echo '<h1>Product Import Test Suite</h1>';
     echo '<p>This script tests the import functionality without importing data.</p>';
+    echo '<p><strong>Current Domain:</strong> ' . htmlspecialchars($current_domain) . '</p>';
     echo '<p><a href="?run_test=1">Run Tests</a></p>';
 }

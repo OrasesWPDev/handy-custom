@@ -26,6 +26,11 @@ node_modules/
 /assets/csv/
 *.csv
 
+# Import reports and JSON data files
+/assets/reports/
+/assets/import-reports/
+*.json
+
 
 # Environment files
 .env
