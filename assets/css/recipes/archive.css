@@ -4,9 +4,9 @@
  * Features recipe-specific layout with prep time and servings display
  */
 
-/* Main Container */
+/* Main Container - 1420px site content width */
 .handy-recipes-archive {
-    max-width: 1200px;
+    max-width: 1420px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -47,11 +47,11 @@
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-recipes] shortcode */
 
-/* Recipes Grid */
+/* Recipes Grid - 4-column layout for 1420px content width (matches design example) */
 .handy-recipes-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-    gap: 25px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 30px;
     margin-bottom: 30px;
 }
 
@@ -239,10 +239,27 @@
     font-size: 16px;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
+/* Responsive Design - Match site breakpoints: 850px+, 550-849px, 549px- */
+/* Tablet: 550px to 849px - 2 columns */
+@media (max-width: 849px) and (min-width: 550px) {
     .handy-recipes-archive {
         padding: 15px;
+    }
+    
+    .handy-recipes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 25px;
+    }
+    
+    .recipe-card-content {
+        padding: 15px;
+    }
+}
+
+/* Mobile: 549px and below */
+@media (max-width: 549px) {
+    .handy-recipes-archive {
+        padding: 10px;
     }
     
     .recipes-archive-header {
@@ -255,25 +272,17 @@
         font-size: 24px;
     }
     
-    /* Filter responsive styles removed - handled by unified filter system */
-    
     .handy-recipes-grid {
-        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        grid-template-columns: 1fr;
         gap: 20px;
     }
     
     .recipe-card-content {
-        padding: 15px;
+        padding: 12px;
     }
     
     .recipe-card-meta {
         font-size: 12px;
-    }
-}
-
-@media (max-width: 480px) {
-    .handy-recipes-grid {
-        grid-template-columns: 1fr;
     }
     
     .recipe-card-image-container {
@@ -288,3 +297,4 @@
         font-size: 13px;
     }
 }
+

@@ -3,9 +3,9 @@
  * Basic CSS structure for products shortcode template
  */
 
-/* Main Container */
+/* Main Container - 1420px site content width */
 .handy-products-archive {
-    max-width: 1200px;
+    max-width: 1420px;
     margin: 0 auto;
     padding: 20px;
 }
@@ -15,21 +15,22 @@
 /* Products Grid */
 .handy-products-grid {
     display: grid;
-    gap: 30px;
+    gap: 40px;
     margin-bottom: 30px;
 }
 
-/* Category View Grid (Default) - Fixed 2x2 grid for 4 top-level categories */
+/* Category View Grid (Default) - 2 columns for 1420px content width */
 .products-category-view {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 800px;
+    max-width: 1420px;
     margin: 0 auto;
+    gap: 40px;
 }
 
-/* Product List View Grid */
+/* Product List View Grid - 2 columns for 1420px content width */
 .products-list-view {
-    grid-template-columns: repeat(3, 1fr);
-    gap: 20px;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
 }
 
 /* Category Cards */
