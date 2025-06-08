@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.5.2-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -371,7 +371,13 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.0 (Latest)
+### Version 1.5.2 (Latest)
+- **Bug Fix**: Fixed category display order not appearing correctly when categories lack display_order meta field
+- **Admin Filter Cleanup**: Removed grade dropdown from admin product filtering interface
+- **Query Optimization**: Changed category retrieval from meta-key based query to fetch-all-then-sort approach
+- **Mixed Scenario Support**: Categories with display_order values appear first (numerically sorted), followed by categories without order (alphabetically sorted)
+
+### Version 1.6.0
 - **Category Display Order System**: Admin interface to set custom display order for top-level product categories
 - **Enhanced Admin Filtering**: Added Product Categories dropdown to admin product listing with hierarchical display
 - **Comprehensive Filter Updates**: Updated admin filters to include Categories, Market Segment, Cooking Method, Menu Occasions, and Grade

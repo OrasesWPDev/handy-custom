@@ -39,13 +39,12 @@ class Handy_Custom_Admin {
         }
 
         // Get priority product taxonomies for admin filtering
-        // Order reflects priority per user requirements: Categories, Market Segment, Cooking Method, Menu Occasions, Grade
+        // Order reflects priority per user requirements: Categories, Market Segment, Cooking Method, Menu Occasions
         $taxonomies = array(
             'product-category' => 'Category',
             'market-segment' => 'Market Segment', 
             'product-cooking-method' => 'Cooking Method',
-            'product-menu-occasion' => 'Menu Occasion',
-            'grade' => 'Grade'
+            'product-menu-occasion' => 'Menu Occasion'
         );
 
         foreach ($taxonomies as $taxonomy => $label) {
@@ -114,8 +113,7 @@ class Handy_Custom_Admin {
             'product-category',
             'market-segment',
             'product-cooking-method',
-            'product-menu-occasion',
-            'grade'
+            'product-menu-occasion'
         );
 
         $tax_query = array();

@@ -206,10 +206,10 @@ class Handy_Custom_Products_Filters {
 	 * @return array
 	 */
 	private static function get_all_categories($top_level_only = true) {
+		// First, get ALL categories without meta_key restriction
 		$args = array(
 			'hide_empty' => false,
-			'orderby' => 'meta_value_num',
-			'meta_key' => 'display_order',
+			'orderby' => 'name',
 			'order' => 'ASC'
 		);
 		
@@ -219,7 +219,7 @@ class Handy_Custom_Products_Filters {
 		
 		$categories = Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
 		
-		// For categories without display_order meta, sort alphabetically and append
+		// Sort categories by display_order if we have any categories
 		if (!empty($categories) && $top_level_only) {
 			$ordered_categories = array();
 			$unordered_categories = array();
@@ -228,10 +228,19 @@ class Handy_Custom_Products_Filters {
 				$display_order = get_term_meta($category->term_id, 'display_order', true);
 				
 				if (!empty($display_order) && is_numeric($display_order)) {
+					// Store with display order for sorting
+					$category->display_order = (int) $display_order;
 					$ordered_categories[] = $category;
 				} else {
 					$unordered_categories[] = $category;
 				}
+			}
+			
+			// Sort ordered categories by display_order value
+			if (!empty($ordered_categories)) {
+				usort($ordered_categories, function($a, $b) {
+					return $a->display_order - $b->display_order;
+				});
 			}
 			
 			// Sort unordered categories alphabetically
@@ -239,6 +248,11 @@ class Handy_Custom_Products_Filters {
 				usort($unordered_categories, function($a, $b) {
 					return strcmp($a->name, $b->name);
 				});
+			}
+			
+			// Clean up temporary property
+			foreach ($ordered_categories as $category) {
+				unset($category->display_order);
 			}
 			
 			return array_merge($ordered_categories, $unordered_categories);
