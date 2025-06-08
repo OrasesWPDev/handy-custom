@@ -10,48 +10,7 @@
     padding: 20px;
 }
 
-/* Filter Controls */
-.handy-products-filters {
-    background: #f8f9fa;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.filters-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: end;
-}
-
-.filter-group {
-    min-width: 160px;
-}
-
-.filter-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #495057;
-    font-size: 14px;
-}
-
-.product-filter {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background: white;
-    font-size: 14px;
-}
-
-.product-filter:focus {
-    outline: none;
-    border-color: #007cba;
-    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.2);
-}
+/* Filter Controls Removed: Now handled by unified filter system via [filter-products] shortcode */
 
 /* Products Grid */
 .handy-products-grid {
@@ -343,13 +302,7 @@
         padding: 15px;
     }
     
-    .filters-row {
-        flex-direction: column;
-    }
-    
-    .filter-group {
-        min-width: auto;
-    }
+    /* Filter responsive styles removed - handled by unified filter system */
     
     /* Category view - 2 columns on tablet */
     .products-category-view {

@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.5.3';
+	const VERSION = '1.6.0';
 
 	/**
 	 * Single instance of the class
@@ -69,6 +69,9 @@ class Handy_Custom {
 		// Frontend functionality (load conditionally)
 		if (!is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
+			
+			// Unified filter system
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-filters-renderer.php';
 			
 			// Product-specific functionality
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-utils.php';
@@ -138,10 +141,18 @@ class Handy_Custom {
 		global $post;
 		$has_products_shortcode = false;
 		$has_recipes_shortcode = false;
+		$has_filter_shortcode = false;
 		
 		if ($post) {
 			$has_products_shortcode = has_shortcode($post->post_content, 'products');
 			$has_recipes_shortcode = has_shortcode($post->post_content, 'recipes');
+			$has_filter_shortcode = has_shortcode($post->post_content, 'filter-products') || 
+									has_shortcode($post->post_content, 'filter-recipes');
+		}
+		
+		// Enqueue filter assets if filter shortcodes are present
+		if ($has_filter_shortcode) {
+			$this->enqueue_filter_assets();
 		}
 		
 		// Enqueue post-type-specific assets
@@ -201,6 +212,51 @@ class Handy_Custom {
 			// Use appropriate localization variable name
 			$localize_var = ($type === 'recipes') ? 'handyCustomRecipesAjax' : 'handyCustomAjax';
 			wp_localize_script("handy-custom-{$type}", $localize_var, $localize_data);
+		}
+	}
+
+	/**
+	 * Enqueue unified filter assets
+	 * Used for [filter-products] and [filter-recipes] shortcodes
+	 */
+	private function enqueue_filter_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/filters.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/filters.js';
+
+		// Enqueue filter CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-filters',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/filters.css',
+				array(),
+				$css_version
+			);
+			
+			Handy_Custom_Logger::log('Filter CSS enqueued', 'debug');
+		}
+
+		// Enqueue filter JS
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-filters',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/filters.js',
+				array('jquery'),
+				$js_version,
+				true
+			);
+
+			// Localize script with AJAX data and debug flag
+			$localize_data = array(
+				'ajaxUrl' => admin_url('admin-ajax.php'),
+				'nonce' => wp_create_nonce('handy_custom_nonce'),
+				'debug' => defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true
+			);
+
+			wp_localize_script('handy-custom-filters', 'handyCustomFiltersAjax', $localize_data);
+			
+			Handy_Custom_Logger::log('Filter JS enqueued with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
 		}
 	}
 

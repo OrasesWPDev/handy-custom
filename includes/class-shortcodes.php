@@ -18,6 +18,10 @@ class Handy_Custom_Shortcodes {
 		add_shortcode('products', array(__CLASS__, 'products_shortcode'));
 		add_shortcode('recipes', array(__CLASS__, 'recipes_shortcode'));
 		
+		// New filter shortcodes
+		add_shortcode('filter-products', array(__CLASS__, 'filter_products_shortcode'));
+		add_shortcode('filter-recipes', array(__CLASS__, 'filter_recipes_shortcode'));
+		
 		// AJAX handlers for filtering
 		add_action('wp_ajax_filter_products', array(__CLASS__, 'ajax_filter_products'));
 		add_action('wp_ajax_nopriv_filter_products', array(__CLASS__, 'ajax_filter_products'));
@@ -184,6 +188,62 @@ class Handy_Custom_Shortcodes {
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('Recipe AJAX filter error: ' . $e->getMessage(), 'error');
 			wp_send_json_error('Recipe filter processing failed');
+		}
+	}
+
+	/**
+	 * Filter Products shortcode handler
+	 * Renders only product taxonomy filters with URL parameter integration
+	 *
+	 * User request: "create a new shortcode: [filter-products] to only show 
+	 * the taxonomies in products"
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML for product filters
+	 */
+	public static function filter_products_shortcode($atts) {
+		$defaults = array(
+			'display' => '',    // Comma-separated list of taxonomies to show
+			'exclude' => ''     // Comma-separated list of taxonomies to exclude
+		);
+		$atts = shortcode_atts($defaults, $atts, 'filter-products');
+
+		Handy_Custom_Logger::log('[filter-products] shortcode called with attributes: ' . wp_json_encode($atts), 'info');
+
+		try {
+			$renderer = new Handy_Custom_Filters_Renderer();
+			return $renderer->render('products', $atts);
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Filter-products shortcode error: ' . $e->getMessage(), 'error');
+			return '<div class="filter-error"><p>Error loading product filters. Please try again later.</p></div>';
+		}
+	}
+
+	/**
+	 * Filter Recipes shortcode handler  
+	 * Renders only recipe taxonomy filters with URL parameter integration
+	 *
+	 * User request: "create a new shortcode: [filter-recipe] to only show
+	 * the taxonomies in recipes"
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML for recipe filters
+	 */
+	public static function filter_recipes_shortcode($atts) {
+		$defaults = array(
+			'display' => '',    // Comma-separated list of taxonomies to show
+			'exclude' => ''     // Comma-separated list of taxonomies to exclude
+		);
+		$atts = shortcode_atts($defaults, $atts, 'filter-recipes');
+
+		Handy_Custom_Logger::log('[filter-recipes] shortcode called with attributes: ' . wp_json_encode($atts), 'info');
+
+		try {
+			$renderer = new Handy_Custom_Filters_Renderer();
+			return $renderer->render('recipes', $atts);
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Filter-recipes shortcode error: ' . $e->getMessage(), 'error');
+			return '<div class="filter-error"><p>Error loading recipe filters. Please try again later.</p></div>';
 		}
 	}
 }

@@ -45,50 +45,7 @@
     font-size: 16px;
 }
 
-/* Filter Controls */
-.handy-recipes-filters {
-    background: #f8f9fa;
-    padding: 20px;
-    margin-bottom: 30px;
-    border-radius: 8px;
-    border: 1px solid #e9ecef;
-}
-
-.filters-row {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 15px;
-    align-items: end;
-}
-
-.filter-group {
-    min-width: 180px;
-    flex: 1;
-}
-
-.filter-group label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: 600;
-    color: #495057;
-    font-size: 14px;
-}
-
-.recipe-filter {
-    width: 100%;
-    padding: 8px 12px;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    background: white;
-    font-size: 14px;
-    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
-
-.recipe-filter:focus {
-    outline: 0;
-    border-color: #007bff;
-    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+/* Filter Controls Removed: Now handled by unified filter system via [filter-recipes] shortcode */
 
 /* Recipes Grid */
 .handy-recipes-grid {
@@ -298,18 +255,7 @@
         font-size: 24px;
     }
     
-    .handy-recipes-filters {
-        padding: 15px;
-    }
-    
-    .filters-row {
-        flex-direction: column;
-        gap: 10px;
-    }
-    
-    .filter-group {
-        min-width: auto;
-    }
+    /* Filter responsive styles removed - handled by unified filter system */
     
     .handy-recipes-grid {
         grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
