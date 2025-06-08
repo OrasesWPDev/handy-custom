@@ -128,6 +128,37 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 [recipes category="main-course" menu_occasion="dinner"]
 ```
 
+### Pagination Support (v1.5.0+)
+
+Both products and recipes shortcodes support pagination to improve performance with large datasets.
+
+**Shortcode Parameters:**
+- `per_page` - Number of items per page (default: 12 for list mode, unlimited for categories mode)
+- `page` - Current page number (default: 1)
+
+**Examples:**
+```php
+// Display 24 products per page
+[products display="list" per_page="24" page="1"]
+
+// Display 16 recipes per page, showing page 2
+[recipes per_page="16" page="2"]
+
+// Combine with filters
+[products display="list" category="crab" per_page="12" page="1"]
+```
+
+**Safety Features:**
+- Maximum `per_page` limit: 100 (prevents abuse)
+- Minimum `page` number: 1 (prevents invalid pagination)
+- Automatic pagination for list mode (prevents runaway queries)
+- Large result set protection (caching skipped for >200 posts)
+
+**AJAX Compatibility:**
+- Pagination state maintained during AJAX filtering
+- URL parameters updated to reflect current page
+- Cache-aware pagination for optimal performance
+
 ### SEO-Friendly URLs
 
 The plugin automatically supports clean URLs:

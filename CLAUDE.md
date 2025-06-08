@@ -50,26 +50,7 @@ The `[products]` shortcode supports two display modes:
 
 ### Pagination Support (v1.5.0+)
 
-**Shortcode Parameters:**
-- `per_page` - Number of items per page (default: 12 for list mode, unlimited for categories mode)
-- `page` - Current page number (default: 1)
-
-**Examples:**
-```php
-[products display="list" per_page="24" page="1"]
-[recipes per_page="16" page="2"]
-```
-
-**Safety Features:**
-- Maximum `per_page` limit: 100 (prevents abuse)
-- Minimum `page` number: 1 (prevents invalid pagination)
-- Automatic pagination for list mode (prevents runaway queries)
-- Large result set protection (caching skipped for >200 posts)
-
-**AJAX Compatibility:**
-- Pagination state maintained during AJAX filtering
-- URL parameters updated to reflect current page
-- Cache-aware pagination for optimal performance
+Shortcodes support `per_page` and `page` parameters. List mode defaults to 12 items per page for performance.
 
 ### URL Rewriting System
 
