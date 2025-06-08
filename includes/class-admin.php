@@ -64,10 +64,11 @@ class Handy_Custom_Admin {
                 'order' => 'ASC'
             );
             
-            // For product categories, show hierarchical structure
+            // For product categories, show hierarchical structure with proper ordering
             if ($taxonomy === 'product-category') {
-                $terms_args['orderby'] = 'meta_value_num name';
-                $terms_args['meta_key'] = 'display_order';
+                // Don't use meta_key restriction to include all categories
+                $terms_args['orderby'] = 'name';
+                $terms_args['order'] = 'ASC';
             }
             
             $terms = get_terms($terms_args);
