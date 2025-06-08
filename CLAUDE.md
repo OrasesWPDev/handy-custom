@@ -9,6 +9,7 @@ This is a WordPress plugin providing product and recipe archive functionality wi
 ### Core Components
 
 - **Main Plugin Class**: `Handy_Custom` - singleton pattern, handles initialization, asset loading, and URL rewriting
+- **Admin Class**: `Handy_Custom_Admin` - WordPress admin functionality including taxonomy dropdown filters for product management
 - **Base Utils**: `Handy_Custom_Base_Utils` - abstract base class with shared caching and taxonomy utilities
 - **Shortcodes**: `Handy_Custom_Shortcodes` - handles `[products]` and `[recipes]` shortcodes with AJAX filtering
 - **Logger**: `Handy_Custom_Logger` - centralized logging system (controlled by `HANDY_CUSTOM_DEBUG` constant)
@@ -69,6 +70,15 @@ Templates located in `/templates/shortcodes/{type}/archive.php` with these varia
 - `$display_mode` - display mode: 'categories' or 'list'
 - `$filter_options` - available filter options (includes category filter only in list mode)
 - `$subcategory_context` - subcategory context (products only)
+
+### Admin Functionality
+
+**Product Filtering**: The plugin includes comprehensive admin filtering functionality for the Products custom post type:
+- **Taxonomy Dropdown Filters**: All product taxonomies available as dropdown filters in admin listing
+- **Supported Taxonomies**: Category, grade, market segment, cooking method, menu occasion, product type, size, species, brand, certification
+- **Filter Integration**: Uses `restrict_manage_posts` and `parse_query` hooks for efficient filtering
+- **Term Counts**: Dropdowns show term counts for better admin UX
+- **Multi-filter Support**: Combine multiple taxonomy filters with AND logic
 
 ### Debug/Logging
 

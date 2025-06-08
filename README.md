@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.3.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.4.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -43,6 +43,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 - **Debug Logging**: Comprehensive logging system for troubleshooting
 - **Template System**: Customizable templates for complete control
 - **Data Import Tools**: One-time CSV import scripts for initial product data migration
+- **Admin Filtering**: Advanced taxonomy dropdown filters in WordPress admin for efficient product management
 
 ## 📋 Requirements
 
@@ -339,7 +340,15 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.3.0 (Latest)
+### Version 1.4.0 (Latest)
+- **Admin Product Filtering**: Added comprehensive taxonomy dropdown filters to WordPress admin product listing
+- **Enhanced Product Management**: Filter products by category, grade, market segment, cooking method, menu occasion, product type, size, species, brand, and certification
+- **Admin Integration**: New admin class with optimized query filtering and user-friendly dropdown interfaces
+- **Product Import System**: Complete CSV import functionality with refined duplicate checking and comprehensive reporting
+- **Import Documentation**: Detailed import summary reports and troubleshooting guides
+- **Version Management**: Updated plugin version across all files and documentation
+
+### Version 1.3.0
 - **New display parameter**: Added `display="list"` mode for product catalog pages
 - **Product list view**: Individual product cards with thumbnails, excerpts, and links
 - **Enhanced filtering**: Category filter now available in list mode only
