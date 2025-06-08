@@ -79,7 +79,7 @@ abstract class Handy_Custom_Base_Utils {
 		$args = wp_parse_args($args, $default_args);
 		
 		// Create cache key based on taxonomy and arguments
-		$cache_key = 'handy_custom_terms_' . md5($taxonomy . serialize($args));
+		$cache_key = 'handy_custom_terms_' . md5($taxonomy . wp_json_encode($args));
 		
 		// Check WordPress object cache first
 		$terms = wp_cache_get($cache_key, self::get_cache_group());
@@ -223,7 +223,7 @@ abstract class Handy_Custom_Base_Utils {
 			ksort($cache_args['tax_query']);
 		}
 		
-		$cache_key = 'handy_' . $query_type . '_' . md5(serialize($cache_args));
+		$cache_key = 'handy_' . $query_type . '_' . md5(wp_json_encode($cache_args));
 		return $cache_key;
 	}
 
@@ -250,9 +250,17 @@ abstract class Handy_Custom_Base_Utils {
 			$query->in_the_loop = false;
 			
 			// Validate cached data integrity
-			if (!is_array($query->posts)) {
+			if (!is_array($query->posts) || !is_numeric($query->post_count) || !is_numeric($query->found_posts) || !is_array($query->query_vars)) {
 				Handy_Custom_Logger::log("Invalid cached query data for key: {$cache_key}", 'warning');
 				return false;
+			}
+			
+			// Additional validation for post objects
+			foreach ($query->posts as $post) {
+				if (!is_object($post) || !isset($post->ID)) {
+					Handy_Custom_Logger::log("Invalid post object in cached data for key: {$cache_key}", 'warning');
+					return false;
+				}
 			}
 			
 			Handy_Custom_Logger::log("Query cache hit for key: {$cache_key}", 'info');
@@ -276,8 +284,9 @@ abstract class Handy_Custom_Base_Utils {
 		}
 		
 		// Don't cache excessively large result sets to prevent memory issues
-		if ($query->post_count > 200) {
-			Handy_Custom_Logger::log("Skipping cache for large result set ({$query->post_count} posts)", 'info');
+		$cache_limit = defined('HANDY_CUSTOM_CACHE_LIMIT') ? HANDY_CUSTOM_CACHE_LIMIT : 200;
+		if ($query->post_count > $cache_limit) {
+			Handy_Custom_Logger::log("Skipping cache for large result set ({$query->post_count} posts, limit: {$cache_limit})", 'info');
 			return;
 		}
 		
