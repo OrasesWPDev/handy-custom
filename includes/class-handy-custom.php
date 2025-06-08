@@ -59,6 +59,7 @@ class Handy_Custom {
 	private function load_includes() {
 		// Core functionality
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-logger.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-base-utils.php';
 		
 		// Admin functionality (load conditionally)
 		if (is_admin()) {
@@ -68,9 +69,6 @@ class Handy_Custom {
 		// Frontend functionality (load conditionally)
 		if (!is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
-			
-			// Base utilities (required by both products and recipes)
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-base-utils.php';
 			
 			// Product-specific functionality
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-utils.php';
