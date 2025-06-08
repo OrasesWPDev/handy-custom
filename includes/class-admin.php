@@ -30,18 +30,14 @@ class Handy_Custom_Admin {
             return;
         }
 
-        // Get all product taxonomies
+        // Get priority product taxonomies for admin filtering
+        // Order reflects priority: market-segment, cooking-method, product-type, grade, size
         $taxonomies = array(
-            'product-category' => 'Category',
-            'grade' => 'Grade',
             'market-segment' => 'Market Segment',
             'product-cooking-method' => 'Cooking Method',
-            'product-menu-occasion' => 'Menu Occasion',
             'product-type' => 'Product Type',
-            'size' => 'Size',
-            'product-species' => 'Species',
-            'brand' => 'Brand',
-            'certification' => 'Certification'
+            'grade' => 'Grade',
+            'size' => 'Size'
         );
 
         foreach ($taxonomies as $taxonomy => $label) {
@@ -90,18 +86,13 @@ class Handy_Custom_Admin {
             return;
         }
 
-        // Get all product taxonomies
+        // Get priority product taxonomies for admin filtering
         $taxonomies = array(
-            'product-category',
-            'grade',
             'market-segment',
             'product-cooking-method',
-            'product-menu-occasion',
             'product-type',
-            'size',
-            'product-species',
-            'brand',
-            'certification'
+            'grade',
+            'size'
         );
 
         $tax_query = array();
