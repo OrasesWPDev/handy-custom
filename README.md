@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.5.1-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -371,7 +371,17 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.5.0 (Latest)
+### Version 1.6.0 (Latest)
+- **Category Display Order System**: Admin interface to set custom display order for top-level product categories
+- **Enhanced Admin Filtering**: Added Product Categories dropdown to admin product listing with hierarchical display
+- **Comprehensive Filter Updates**: Updated admin filters to include Categories, Market Segment, Cooking Method, Menu Occasions, and Grade
+- **Draft Product Support**: Admin filters now show ALL terms and can filter both published and draft products
+- **Frontend Grid Layout**: Enforced 2x2 grid layout for category display mode with fixed responsive design
+- **Database Optimization**: Categories now use display_order meta field instead of hard-coded ordering
+- **UI Improvements**: Category dropdowns show hierarchical structure with subcategory indentation
+- **Backwards Compatibility**: Existing categories display in alphabetical order if no display order is set
+
+### Version 1.5.0
 - **Performance Optimization**: Comprehensive performance improvements addressing GitHub issues #7, #8, and #13
 - **Query Result Caching**: Added intelligent caching system for filtered product and recipe queries with 30-minute TTL
 - **Pagination Support**: Added `per_page` and `page` parameters to shortcodes to prevent performance degradation

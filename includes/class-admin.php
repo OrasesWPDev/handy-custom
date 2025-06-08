@@ -145,59 +145,6 @@ class Handy_Custom_Admin {
         }
     }
 
-    /**
-     * Add custom columns to product admin list (future enhancement)
-     */
-    public static function add_product_columns($columns) {
-        // Add custom columns after title
-        $new_columns = array();
-        foreach ($columns as $key => $value) {
-            $new_columns[$key] = $value;
-            if ($key === 'title') {
-                $new_columns['product_category'] = __('Category', 'handy-custom');
-                $new_columns['grade'] = __('Grade', 'handy-custom');
-                $new_columns['brand'] = __('Brand', 'handy-custom');
-            }
-        }
-        return $new_columns;
-    }
-
-    /**
-     * Populate custom columns with data (future enhancement)
-     */
-    public static function populate_product_columns($column, $post_id) {
-        switch ($column) {
-            case 'product_category':
-                $terms = get_the_terms($post_id, 'product-category');
-                if ($terms && !is_wp_error($terms)) {
-                    $term_names = wp_list_pluck($terms, 'name');
-                    echo esc_html(implode(', ', $term_names));
-                } else {
-                    echo '—';
-                }
-                break;
-                
-            case 'grade':
-                $terms = get_the_terms($post_id, 'grade');
-                if ($terms && !is_wp_error($terms)) {
-                    $term_names = wp_list_pluck($terms, 'name');
-                    echo esc_html(implode(', ', $term_names));
-                } else {
-                    echo '—';
-                }
-                break;
-                
-            case 'brand':
-                $terms = get_the_terms($post_id, 'brand');
-                if ($terms && !is_wp_error($terms)) {
-                    $term_names = wp_list_pluck($terms, 'name');
-                    echo esc_html(implode(', ', $term_names));
-                } else {
-                    echo '—';
-                }
-                break;
-        }
-    }
 
     /**
      * Add display order field to category add form (only for top-level categories)
@@ -216,6 +163,7 @@ class Handy_Custom_Admin {
             <label for="display_order"><?php _e('Display Order', 'handy-custom'); ?></label>
             <input type="number" id="display_order" name="display_order" value="<?php echo esc_attr($next_order); ?>" min="1" max="999" />
             <p class="description"><?php _e('Order for displaying top-level categories on frontend (1 = first). Only applies to top-level categories.', 'handy-custom'); ?></p>
+            <?php wp_nonce_field('save_category_display_order', 'category_display_order_nonce'); ?>
         </div>
         <?php
     }
@@ -240,6 +188,7 @@ class Handy_Custom_Admin {
             <td>
                 <input type="number" id="display_order" name="display_order" value="<?php echo esc_attr($display_order); ?>" min="1" max="999" />
                 <p class="description"><?php _e('Order for displaying this category on frontend (1 = first). Only applies to top-level categories.', 'handy-custom'); ?></p>
+                <?php wp_nonce_field('save_category_display_order', 'category_display_order_nonce'); ?>
             </td>
         </tr>
         <?php
@@ -251,17 +200,57 @@ class Handy_Custom_Admin {
      * @param int $term_id The term ID
      */
     public static function save_category_display_order($term_id) {
+        // Security: Verify nonce
+        if (!isset($_POST['category_display_order_nonce']) || 
+            !wp_verify_nonce($_POST['category_display_order_nonce'], 'save_category_display_order')) {
+            return;
+        }
+        
         if (!isset($_POST['display_order'])) {
+            return;
+        }
+
+        // Validate: Only allow for top-level categories
+        $term = get_term($term_id);
+        if (!$term || is_wp_error($term) || $term->parent !== 0) {
             return;
         }
 
         $display_order = absint($_POST['display_order']);
         
-        if ($display_order > 0) {
-            update_term_meta($term_id, 'display_order', $display_order);
+        if ($display_order > 0 && $display_order <= 999) {
+            // Check for duplicate display orders
+            if (self::is_display_order_available($display_order, $term_id)) {
+                update_term_meta($term_id, 'display_order', $display_order);
+            }
         } else {
             delete_term_meta($term_id, 'display_order');
         }
+    }
+
+    /**
+     * Check if display order is available (not used by another category)
+     *
+     * @param int $display_order The display order to check
+     * @param int $exclude_term_id Term ID to exclude from check (for updates)
+     * @return bool True if available, false if taken
+     */
+    private static function is_display_order_available($display_order, $exclude_term_id = 0) {
+        $existing_terms = get_terms(array(
+            'taxonomy' => 'product-category',
+            'parent' => 0,
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => 'display_order',
+                    'value' => $display_order,
+                    'compare' => '='
+                )
+            ),
+            'exclude' => array($exclude_term_id)
+        ));
+
+        return empty($existing_terms) || is_wp_error($existing_terms);
     }
 
     /**
