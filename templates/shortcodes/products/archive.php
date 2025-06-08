@@ -31,59 +31,7 @@ Handy_Custom_Logger::log($context_info, 'info');
 <div class="handy-products-archive" data-shortcode="products" data-display-mode="<?php echo esc_attr($display_mode); ?>"
      <?php if (!empty($filters['subcategory'])): ?>data-subcategory="<?php echo esc_attr($filters['subcategory']); ?>"<?php endif; ?>>
     
-    <?php if (!empty($filter_options) && (empty(array_filter($filters)) || !empty($filters['subcategory']))): ?>
-    <!-- Filter Controls - Show on main archive or when subcategory filtering -->
-    <div class="handy-products-filters">
-        
-        <?php if (!empty($filters['subcategory'])): ?>
-        <!-- Subcategory Context Header -->
-        <div class="subcategory-context">
-            <?php 
-            $subcategory_term = get_term_by('slug', $filters['subcategory'], 'product-category');
-            if ($subcategory_term && !is_wp_error($subcategory_term)):
-                $parent_term = !empty($subcategory_term->parent) ? get_term($subcategory_term->parent, 'product-category') : null;
-            ?>
-            <h2 class="subcategory-title">
-                <?php if ($parent_term && !is_wp_error($parent_term)): ?>
-                    <span class="parent-category"><?php echo esc_html($parent_term->name); ?></span>
-                    <span class="separator"> > </span>
-                <?php endif; ?>
-                <span class="current-subcategory"><?php echo esc_html($subcategory_term->name); ?></span>
-            </h2>
-            <?php if (!empty($subcategory_term->description)): ?>
-                <div class="subcategory-description">
-                    <p><?php echo esc_html($subcategory_term->description); ?></p>
-                </div>
-            <?php endif; ?>
-            <?php endif; ?>
-        </div>
-        <?php endif; ?>
-        <div class="filters-row">
-            
-            <?php foreach ($filter_options as $filter_key => $terms): ?>
-                <?php if (!empty($terms)): ?>
-                <div class="filter-group">
-                    <label for="filter-<?php echo esc_attr($filter_key); ?>">
-                        <?php echo esc_html(ucwords(str_replace('_', ' ', rtrim($filter_key, 's')))); ?>:
-                    </label>
-                    <select id="filter-<?php echo esc_attr($filter_key); ?>" 
-                            name="<?php echo esc_attr(rtrim($filter_key, 's')); ?>" 
-                            class="product-filter">
-                        <option value="">All <?php echo esc_html(ucwords(str_replace('_', ' ', $filter_key))); ?></option>
-                        <?php foreach ($terms as $term): ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" 
-                                    <?php selected(isset($filters[rtrim($filter_key, 's')]) ? $filters[rtrim($filter_key, 's')] : '', $term->slug); ?>>
-                                <?php echo esc_html($term->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </div>
-                <?php endif; ?>
-            <?php endforeach; ?>
-            
-        </div>
-    </div>
-    <?php endif; ?>
+    <!-- Filter Controls Removed: Use [filter-products] shortcode instead -->
 
     <!-- Products Grid -->
     <div class="handy-products-grid <?php echo esc_attr($display_mode === 'list' ? 'products-list-view' : 'products-category-view'); ?>" id="products-results">

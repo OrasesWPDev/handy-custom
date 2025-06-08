@@ -43,63 +43,7 @@ Handy_Custom_Logger::log('Loading recipes archive template with ' . count($recip
         </div>
     </div>
     
-    <!-- Filter Controls - Always show for recipes -->
-    <div class="handy-recipes-filters">
-        <div class="filters-row">
-            
-            <?php if (!empty($filter_options['categories'])): ?>
-            <div class="filter-group">
-                <label for="filter-recipe-category">Category:</label>
-                <select id="filter-recipe-category" 
-                        name="category" 
-                        class="recipe-filter">
-                    <option value="">All Categories</option>
-                    <?php foreach ($filter_options['categories'] as $term): ?>
-                        <option value="<?php echo esc_attr($term->slug); ?>" 
-                                <?php selected(isset($filters['category']) ? $filters['category'] : '', $term->slug); ?>>
-                            <?php echo esc_html($term->name); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($filter_options['cooking_methods'])): ?>
-            <div class="filter-group">
-                <label for="filter-recipe-cooking-method">Cooking Method:</label>
-                <select id="filter-recipe-cooking-method" 
-                        name="cooking_method" 
-                        class="recipe-filter">
-                    <option value="">All Cooking Methods</option>
-                    <?php foreach ($filter_options['cooking_methods'] as $term): ?>
-                        <option value="<?php echo esc_attr($term->slug); ?>" 
-                                <?php selected(isset($filters['cooking_method']) ? $filters['cooking_method'] : '', $term->slug); ?>>
-                            <?php echo esc_html($term->name); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-            
-            <?php if (!empty($filter_options['menu_occasions'])): ?>
-            <div class="filter-group">
-                <label for="filter-recipe-menu-occasion">Menu Occasion:</label>
-                <select id="filter-recipe-menu-occasion" 
-                        name="menu_occasion" 
-                        class="recipe-filter">
-                    <option value="">All Menu Occasions</option>
-                    <?php foreach ($filter_options['menu_occasions'] as $term): ?>
-                        <option value="<?php echo esc_attr($term->slug); ?>" 
-                                <?php selected(isset($filters['menu_occasion']) ? $filters['menu_occasion'] : '', $term->slug); ?>>
-                            <?php echo esc_html($term->name); ?>
-                        </option>
-                    <?php endforeach; ?>
-                </select>
-            </div>
-            <?php endif; ?>
-            
-        </div>
-    </div>
+    <!-- Filter Controls Removed: Use [filter-recipes] shortcode instead -->
 
     <!-- Recipes Grid -->
     <div class="handy-recipes-grid" id="recipes-results">
