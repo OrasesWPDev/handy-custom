@@ -93,56 +93,15 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Get filtered product categories based on applied filters
+	 * For frontend category display, always returns the 4 top-level categories in fixed order
 	 *
 	 * @param array $filters Filter parameters
 	 * @return array
 	 */
 	public static function get_filtered_categories($filters) {
-		// If no filters applied, get all categories
-		if (empty(array_filter($filters))) {
-			return self::get_all_categories();
-		}
-
-		// Build tax query for filtering
-		$tax_query = self::build_tax_query($filters);
-
-		// Query products with filters
-		$query = new WP_Query(array(
-			'post_type' => 'product',
-			'posts_per_page' => -1,
-			'post_status' => 'publish',
-			'tax_query' => $tax_query
-		));
-
-		// Get unique categories from filtered products
-		$category_slugs = array();
-		if ($query->have_posts()) {
-			while ($query->have_posts()) {
-				$query->the_post();
-				$categories = get_the_terms(get_the_ID(), 'product-category');
-				if ($categories && !is_wp_error($categories)) {
-					foreach ($categories as $category) {
-						$category_slugs[] = $category->slug;
-					}
-				}
-			}
-			wp_reset_postdata();
-		}
-
-		// Get category objects for the unique slugs
-		if (empty($category_slugs)) {
-			return array();
-		}
-
-		$categories = get_terms(array(
-			'taxonomy' => 'product-category',
-			'slug' => array_unique($category_slugs),
-			'hide_empty' => false,
-			'orderby' => 'name',
-			'order' => 'ASC'
-		));
-
-		return is_wp_error($categories) ? array() : $categories;
+		// For categories display mode (frontend), always show the 4 top-level categories
+		// regardless of filters or published content - per user requirements
+		return self::get_all_categories();
 	}
 
 	/**
@@ -240,14 +199,19 @@ class Handy_Custom_Products_Filters {
 	}
 
 	/**
-	 * Get all product categories
-	 * For default display, only return top-level categories (parent = 0) in specified order
+	 * Get all product categories ordered by display_order meta field
+	 * For default display, only return top-level categories (parent = 0) 
 	 *
 	 * @param bool $top_level_only Whether to return only top-level categories
 	 * @return array
 	 */
 	private static function get_all_categories($top_level_only = true) {
-		$args = array();
+		$args = array(
+			'hide_empty' => false,
+			'orderby' => 'meta_value_num',
+			'meta_key' => 'display_order',
+			'order' => 'ASC'
+		);
 		
 		if ($top_level_only) {
 			$args['parent'] = 0;
@@ -255,32 +219,29 @@ class Handy_Custom_Products_Filters {
 		
 		$categories = Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
 		
-		// For top-level categories, apply custom order: crab, shrimp, appetizers, dietary alternatives
-		if ($top_level_only && !empty($categories)) {
-			$ordered_slugs = array('crab', 'shrimp', 'appetizers', 'dietary-alternatives');
+		// For categories without display_order meta, sort alphabetically and append
+		if (!empty($categories) && $top_level_only) {
 			$ordered_categories = array();
-			$remaining_categories = array();
+			$unordered_categories = array();
 			
-			// Create lookup array by slug
-			$categories_by_slug = array();
 			foreach ($categories as $category) {
-				$categories_by_slug[$category->slug] = $category;
-			}
-			
-			// Add categories in specified order
-			foreach ($ordered_slugs as $slug) {
-				if (isset($categories_by_slug[$slug])) {
-					$ordered_categories[] = $categories_by_slug[$slug];
-					unset($categories_by_slug[$slug]);
+				$display_order = get_term_meta($category->term_id, 'display_order', true);
+				
+				if (!empty($display_order) && is_numeric($display_order)) {
+					$ordered_categories[] = $category;
+				} else {
+					$unordered_categories[] = $category;
 				}
 			}
 			
-			// Add any remaining categories at the end
-			foreach ($categories_by_slug as $category) {
-				$remaining_categories[] = $category;
+			// Sort unordered categories alphabetically
+			if (!empty($unordered_categories)) {
+				usort($unordered_categories, function($a, $b) {
+					return strcmp($a->name, $b->name);
+				});
 			}
 			
-			return array_merge($ordered_categories, $remaining_categories);
+			return array_merge($ordered_categories, $unordered_categories);
 		}
 		
 		return $categories;

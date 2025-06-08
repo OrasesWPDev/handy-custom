@@ -17,6 +17,14 @@ class Handy_Custom_Admin {
     public static function init() {
         add_action('restrict_manage_posts', array(__CLASS__, 'add_taxonomy_filters'));
         add_filter('parse_query', array(__CLASS__, 'filter_posts_by_taxonomy'));
+        
+        // Add display order functionality for product categories
+        add_action('product-category_add_form_fields', array(__CLASS__, 'add_category_display_order_field'));
+        add_action('product-category_edit_form_fields', array(__CLASS__, 'edit_category_display_order_field'));
+        add_action('edited_product-category', array(__CLASS__, 'save_category_display_order'));
+        add_action('create_product-category', array(__CLASS__, 'save_category_display_order'));
+        add_filter('manage_edit-product-category_columns', array(__CLASS__, 'add_category_display_order_column'));
+        add_filter('manage_product-category_custom_column', array(__CLASS__, 'populate_category_display_order_column'), 10, 3);
     }
 
     /**

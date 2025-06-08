@@ -60,9 +60,11 @@
     margin-bottom: 30px;
 }
 
-/* Category View Grid (Default) */
+/* Category View Grid (Default) - Fixed 2x2 grid for 4 top-level categories */
 .products-category-view {
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 800px;
+    margin: 0 auto;
 }
 
 /* Product List View Grid */
