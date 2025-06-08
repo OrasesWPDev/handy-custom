@@ -39,13 +39,13 @@ class Handy_Custom_Admin {
         }
 
         // Get priority product taxonomies for admin filtering
-        // Order reflects priority: market-segment, cooking-method, product-type, grade, size
+        // Order reflects priority per user requirements: Categories, Market Segment, Cooking Method, Menu Occasions, Grade
         $taxonomies = array(
-            'market-segment' => 'Market Segment',
+            'product-category' => 'Category',
+            'market-segment' => 'Market Segment', 
             'product-cooking-method' => 'Cooking Method',
-            'product-type' => 'Product Type',
-            'grade' => 'Grade',
-            'size' => 'Size'
+            'product-menu-occasion' => 'Menu Occasion',
+            'grade' => 'Grade'
         );
 
         foreach ($taxonomies as $taxonomy => $label) {
@@ -57,13 +57,21 @@ class Handy_Custom_Admin {
             // Get current filter value
             $selected = isset($_GET[$taxonomy]) ? $_GET[$taxonomy] : '';
 
-            // Get all terms for this taxonomy
-            $terms = get_terms(array(
+            // Get all terms for this taxonomy (including those without published posts)
+            $terms_args = array(
                 'taxonomy' => $taxonomy,
-                'hide_empty' => true,
+                'hide_empty' => false, // Show ALL terms regardless of publish status
                 'orderby' => 'name',
                 'order' => 'ASC'
-            ));
+            );
+            
+            // For product categories, show hierarchical structure
+            if ($taxonomy === 'product-category') {
+                $terms_args['orderby'] = 'meta_value_num name';
+                $terms_args['meta_key'] = 'display_order';
+            }
+            
+            $terms = get_terms($terms_args);
 
             if (!empty($terms) && !is_wp_error($terms)) {
                 echo '<select name="' . esc_attr($taxonomy) . '" id="filter-by-' . esc_attr($taxonomy) . '">';
@@ -71,8 +79,15 @@ class Handy_Custom_Admin {
                 
                 foreach ($terms as $term) {
                     $selected_attr = selected($selected, $term->slug, false);
+                    
+                    // For categories, show hierarchical structure
+                    $term_name = $term->name;
+                    if ($taxonomy === 'product-category' && $term->parent > 0) {
+                        $term_name = '— ' . $term_name; // Indent subcategories
+                    }
+                    
                     echo '<option value="' . esc_attr($term->slug) . '"' . $selected_attr . '>';
-                    echo esc_html($term->name) . ' (' . $term->count . ')';
+                    echo esc_html($term_name) . ' (' . $term->count . ')';
                     echo '</option>';
                 }
                 
@@ -94,13 +109,13 @@ class Handy_Custom_Admin {
             return;
         }
 
-        // Get priority product taxonomies for admin filtering
+        // Get priority product taxonomies for admin filtering - updated per user requirements
         $taxonomies = array(
+            'product-category',
             'market-segment',
             'product-cooking-method',
-            'product-type',
-            'grade',
-            'size'
+            'product-menu-occasion',
+            'grade'
         );
 
         $tax_query = array();
@@ -119,6 +134,14 @@ class Handy_Custom_Admin {
         if (!empty($tax_query)) {
             $tax_query['relation'] = 'AND';
             $query->set('tax_query', $tax_query);
+        }
+        
+        // Ensure we can filter both published and draft products per user requirements
+        if (!empty($tax_query)) {
+            $current_post_status = $query->get('post_status');
+            if (empty($current_post_status)) {
+                $query->set('post_status', array('publish', 'draft'));
+            }
         }
     }
 
@@ -174,5 +197,143 @@ class Handy_Custom_Admin {
                 }
                 break;
         }
+    }
+
+    /**
+     * Add display order field to category add form (only for top-level categories)
+     *
+     * @param string $taxonomy The taxonomy slug
+     */
+    public static function add_category_display_order_field($taxonomy) {
+        if ($taxonomy !== 'product-category') {
+            return;
+        }
+        
+        // Get next available display order
+        $next_order = self::get_next_display_order();
+        ?>
+        <div class="form-field">
+            <label for="display_order"><?php _e('Display Order', 'handy-custom'); ?></label>
+            <input type="number" id="display_order" name="display_order" value="<?php echo esc_attr($next_order); ?>" min="1" max="999" />
+            <p class="description"><?php _e('Order for displaying top-level categories on frontend (1 = first). Only applies to top-level categories.', 'handy-custom'); ?></p>
+        </div>
+        <?php
+    }
+
+    /**
+     * Add display order field to category edit form (only for top-level categories)
+     *
+     * @param WP_Term $term The term object
+     */
+    public static function edit_category_display_order_field($term) {
+        // Only show for top-level categories
+        if ($term->parent !== 0) {
+            return;
+        }
+        
+        $display_order = get_term_meta($term->term_id, 'display_order', true);
+        ?>
+        <tr class="form-field">
+            <th scope="row">
+                <label for="display_order"><?php _e('Display Order', 'handy-custom'); ?></label>
+            </th>
+            <td>
+                <input type="number" id="display_order" name="display_order" value="<?php echo esc_attr($display_order); ?>" min="1" max="999" />
+                <p class="description"><?php _e('Order for displaying this category on frontend (1 = first). Only applies to top-level categories.', 'handy-custom'); ?></p>
+            </td>
+        </tr>
+        <?php
+    }
+
+    /**
+     * Save display order when category is created or updated
+     *
+     * @param int $term_id The term ID
+     */
+    public static function save_category_display_order($term_id) {
+        if (!isset($_POST['display_order'])) {
+            return;
+        }
+
+        $display_order = absint($_POST['display_order']);
+        
+        if ($display_order > 0) {
+            update_term_meta($term_id, 'display_order', $display_order);
+        } else {
+            delete_term_meta($term_id, 'display_order');
+        }
+    }
+
+    /**
+     * Add display order column to category admin list
+     *
+     * @param array $columns Existing columns
+     * @return array Modified columns
+     */
+    public static function add_category_display_order_column($columns) {
+        // Add display order column after name
+        $new_columns = array();
+        foreach ($columns as $key => $value) {
+            $new_columns[$key] = $value;
+            if ($key === 'name') {
+                $new_columns['display_order'] = __('Display Order', 'handy-custom');
+            }
+        }
+        return $new_columns;
+    }
+
+    /**
+     * Populate display order column with data
+     *
+     * @param string $content Column content
+     * @param string $column_name Column name
+     * @param int $term_id Term ID
+     * @return string Column content
+     */
+    public static function populate_category_display_order_column($content, $column_name, $term_id) {
+        if ($column_name === 'display_order') {
+            $term = get_term($term_id);
+            
+            // Only show order for top-level categories
+            if ($term && $term->parent === 0) {
+                $display_order = get_term_meta($term_id, 'display_order', true);
+                return !empty($display_order) ? esc_html($display_order) : '—';
+            } else {
+                return '—';
+            }
+        }
+        
+        return $content;
+    }
+
+    /**
+     * Get the next available display order number
+     *
+     * @return int Next available order number
+     */
+    private static function get_next_display_order() {
+        $terms = get_terms(array(
+            'taxonomy' => 'product-category',
+            'parent' => 0,
+            'hide_empty' => false,
+            'meta_query' => array(
+                array(
+                    'key' => 'display_order',
+                    'compare' => 'EXISTS'
+                )
+            )
+        ));
+
+        $max_order = 0;
+        if (!empty($terms) && !is_wp_error($terms)) {
+            foreach ($terms as $term) {
+                $order = get_term_meta($term->term_id, 'display_order', true);
+                if (is_numeric($order) && $order > $max_order) {
+                    $max_order = (int) $order;
+                }
+            }
+        }
+
+        return $max_order + 1;
     }
 }
