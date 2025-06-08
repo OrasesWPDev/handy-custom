@@ -148,11 +148,11 @@ class Handy_Custom_Recipes_Filters {
 		
 		// Set pagination based on parameters
 		if (!empty($filters['per_page']) && absint($filters['per_page']) > 0) {
-			$posts_per_page = absint($filters['per_page']);
+			$posts_per_page = min(100, absint($filters['per_page'])); // Cap at 100 to prevent abuse
 		}
 		
 		if (!empty($filters['page'])) {
-			$paged = absint($filters['page']);
+			$paged = max(1, absint($filters['page'])); // Ensure minimum page is 1
 		}
 		
 		$default_args = array(

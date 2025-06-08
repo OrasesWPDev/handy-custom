@@ -245,6 +245,16 @@ abstract class Handy_Custom_Base_Utils {
 			$query->max_num_pages = $cached_data['max_num_pages'];
 			$query->query_vars = $cached_data['query_vars'];
 			
+			// Set additional properties for proper WP_Query behavior
+			$query->current_post = -1;
+			$query->in_the_loop = false;
+			
+			// Validate cached data integrity
+			if (!is_array($query->posts)) {
+				Handy_Custom_Logger::log("Invalid cached query data for key: {$cache_key}", 'warning');
+				return false;
+			}
+			
 			Handy_Custom_Logger::log("Query cache hit for key: {$cache_key}", 'info');
 			return $query;
 		}
@@ -262,6 +272,12 @@ abstract class Handy_Custom_Base_Utils {
 	public static function cache_query_results($cache_key, $query, $ttl = 1800) {
 		// Only cache successful queries
 		if (!($query instanceof WP_Query) || is_wp_error($query)) {
+			return;
+		}
+		
+		// Don't cache excessively large result sets to prevent memory issues
+		if ($query->post_count > 200) {
+			Handy_Custom_Logger::log("Skipping cache for large result set ({$query->post_count} posts)", 'info');
 			return;
 		}
 		

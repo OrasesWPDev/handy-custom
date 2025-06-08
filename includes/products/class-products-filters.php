@@ -192,12 +192,12 @@ class Handy_Custom_Products_Filters {
 		
 		// Set pagination based on display mode and parameters
 		if (!empty($filters['per_page']) && absint($filters['per_page']) > 0) {
-			$posts_per_page = absint($filters['per_page']);
-			$paged = !empty($filters['page']) ? absint($filters['page']) : 1;
+			$posts_per_page = min(100, absint($filters['per_page'])); // Cap at 100 to prevent abuse
+			$paged = !empty($filters['page']) ? max(1, absint($filters['page'])) : 1;
 		} elseif (!empty($filters['display']) && $filters['display'] === 'list') {
 			// Default pagination for list mode to prevent performance issues
 			$posts_per_page = 12; // Sensible default for product listing
-			$paged = !empty($filters['page']) ? absint($filters['page']) : 1;
+			$paged = !empty($filters['page']) ? max(1, absint($filters['page'])) : 1;
 		}
 		
 		$default_args = array(
