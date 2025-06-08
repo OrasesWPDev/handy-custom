@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.5.3-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -90,6 +90,48 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 [products]
 
 // Display all recipes
+[recipes]
+
+// Display product filters (new in v1.6.0)
+[filter-products]
+
+// Display recipe filters (new in v1.6.0)
+[filter-recipes]
+```
+
+### New Filter Shortcodes (v1.6.0)
+
+The plugin now includes dedicated filter shortcodes that provide dynamic, standalone filtering controls. These work independently from content shortcodes and use URL parameters for state management.
+
+```php
+// Basic filter usage
+[filter-products]                                    // Show all product taxonomy filters
+[filter-recipes]                                     // Show all recipe taxonomy filters
+
+// Show only specific taxonomies
+[filter-products display="grade,market_segment"]     // Show only grade and market segment filters
+[filter-recipes display="category,cooking_method"]   // Show only category and cooking method filters
+
+// Exclude specific taxonomies  
+[filter-products exclude="size,product_type"]        // Show all except size and product type
+[filter-recipes exclude="difficulty"]               // Show all except difficulty filter
+```
+
+**Key Benefits:**
+- **Dynamic Updates**: Filters automatically show new terms when added to taxonomies
+- **URL State Management**: Filter selections persist in URL for bookmarking and sharing
+- **Standalone Design**: Use filters anywhere on the page, independent of content shortcodes
+- **Real-time Interaction**: Filter changes instantly update URL parameters
+- **Cross-Shortcode Communication**: Filter selections affect matching content shortcodes via URL parameters
+
+**Typical Usage Pattern:**
+```php
+// On a products page
+[filter-products display="grade,market_segment,cooking_method"]
+[products display="list"]
+
+// On a recipes page  
+[filter-recipes]
 [recipes]
 ```
 
@@ -371,7 +413,19 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.5.3 (Latest)
+### Version 1.6.0 (Latest)
+- **New Filter Shortcodes**: Introduced dedicated `[filter-products]` and `[filter-recipes]` shortcodes for standalone filtering controls
+- **Unified Filter System**: Created consolidated filter rendering with single CSS/JS files for all filter functionality
+- **Dynamic Filter Updates**: Filters automatically show new terms when added to taxonomies and hide deleted terms
+- **URL State Management**: Filter selections persist in URL parameters for bookmarking and sharing
+- **Cross-Shortcode Communication**: Filter shortcodes communicate with content shortcodes via URL parameters
+- **Modular Design**: Filters can be placed anywhere on page, independent of content shortcodes
+- **Comprehensive Logging**: Added extensive debug logging throughout filter system for troubleshooting
+- **CSS Cleanup**: Removed obsolete filter styles from product and recipe CSS files to prevent conflicts
+- **Performance Optimization**: Filter assets only load when filter shortcodes are present on page
+- **Responsive Design**: Unified filter styles include full responsive support and dark mode compatibility
+
+### Version 1.5.3
 - **Frontend Filter Display**: Fixed grade and other taxonomy filters not appearing on frontend when using `[products]` shortcode in categories mode
 - **Admin Category Filter Enhancement**: Fixed admin product category dropdown to display all categories (both parent and child) in hierarchical structure
 - **User Experience**: Restored complete filter interface on frontend products page to match design requirements
