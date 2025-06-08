@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.4.0';
+	const VERSION = '1.5.0';
 
 	/**
 	 * Single instance of the class
@@ -97,6 +97,9 @@ class Handy_Custom {
 		
 		// Initialize logger
 		Handy_Custom_Logger::init();
+		
+		// Initialize cache invalidation hooks
+		Handy_Custom_Base_Utils::init_cache_invalidation();
 		
 		// Initialize admin functionality
 		if (is_admin()) {

@@ -181,30 +181,62 @@ class Handy_Custom_Products_Filters {
 	/**
 	 * Get filtered products with subcategory support
 	 *
-	 * @param array $filters Filter parameters including subcategory
+	 * @param array $filters Filter parameters including subcategory and pagination
 	 * @param array $args Additional WP_Query arguments
 	 * @return WP_Query Query object with filtered products
 	 */
 	public static function get_filtered_products($filters, $args = array()) {
+		// Handle pagination parameters
+		$posts_per_page = -1; // Default: show all
+		$paged = 1;
+		
+		// Set pagination based on display mode and parameters
+		if (!empty($filters['per_page']) && absint($filters['per_page']) > 0) {
+			$posts_per_page = min(100, absint($filters['per_page'])); // Cap at 100 to prevent abuse
+			$paged = !empty($filters['page']) ? max(1, absint($filters['page'])) : 1;
+		} elseif (!empty($filters['display']) && $filters['display'] === 'list') {
+			// Default pagination for list mode to prevent performance issues
+			$posts_per_page = 12; // Sensible default for product listing
+			$paged = !empty($filters['page']) ? max(1, absint($filters['page'])) : 1;
+		}
+		
 		$default_args = array(
 			'post_type' => 'product',
 			'post_status' => 'publish',
-			'posts_per_page' => -1,
+			'posts_per_page' => $posts_per_page,
+			'paged' => $paged,
 			'orderby' => 'title',
 			'order' => 'ASC'
 		);
 
 		// Build tax query if filters exist
-		if (!empty(array_filter($filters))) {
-			$default_args['tax_query'] = self::build_tax_query($filters);
+		$filter_params = $filters;
+		// Remove pagination params from tax query building
+		unset($filter_params['per_page'], $filter_params['page'], $filter_params['display']);
+		
+		if (!empty(array_filter($filter_params))) {
+			$default_args['tax_query'] = self::build_tax_query($filter_params);
 		}
 
 		// Merge with any additional arguments
 		$query_args = wp_parse_args($args, $default_args);
 		
-		Handy_Custom_Logger::log("Executing product query with subcategory support. Filters: " . wp_json_encode($filters), 'info');
+		// Generate cache key for this query
+		$cache_key = Handy_Custom_Base_Utils::generate_query_cache_key($query_args, 'products');
 		
-		return new WP_Query($query_args);
+		// Try to get cached results first
+		$cached_query = Handy_Custom_Base_Utils::get_cached_query($cache_key);
+		if (false !== $cached_query) {
+			return $cached_query;
+		}
+		
+		Handy_Custom_Logger::log("Executing product query with pagination. Posts per page: {$posts_per_page}, Page: {$paged}. Filters: " . wp_json_encode($filters), 'info');
+		
+		// Execute query and cache results
+		$query = new WP_Query($query_args);
+		Handy_Custom_Base_Utils::cache_query_results($cache_key, $query);
+		
+		return $query;
 	}
 
 	/**

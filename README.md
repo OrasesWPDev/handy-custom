@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.4.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.5.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -127,6 +127,37 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 // Combined filters
 [recipes category="main-course" menu_occasion="dinner"]
 ```
+
+### Pagination Support (v1.5.0+)
+
+Both products and recipes shortcodes support pagination to improve performance with large datasets.
+
+**Shortcode Parameters:**
+- `per_page` - Number of items per page (default: 12 for list mode, unlimited for categories mode)
+- `page` - Current page number (default: 1)
+
+**Examples:**
+```php
+// Display 24 products per page
+[products display="list" per_page="24" page="1"]
+
+// Display 16 recipes per page, showing page 2
+[recipes per_page="16" page="2"]
+
+// Combine with filters
+[products display="list" category="crab" per_page="12" page="1"]
+```
+
+**Safety Features:**
+- Maximum `per_page` limit: 100 (prevents abuse)
+- Minimum `page` number: 1 (prevents invalid pagination)
+- Automatic pagination for list mode (prevents runaway queries)
+- Large result set protection (caching skipped for >200 posts)
+
+**AJAX Compatibility:**
+- Pagination state maintained during AJAX filtering
+- URL parameters updated to reflect current page
+- Cache-aware pagination for optimal performance
 
 ### SEO-Friendly URLs
 
@@ -340,7 +371,17 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.4.0 (Latest)
+### Version 1.5.0 (Latest)
+- **Performance Optimization**: Comprehensive performance improvements addressing GitHub issues #7, #8, and #13
+- **Query Result Caching**: Added intelligent caching system for filtered product and recipe queries with 30-minute TTL
+- **Pagination Support**: Added `per_page` and `page` parameters to shortcodes to prevent performance degradation
+- **Cache Management**: Fixed cache group flush implementation and added proper cache invalidation hooks
+- **Safety Features**: Added pagination limits (max 100 per page), large result set handling, and input validation
+- **Memory Management**: Intelligent cache size limits and proper WP_Query object reconstruction
+- **Backwards Compatibility**: All existing shortcode usage continues to work without changes
+- **Debug Improvements**: Enhanced logging for cache hits/misses and query performance monitoring
+
+### Version 1.4.0
 - **Admin Product Filtering**: Added comprehensive taxonomy dropdown filters to WordPress admin product listing
 - **Enhanced Product Management**: Filter products by category, grade, market segment, cooking method, menu occasion, product type, size, species, brand, and certification
 - **Admin Integration**: New admin class with optimized query filtering and user-friendly dropdown interfaces
