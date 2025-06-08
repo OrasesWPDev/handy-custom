@@ -321,6 +321,23 @@ abstract class Handy_Custom_Base_Utils {
 	}
 
 	/**
+	 * Clear all caches on plugin version update
+	 * Handles cases where cache format changes between versions
+	 */
+	public static function clear_version_cache() {
+		$current_version = defined('Handy_Custom::VERSION') ? Handy_Custom::VERSION : '1.5.0';
+		$cached_version = get_option('handy_custom_cache_version', '');
+		
+		// If version changed, clear all caches
+		if ($cached_version !== $current_version) {
+			self::clear_term_cache();
+			self::clear_query_cache();
+			update_option('handy_custom_cache_version', $current_version);
+			Handy_Custom_Logger::log("Cache cleared due to version upgrade from {$cached_version} to {$current_version}", 'info');
+		}
+	}
+
+	/**
 	 * Initialize cache invalidation hooks
 	 * Should be called during plugin initialization
 	 */

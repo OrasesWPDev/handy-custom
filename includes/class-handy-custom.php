@@ -99,6 +99,9 @@ class Handy_Custom {
 		// Initialize cache invalidation hooks
 		Handy_Custom_Base_Utils::init_cache_invalidation();
 		
+		// Clear cache if plugin version has changed
+		Handy_Custom_Base_Utils::clear_version_cache();
+		
 		// Initialize admin functionality
 		if (is_admin()) {
 			Handy_Custom_Admin::init();
