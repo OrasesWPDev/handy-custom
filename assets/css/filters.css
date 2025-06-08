@@ -1,0 +1,279 @@
+/**
+ * Unified filter styles for both products and recipes
+ * 
+ * User request: "I think 1 css file for all filters and 1 js file for all filters, 
+ * as long as the code is well documented, will do"
+ *
+ * @package Handy_Custom
+ */
+
+/* ==========================================================================
+   Filter Container Styles
+   ========================================================================== */
+
+.handy-filters {
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    position: relative;
+}
+
+.handy-filters[data-content-type="products"] {
+    border-left: 4px solid #007cba; /* Blue accent for products */
+}
+
+.handy-filters[data-content-type="recipes"] {
+    border-left: 4px solid #d63638; /* Red accent for recipes */
+}
+
+/* ==========================================================================
+   Filter Row Layout
+   ========================================================================== */
+
+.filters-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    align-items: end;
+}
+
+/* ==========================================================================
+   Individual Filter Groups
+   ========================================================================== */
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
+    flex: 1;
+}
+
+.filter-group label {
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #1d2327;
+    font-size: 14px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.filter-group .filter-select {
+    padding: 10px 12px;
+    border: 2px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    font-size: 14px;
+    color: #1d2327;
+    transition: all 0.3s ease;
+    cursor: pointer;
+    min-height: 44px; /* Touch-friendly minimum */
+}
+
+.filter-group .filter-select:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+}
+
+.filter-group .filter-select:hover {
+    border-color: #999;
+}
+
+/* Selected state for filters with active values */
+.filter-group .filter-select[data-has-value="true"] {
+    border-color: #007cba;
+    background: #f0f8ff;
+}
+
+/* ==========================================================================
+   Filter Actions (Clear button, etc.)
+   ========================================================================== */
+
+.filter-actions {
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid #e9ecef;
+    text-align: center;
+}
+
+.btn-clear-filters {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-clear-filters:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-clear-filters:active {
+    transform: translateY(0);
+}
+
+/* ==========================================================================
+   Loading States
+   ========================================================================== */
+
+.filter-loading {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 8px;
+    z-index: 10;
+}
+
+.filter-loading p {
+    margin: 0;
+    font-size: 16px;
+    color: #6c757d;
+    font-weight: 500;
+}
+
+/* Loading spinner animation */
+.filter-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: filter-spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+@keyframes filter-spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* ==========================================================================
+   Error States
+   ========================================================================== */
+
+.filter-error,
+.no-filters {
+    text-align: center;
+    padding: 40px 20px;
+    color: #6c757d;
+}
+
+.filter-error p,
+.no-filters p {
+    margin: 0;
+    font-size: 16px;
+}
+
+.filter-error {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+/* ==========================================================================
+   Responsive Design
+   ========================================================================== */
+
+/* Tablet (550-849px) */
+@media (max-width: 849px) and (min-width: 550px) {
+    .filters-row {
+        gap: 15px;
+    }
+    
+    .filter-group {
+        min-width: 150px;
+        flex-basis: calc(50% - 7.5px);
+    }
+    
+    .handy-filters {
+        padding: 15px;
+    }
+}
+
+/* Mobile (549px and below) */
+@media (max-width: 549px) {
+    .filters-row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    
+    .filter-group {
+        min-width: 100%;
+        flex-basis: auto;
+    }
+    
+    .handy-filters {
+        padding: 15px;
+        margin-bottom: 20px;
+    }
+    
+    .filter-group label {
+        font-size: 13px;
+    }
+    
+    .filter-group .filter-select {
+        padding: 12px;
+        font-size: 16px; /* Prevent zoom on iOS */
+    }
+}
+
+/* ==========================================================================
+   Dark Mode Support (if theme supports it)
+   ========================================================================== */
+
+@media (prefers-color-scheme: dark) {
+    .handy-filters {
+        background: #1a1a1a;
+        border-color: #333;
+        color: #e0e0e0;
+    }
+    
+    .filter-group label {
+        color: #e0e0e0;
+    }
+    
+    .filter-group .filter-select {
+        background: #2a2a2a;
+        border-color: #444;
+        color: #e0e0e0;
+    }
+    
+    .filter-group .filter-select:focus {
+        border-color: #4a9eff;
+        box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.1);
+    }
+    
+    .filter-loading {
+        background: rgba(26, 26, 26, 0.9);
+    }
+    
+    .filter-loading p {
+        color: #e0e0e0;
+    }
+}
+
+/* ==========================================================================
+   Print Styles
+   ========================================================================== */
+
+@media print {
+    .handy-filters {
+        display: none; /* Hide filters when printing */
+    }
+}
