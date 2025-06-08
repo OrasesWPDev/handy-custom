@@ -26,6 +26,15 @@ abstract class Handy_Custom_Base_Utils {
 	private static $term_exists_cache = array();
 
 	/**
+	 * Get the cache group name for taxonomy terms
+	 *
+	 * @return string
+	 */
+	private static function get_cache_group() {
+		return 'handy_custom_terms';
+	}
+
+	/**
 	 * Get taxonomy mapping for filter keys (to be implemented by child classes)
 	 *
 	 * @return array
@@ -64,7 +73,7 @@ abstract class Handy_Custom_Base_Utils {
 		$cache_key = 'handy_custom_terms_' . md5($taxonomy . serialize($args));
 		
 		// Check WordPress object cache first
-		$terms = wp_cache_get($cache_key);
+		$terms = wp_cache_get($cache_key, self::get_cache_group());
 		
 		if (false === $terms) {
 			// Check internal static cache
@@ -81,7 +90,7 @@ abstract class Handy_Custom_Base_Utils {
 				}
 
 				// Cache in both WordPress object cache and internal static cache
-				wp_cache_set($cache_key, $terms, '', HOUR_IN_SECONDS);
+				wp_cache_set($cache_key, $terms, self::get_cache_group(), HOUR_IN_SECONDS);
 				self::$term_cache[$internal_cache_key] = $terms;
 			}
 		}
@@ -156,9 +165,18 @@ abstract class Handy_Custom_Base_Utils {
 		}
 
 		// Clear WordPress object cache for taxonomy terms
-		wp_cache_flush_group('');
-		
-		Handy_Custom_Logger::log('Term cache cleared' . ($taxonomy ? " for taxonomy: {$taxonomy}" : ''), 'info');
+		if (wp_cache_supports('flush_group')) {
+			wp_cache_flush_group(self::get_cache_group());
+			Handy_Custom_Logger::log('Term cache group flushed' . ($taxonomy ? " for taxonomy: {$taxonomy}" : ''), 'info');
+		} else {
+			// Fallback for cache backends that don't support group flushing
+			// Clear individual cache keys by iterating through known patterns
+			foreach (self::$term_cache as $internal_key => $value) {
+				$cache_key = 'handy_custom_terms_' . $internal_key;
+				wp_cache_delete($cache_key, self::get_cache_group());
+			}
+			Handy_Custom_Logger::log('Term cache cleared via individual key deletion' . ($taxonomy ? " for taxonomy: {$taxonomy}" : ''), 'info');
+		}
 	}
 
 	/**
