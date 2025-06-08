@@ -142,8 +142,23 @@ abstract class Handy_Custom_Base_Utils {
 		$allowed_keys = array_keys(static::get_taxonomy_mapping());
 		$sanitized = array();
 
+		// Sanitize taxonomy-based filters
 		foreach ($allowed_keys as $key) {
 			$sanitized[$key] = isset($filters[$key]) ? sanitize_text_field($filters[$key]) : '';
+		}
+
+		// Sanitize pagination parameters
+		if (isset($filters['per_page'])) {
+			$sanitized['per_page'] = absint($filters['per_page']);
+		}
+		
+		if (isset($filters['page'])) {
+			$sanitized['page'] = max(1, absint($filters['page'])); // Ensure minimum page is 1
+		}
+		
+		// Sanitize display parameter (for products)
+		if (isset($filters['display'])) {
+			$sanitized['display'] = in_array($filters['display'], array('categories', 'list')) ? $filters['display'] : 'categories';
 		}
 
 		return $sanitized;

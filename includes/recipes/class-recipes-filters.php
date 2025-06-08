@@ -137,22 +137,40 @@ class Handy_Custom_Recipes_Filters {
 	 * Get recipes matching the applied filters
 	 * Main query function for filtered recipe results
 	 *
-	 * @param array $filters Filter parameters
+	 * @param array $filters Filter parameters including pagination
 	 * @param array $args Additional WP_Query arguments
 	 * @return WP_Query Query object with filtered recipes
 	 */
 	public static function get_filtered_recipes($filters, $args = array()) {
+		// Handle pagination parameters
+		$posts_per_page = 12; // Default pagination for recipes to prevent performance issues
+		$paged = 1;
+		
+		// Set pagination based on parameters
+		if (!empty($filters['per_page']) && absint($filters['per_page']) > 0) {
+			$posts_per_page = absint($filters['per_page']);
+		}
+		
+		if (!empty($filters['page'])) {
+			$paged = absint($filters['page']);
+		}
+		
 		$default_args = array(
 			'post_type' => 'recipe',
 			'post_status' => 'publish',
-			'posts_per_page' => -1,
+			'posts_per_page' => $posts_per_page,
+			'paged' => $paged,
 			'orderby' => 'title',
 			'order' => 'ASC'
 		);
 
 		// Build tax query if filters exist
-		if (!empty(array_filter($filters))) {
-			$default_args['tax_query'] = self::build_tax_query($filters);
+		$filter_params = $filters;
+		// Remove pagination params from tax query building
+		unset($filter_params['per_page'], $filter_params['page']);
+		
+		if (!empty(array_filter($filter_params))) {
+			$default_args['tax_query'] = self::build_tax_query($filter_params);
 		}
 
 		// Merge with any additional arguments
@@ -167,7 +185,7 @@ class Handy_Custom_Recipes_Filters {
 			return $cached_query;
 		}
 		
-		Handy_Custom_Logger::log("Executing recipe query with " . count($filters) . " filters", 'info');
+		Handy_Custom_Logger::log("Executing recipe query with pagination. Posts per page: {$posts_per_page}, Page: {$paged}. Filters: " . wp_json_encode($filters), 'info');
 		
 		// Execute query and cache results
 		$query = new WP_Query($query_args);

@@ -35,10 +35,14 @@ class Handy_Custom_Shortcodes {
 	 * @return string
 	 */
 	public static function products_shortcode($atts) {
-		// Include display parameter in defaults
+		// Include display and pagination parameters in defaults
 		$defaults = array_merge(
 			array_fill_keys(array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()), ''),
-			array('display' => 'categories')
+			array(
+				'display' => 'categories',
+				'per_page' => '',
+				'page' => '1'
+			)
 		);
 		$atts = shortcode_atts($defaults, $atts, 'products');
 
@@ -85,8 +89,14 @@ class Handy_Custom_Shortcodes {
 	 * @return string HTML for recipe archive
 	 */
 	public static function recipes_shortcode($atts) {
-		// Define defaults based on recipe taxonomy mapping
-		$defaults = array_fill_keys(array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()), '');
+		// Define defaults based on recipe taxonomy mapping with pagination
+		$defaults = array_merge(
+			array_fill_keys(array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()), ''),
+			array(
+				'per_page' => '',
+				'page' => '1'
+			)
+		);
 		$atts = shortcode_atts($defaults, $atts, 'recipes');
 
 		// Sanitize attributes
@@ -119,8 +129,10 @@ class Handy_Custom_Shortcodes {
 			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
 		}
 		
-		// Add display parameter
+		// Add display and pagination parameters
 		$raw_filters['display'] = isset($_POST['display']) ? sanitize_text_field($_POST['display']) : 'categories';
+		$raw_filters['per_page'] = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
+		$raw_filters['page'] = isset($_POST['page']) ? absint($_POST['page']) : 1;
 		
 		$filters = Handy_Custom_Products_Utils::sanitize_filters($raw_filters);
 
@@ -153,6 +165,11 @@ class Handy_Custom_Shortcodes {
 		foreach (array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()) as $key) {
 			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
 		}
+		
+		// Add pagination parameters
+		$raw_filters['per_page'] = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
+		$raw_filters['page'] = isset($_POST['page']) ? absint($_POST['page']) : 1;
+		
 		$filters = Handy_Custom_Recipes_Utils::sanitize_filters($raw_filters);
 
 		Handy_Custom_Logger::log('Recipe AJAX filter request: ' . wp_json_encode($filters), 'info');
