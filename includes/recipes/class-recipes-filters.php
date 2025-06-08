@@ -158,9 +158,22 @@ class Handy_Custom_Recipes_Filters {
 		// Merge with any additional arguments
 		$query_args = wp_parse_args($args, $default_args);
 		
+		// Generate cache key for this query
+		$cache_key = Handy_Custom_Base_Utils::generate_query_cache_key($query_args, 'recipes');
+		
+		// Try to get cached results first
+		$cached_query = Handy_Custom_Base_Utils::get_cached_query($cache_key);
+		if (false !== $cached_query) {
+			return $cached_query;
+		}
+		
 		Handy_Custom_Logger::log("Executing recipe query with " . count($filters) . " filters", 'info');
 		
-		return new WP_Query($query_args);
+		// Execute query and cache results
+		$query = new WP_Query($query_args);
+		Handy_Custom_Base_Utils::cache_query_results($cache_key, $query);
+		
+		return $query;
 	}
 
 	/**

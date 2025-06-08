@@ -98,6 +98,9 @@ class Handy_Custom {
 		// Initialize logger
 		Handy_Custom_Logger::init();
 		
+		// Initialize cache invalidation hooks
+		Handy_Custom_Base_Utils::init_cache_invalidation();
+		
 		// Initialize admin functionality
 		if (is_admin()) {
 			Handy_Custom_Admin::init();
