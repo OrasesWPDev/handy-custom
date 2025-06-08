@@ -71,14 +71,9 @@ Templates located in `/templates/shortcodes/{type}/archive.php` with these varia
 - `$filter_options` - available filter options (includes category filter only in list mode)
 - `$subcategory_context` - subcategory context (products only)
 
-### Admin Functionality
+### Category Display Order
 
-**Product Filtering**: The plugin includes comprehensive admin filtering functionality for the Products custom post type:
-- **Taxonomy Dropdown Filters**: All product taxonomies available as dropdown filters in admin listing
-- **Supported Taxonomies**: Category, grade, market segment, cooking method, menu occasion, product type, size, species, brand, certification
-- **Filter Integration**: Uses `restrict_manage_posts` and `parse_query` hooks for efficient filtering
-- **Term Counts**: Dropdowns show term counts for better admin UX
-- **Multi-filter Support**: Combine multiple taxonomy filters with AND logic
+Top-level categories use `display_order` meta field for frontend ordering. Categories without display order fall back to alphabetical sorting.
 
 ### Debug/Logging
 
