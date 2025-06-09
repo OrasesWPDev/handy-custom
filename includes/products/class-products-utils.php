@@ -176,6 +176,12 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 	 * @return array Current URL parameters
 	 */
 	public static function get_current_url_parameters() {
+		// Only apply URL parameters if page has product shortcodes
+		// This prevents forcing shortcode behavior on pages meant for UX Builder editing
+		if (!self::page_has_product_shortcodes()) {
+			return array();
+		}
+		
 		// Check for URL-based parameters first
 		$url_params = Handy_Custom::get_url_parameters();
 		
@@ -195,6 +201,30 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Check if current page contains product-related shortcodes
+	 *
+	 * @return bool True if page has product shortcodes
+	 */
+	public static function page_has_product_shortcodes() {
+		global $post;
+		
+		if (!$post || empty($post->post_content)) {
+			return false;
+		}
+		
+		// Check for any product-related shortcodes
+		$product_shortcodes = array('products', 'filter-products');
+		
+		foreach ($product_shortcodes as $shortcode) {
+			if (has_shortcode($post->post_content, $shortcode)) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 
 	/**
