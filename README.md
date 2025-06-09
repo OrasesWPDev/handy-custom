@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.2-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -413,7 +413,17 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.0 (Latest)
+### Version 1.6.2 (Latest)
+- **Fixed URL Override Issue**: Fixed shortcode override forcing on category pages without shortcodes
+- **Enhanced UX Builder Compatibility**: Category pages can now be edited freely with Flatsome UX Builder
+- **Conditional URL Handling**: URL parameters only apply when product shortcodes are present on page
+- **Improved Template Logic**: Template override now checks for shortcode presence before activation
+- **Page Editing Freedom**: `/products/{category}/{subcategory}/` pages no longer locked to shortcode behavior
+
+### Version 1.6.1
+- **Bug Fixes**: Minor stability improvements and performance optimizations
+
+### Version 1.6.0
 - **New Filter Shortcodes**: Introduced dedicated `[filter-products]` and `[filter-recipes]` shortcodes for standalone filtering controls
 - **Unified Filter System**: Created consolidated filter rendering with single CSS/JS files for all filter functionality
 - **Dynamic Filter Updates**: Filters automatically show new terms when added to taxonomies and hide deleted terms

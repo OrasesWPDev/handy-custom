@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.6.1';
+	const VERSION = '1.6.2';
 
 	/**
 	 * Single instance of the class
@@ -346,6 +346,7 @@ class Handy_Custom {
 
 	/**
 	 * Handle product URL redirects and parameter injection
+	 * Only activates when page contains product shortcodes
 	 */
 	public function handle_product_urls() {
 		$category = get_query_var('product_category');
@@ -359,6 +360,19 @@ class Handy_Custom {
 		// Validate that we're on the products page
 		if (!is_page('products')) {
 			return;
+		}
+
+		// Only set global parameters if page contains product shortcodes
+		// This prevents forcing shortcode behavior on pages meant for UX Builder editing
+		global $post;
+		if ($post && !empty($post->post_content)) {
+			$has_product_shortcodes = has_shortcode($post->post_content, 'products') || 
+									  has_shortcode($post->post_content, 'filter-products');
+			
+			if (!$has_product_shortcodes) {
+				Handy_Custom_Logger::log("URL parameters ignored - no product shortcodes found on page", 'info');
+				return;
+			}
 		}
 
 		// Store parameters for shortcode access

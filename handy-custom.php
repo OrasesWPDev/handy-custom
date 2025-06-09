@@ -11,7 +11,7 @@
  * Plugin Name:       Handy Custom
  * Plugin URI:        https://github.com/OrasesWPDev/handy-custom
  * Description:       Custom functionality for product and recipe archives with shortcode support.
- * Version:           1.6.1
+ * Version:           1.6.2
  * Requires at least: 5.3
  * Requires PHP:      7.2
  * Author:            Orases
