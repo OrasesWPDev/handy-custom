@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.6.5';
+	const VERSION = '1.6.6';
 
 	/**
 	 * Single instance of the class
@@ -51,6 +51,9 @@ class Handy_Custom {
 		add_action('init', array($this, 'add_rewrite_rules'));
 		add_filter('query_vars', array($this, 'add_query_vars'));
 		add_action('template_redirect', array($this, 'handle_product_urls'));
+		
+		// Permalink generation hooks
+		add_filter('post_type_link', array($this, 'custom_product_permalink'), 10, 2);
 	}
 
 	/**
@@ -558,5 +561,57 @@ class Handy_Custom {
 		return isset($GLOBALS['handy_custom_single_product_category']) 
 			? $GLOBALS['handy_custom_single_product_category'] 
 			: false;
+	}
+
+	/**
+	 * Generate custom permalink for product post type
+	 * Creates URLs in format: /products/{category}/{product-slug}/
+	 * 
+	 * @param string $post_link The post's permalink
+	 * @param WP_Post $post The post object
+	 * @return string The custom permalink or original if not applicable
+	 */
+	public function custom_product_permalink($post_link, $post) {
+		// Only apply to product post type
+		if ($post->post_type !== 'product') {
+			return $post_link;
+		}
+
+		// Only apply to published posts (not drafts, revisions, etc.)
+		if ($post->post_status !== 'publish') {
+			return $post_link;
+		}
+
+		// Get product categories
+		$categories = wp_get_post_terms($post->ID, 'product-category');
+		
+		if (is_wp_error($categories) || empty($categories)) {
+			// Log warning and return default permalink if no categories
+			Handy_Custom_Logger::log("Product {$post->ID} has no categories assigned, using default permalink", 'warning');
+			return $post_link;
+		}
+
+		// Find primary top-level category (parent = 0)
+		$primary_category = null;
+		foreach ($categories as $category) {
+			// Use first top-level category found
+			if ($category->parent == 0) {
+				$primary_category = $category;
+				break;
+			}
+		}
+
+		// If no top-level category found, use the first category regardless
+		if (!$primary_category) {
+			$primary_category = $categories[0];
+			Handy_Custom_Logger::log("Product {$post->ID} has no top-level category, using first assigned category: {$primary_category->slug}", 'info');
+		}
+
+		// Construct custom URL: /products/{category}/{product-slug}/
+		$custom_url = home_url("/products/{$primary_category->slug}/{$post->post_name}/");
+		
+		Handy_Custom_Logger::log("Generated custom permalink for product {$post->ID}: {$custom_url}", 'debug');
+		
+		return $custom_url;
 	}
 }
