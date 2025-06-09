@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.2-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.3-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -439,7 +439,14 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.2 (Latest)
+### Version 1.7.3 (Latest)
+- **Fixed Subcategory Display Logic**: `[products subcategory="gluten-free"]` now correctly shows product list instead of category cards
+- **Enhanced Category Filtering**: Categories without subcategories (like shrimp) automatically display as product lists instead of empty category cards
+- **Improved Filter Context**: `[filter-products subcategory="gluten-free"]` now only shows filter options actually used by products in that subcategory
+- **Smart Context Detection**: Filter shortcodes distinguish between categories with/without subcategories for optimal filter display
+- **Enhanced Logging**: Added detailed logging for category vs subcategory filtering decisions to aid debugging
+
+### Version 1.7.2
 - **Fixed WordPress Page Interference**: Completely eliminated URL rewrite rule conflicts with WordPress page creation and editing
 - **Specific Post-Only URLs**: Replaced broad URL patterns with specific rewrite rules for each actual published product/recipe post
 - **Zero Page Blocking**: WordPress pages like `/products/dietary-alternatives/gluten-free/` can now be created and edited freely
