@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.1-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -115,6 +115,11 @@ The plugin now includes dedicated filter shortcodes that provide dynamic, standa
 // Exclude specific taxonomies  
 [filter-products exclude="size,product_type"]        // Show all except size and product type
 [filter-recipes exclude="difficulty"]               // Show all except difficulty filter
+
+// NEW in v1.7.1: Contextual filtering - only show options used by products in specific categories
+[filter-products category="shrimp"]                 // Show only filter options used by products in shrimp category
+[filter-products category="crab"]                   // Show only filter options used by products in crab category
+[filter-products subcategory="crab-cakes"]          // Show only filter options used by products in crab-cakes subcategory
 ```
 
 **Key Benefits:**
@@ -434,7 +439,14 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.0 (Latest)
+### Version 1.7.1 (Latest)
+- **Contextual Filter Shortcodes**: Added `category` and `subcategory` parameters to `[filter-products]` and `[filter-recipes]` shortcodes
+- **Smart Filter Options**: Filter dropdowns now only show options that are actually used by products in the specified category/subcategory context
+- **Enhanced User Experience**: `[filter-products category="shrimp"]` only displays filter options relevant to shrimp products
+- **Performance Optimization**: Context-aware filtering reduces irrelevant options and improves usability
+- **Universal Support**: Works with both `[filter-products category="category"]` and `[filter-products subcategory="subcategory"]` patterns
+
+### Version 1.7.0
 - **Hierarchical Category Display**: Added support for `[products category="parent"]` to show subcategories as cards
 - **Intelligent Fallback**: Categories without subcategories automatically display products in list mode
 - **Enhanced CSS Layout**: Different container widths - 1730px for top-level, 1451px for subcategories/lists
