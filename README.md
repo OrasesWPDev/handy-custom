@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.1-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.2-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -439,7 +439,16 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.1 (Latest)
+### Version 1.7.2 (Latest)
+- **Fixed WordPress Page Interference**: Completely eliminated URL rewrite rule conflicts with WordPress page creation and editing
+- **Specific Post-Only URLs**: Replaced broad URL patterns with specific rewrite rules for each actual published product/recipe post
+- **Zero Page Blocking**: WordPress pages like `/products/dietary-alternatives/gluten-free/` can now be created and edited freely
+- **Enhanced UX Builder Support**: Flatsome UX Builder and Classic Editor work normally for all page hierarchies
+- **Recipe URL Support**: Extended custom URL system to support recipe posts with same specificity protection
+- **Dynamic Rule Generation**: Automatically creates/removes URL rules when posts are created/updated/deleted
+- **Performance Improvement**: Specific rules reduce WordPress query overhead and prevent unnecessary URL matching
+
+### Version 1.7.1
 - **Contextual Filter Shortcodes**: Added `category` and `subcategory` parameters to `[filter-products]` and `[filter-recipes]` shortcodes
 - **Smart Filter Options**: Filter dropdowns now only show options that are actually used by products in the specified category/subcategory context
 - **Enhanced User Experience**: `[filter-products category="shrimp"]` only displays filter options relevant to shrimp products
