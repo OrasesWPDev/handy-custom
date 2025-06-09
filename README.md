@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.3-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.4-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -413,7 +413,15 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.3 (Latest)
+### Version 1.6.4 (Latest)
+- **Direct Single Product URLs**: Single product URLs like `/products/appetizers/ultimate-mini-crab-cakes/` now serve content directly without redirecting
+- **Enhanced URL Structure**: Products maintain clean category-based URLs while displaying proper single product content
+- **Improved Yoast Integration**: Better breadcrumb support for single product pages on clean URLs
+- **WordPress Query Optimization**: Proper query variable setup for single product display on custom URLs
+- **Template System Enhancement**: Single products use WordPress's native template system while preserving clean URLs
+- **Category Context Preservation**: Single product pages maintain category context for navigation and breadcrumbs
+
+### Version 1.6.3
 - **Fixed Page Editing Interference**: Removed plugin interference with WordPress page editing functionality
 - **Enhanced Admin Context Handling**: Added proper admin context checks to prevent template_redirect issues
 - **Single Product URL Support**: Implemented `/products/{category}/{product-slug}/` URL structure for individual products
