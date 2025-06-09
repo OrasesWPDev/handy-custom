@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.5-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.6-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -21,7 +21,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 
 ### 🛍️ Products Module
 - **Advanced Shortcode**: `[products]` with 8 filter parameters
-- **SEO-Friendly URLs**: `/products/{category}/{subcategory}/` structure
+- **SEO-Friendly URLs**: `/products/{category}/{product-slug}/` structure for single products, `/products/{category}/` for category pages
 - **Smart Category Detection**: Automatic parent category resolution for subcategories
 - **Rich Product Cards**: Featured images, descriptions, action buttons
 - **Comprehensive Filtering**:
