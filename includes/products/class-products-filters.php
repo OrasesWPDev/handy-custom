@@ -94,11 +94,21 @@ class Handy_Custom_Products_Filters {
 	/**
 	 * Get filtered product categories based on applied filters
 	 * For frontend category display, returns top-level categories or subcategories based on context
+	 * 
+	 * User requirement: "subcategories will not display cards but will display a list of products 
+	 * inside of that subcategory" and "any category flag is used that has no subcategory... will be 
+	 * showing list of products in that {category}"
 	 *
 	 * @param array $filters Filter parameters
 	 * @return array
 	 */
 	public static function get_filtered_categories($filters) {
+		// If subcategory is specified, always show product list (never show cards)
+		if (!empty($filters['subcategory'])) {
+			Handy_Custom_Logger::log("Subcategory specified: {$filters['subcategory']}. Forcing list mode to show products from this subcategory.", 'info');
+			return array(); // Force list mode for subcategories
+		}
+		
 		// Check if a specific category is requested
 		if (!empty($filters['category'])) {
 			$category_slug = $filters['category'];
@@ -108,10 +118,11 @@ class Handy_Custom_Products_Filters {
 			
 			if (!empty($subcategories)) {
 				// Return subcategories for card display
+				Handy_Custom_Logger::log("Category {$category_slug} has subcategories. Showing subcategory cards.", 'info');
 				return $subcategories;
 			} else {
 				// No subcategories found - return empty array to trigger list mode fallback
-				Handy_Custom_Logger::log("No subcategories found for category: {$category_slug}. Will fallback to product list.", 'info');
+				Handy_Custom_Logger::log("Category {$category_slug} has no subcategories. Will fallback to product list mode.", 'info');
 				return array();
 			}
 		}

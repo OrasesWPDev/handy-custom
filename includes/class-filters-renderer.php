@@ -187,6 +187,10 @@ class Handy_Custom_Filters_Renderer {
 	/**
 	 * Get taxonomy terms filtered by context (category/subcategory)
 	 * Only returns terms that are actually used by products in the specified context
+	 * 
+	 * User requirement: "same with the [filter-products subcategory="{subcategory}"] is used, 
+	 * it needs to list all filters that are used for that subcategory - if there are 0 options 
+	 * selected for menu-occation- then menu occasion shouldn't even be a filter seen"
 	 *
 	 * @param string $taxonomy_slug Taxonomy slug
 	 * @param string $content_type Content type for utils class
@@ -210,22 +214,48 @@ class Handy_Custom_Filters_Renderer {
 		// Add taxonomy query for context filtering
 		$tax_query = array('relation' => 'AND');
 		
-		if (!empty($context_filters['category'])) {
-			$tax_query[] = array(
-				'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
-				'field' => 'slug',
-				'terms' => $context_filters['category'],
-				'include_children' => !empty($context_filters['subcategory']) ? false : true
-			);
-		}
-		
+		// Handle subcategory filtering (specific subcategory only)
 		if (!empty($context_filters['subcategory'])) {
 			$tax_query[] = array(
 				'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
 				'field' => 'slug',
 				'terms' => $context_filters['subcategory'],
-				'include_children' => false
+				'include_children' => false  // Exact subcategory match only
 			);
+			Handy_Custom_Logger::log("Filtering by subcategory: {$context_filters['subcategory']}", 'info');
+		}
+		// Handle category filtering (category and its subcategories if no specific subcategory)
+		elseif (!empty($context_filters['category'])) {
+			$category_term = get_term_by('slug', $context_filters['category'], $content_type === 'products' ? 'product-category' : 'recipe-category');
+			
+			if ($category_term && !is_wp_error($category_term)) {
+				// Check if this category has subcategories
+				$subcategories = get_terms(array(
+					'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
+					'parent' => $category_term->term_id,
+					'hide_empty' => false
+				));
+				
+				if (!empty($subcategories) && !is_wp_error($subcategories)) {
+					// Category has subcategories - include children in filter
+					$tax_query[] = array(
+						'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
+						'field' => 'slug',
+						'terms' => $context_filters['category'],
+						'include_children' => true
+					);
+					Handy_Custom_Logger::log("Filtering by category with subcategories: {$context_filters['category']}", 'info');
+				} else {
+					// Category has no subcategories - exact match only
+					$tax_query[] = array(
+						'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
+						'field' => 'slug',
+						'terms' => $context_filters['category'],
+						'include_children' => false
+					);
+					Handy_Custom_Logger::log("Filtering by category without subcategories: {$context_filters['category']}", 'info');
+				}
+			}
 		}
 		
 		if (count($tax_query) > 1) {
