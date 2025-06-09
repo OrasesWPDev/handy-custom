@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.2-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.3-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -413,7 +413,16 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.2 (Latest)
+### Version 1.6.3 (Latest)
+- **Fixed Page Editing Interference**: Removed plugin interference with WordPress page editing functionality
+- **Enhanced Admin Context Handling**: Added proper admin context checks to prevent template_redirect issues
+- **Single Product URL Support**: Implemented `/products/{category}/{product-slug}/` URL structure for individual products
+- **Improved UX Builder Compatibility**: Category pages can now be edited freely without plugin interference
+- **Yoast Breadcrumb Integration**: Ensured compatibility with `[wpseo_breadcrumb]` shortcode on all pages
+- **Template Override Fixes**: Removed code preventing basic page editing via Flatsome UX Builder
+- **URL Rewrite Improvements**: Added proper single product URL handling with category validation
+
+### Version 1.6.2
 - **Fixed URL Override Issue**: Fixed shortcode override forcing on category pages without shortcodes
 - **Enhanced UX Builder Compatibility**: Category pages can now be edited freely with Flatsome UX Builder
 - **Conditional URL Handling**: URL parameters only apply when product shortcodes are present on page
