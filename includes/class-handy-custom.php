@@ -402,7 +402,7 @@ class Handy_Custom {
 
 	/**
 	 * Handle single product URL requests
-	 * Redirects /products/{category}/{product-slug}/ to actual product post
+	 * Serves content directly on /products/{category}/{product-slug}/ URLs
 	 *
 	 * @param string $category Product category slug
 	 * @param string $product_slug Product post slug
@@ -444,12 +444,47 @@ class Handy_Custom {
 			return;
 		}
 		
-		// Redirect to the actual product post
-		$product_url = get_permalink($product_post->ID);
-		Handy_Custom_Logger::log("Redirecting to product URL: {$product_url}", 'info');
+		// Set up WordPress to display this product directly
+		$this->setup_single_product_display($product_post, $category);
 		
-		wp_redirect($product_url, 301);
-		exit;
+		Handy_Custom_Logger::log("Serving product directly on clean URL: /products/{$category}/{$product_slug}/", 'info');
+	}
+
+	/**
+	 * Setup WordPress to display a single product on clean URLs
+	 * 
+	 * @param WP_Post $product_post Product post object
+	 * @param string $category Category slug for breadcrumb context
+	 */
+	private function setup_single_product_display($product_post, $category) {
+		global $wp_query, $post;
+		
+		// Set up the main query as if this is a single product page
+		$wp_query->is_single = true;
+		$wp_query->is_singular = true;
+		$wp_query->is_404 = false;
+		$wp_query->is_page = false;
+		$wp_query->is_home = false;
+		$wp_query->is_archive = false;
+		
+		// Set the queried object
+		$wp_query->queried_object = $product_post;
+		$wp_query->queried_object_id = $product_post->ID;
+		
+		// Set post data
+		$wp_query->post = $product_post;
+		$wp_query->posts = array($product_post);
+		$wp_query->post_count = 1;
+		$wp_query->found_posts = 1;
+		
+		// Set global post
+		$post = $product_post;
+		setup_postdata($post);
+		
+		// Store category context for breadcrumbs
+		$GLOBALS['handy_custom_single_product_category'] = $category;
+		
+		Handy_Custom_Logger::log("WordPress query setup for single product display: ID={$product_post->ID}", 'debug');
 	}
 
 	/**
@@ -469,5 +504,17 @@ class Handy_Custom {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Get single product category context for breadcrumbs
+	 * Used by Yoast and other breadcrumb systems
+	 * 
+	 * @return string|false Category slug if on single product URL, false otherwise
+	 */
+	public static function get_single_product_category() {
+		return isset($GLOBALS['handy_custom_single_product_category']) 
+			? $GLOBALS['handy_custom_single_product_category'] 
+			: false;
 	}
 }
