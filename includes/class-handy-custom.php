@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.6.3';
+	const VERSION = '1.6.5';
 
 	/**
 	 * Single instance of the class
@@ -370,6 +370,13 @@ class Handy_Custom {
 			return;
 		}
 
+		// CRITICAL: Check if this URL corresponds to an actual WordPress page
+		// This prevents the plugin from interfering with WordPress page hierarchy
+		if ($this->is_wordpress_page_url($category, $subcategory)) {
+			Handy_Custom_Logger::log("URL matches WordPress page - skipping plugin processing", 'info');
+			return;
+		}
+
 		// Validate that we're on the products page for category handling
 		if (!is_page('products')) {
 			return;
@@ -402,7 +409,7 @@ class Handy_Custom {
 
 	/**
 	 * Handle single product URL requests
-	 * Redirects /products/{category}/{product-slug}/ to actual product post
+	 * Serves content directly on /products/{category}/{product-slug}/ URLs
 	 *
 	 * @param string $category Product category slug
 	 * @param string $product_slug Product post slug
@@ -444,12 +451,82 @@ class Handy_Custom {
 			return;
 		}
 		
-		// Redirect to the actual product post
-		$product_url = get_permalink($product_post->ID);
-		Handy_Custom_Logger::log("Redirecting to product URL: {$product_url}", 'info');
+		// Set up WordPress to display this product directly
+		$this->setup_single_product_display($product_post, $category);
 		
-		wp_redirect($product_url, 301);
-		exit;
+		Handy_Custom_Logger::log("Serving product directly on clean URL: /products/{$category}/{$product_slug}/", 'info');
+	}
+
+	/**
+	 * Setup WordPress to display a single product on clean URLs
+	 * 
+	 * @param WP_Post $product_post Product post object
+	 * @param string $category Category slug for breadcrumb context
+	 */
+	private function setup_single_product_display($product_post, $category) {
+		global $wp_query, $post;
+		
+		// Set up the main query as if this is a single product page
+		$wp_query->is_single = true;
+		$wp_query->is_singular = true;
+		$wp_query->is_404 = false;
+		$wp_query->is_page = false;
+		$wp_query->is_home = false;
+		$wp_query->is_archive = false;
+		
+		// Set the queried object
+		$wp_query->queried_object = $product_post;
+		$wp_query->queried_object_id = $product_post->ID;
+		
+		// Set post data
+		$wp_query->post = $product_post;
+		$wp_query->posts = array($product_post);
+		$wp_query->post_count = 1;
+		$wp_query->found_posts = 1;
+		
+		// Set global post
+		$post = $product_post;
+		setup_postdata($post);
+		
+		// Store category context for breadcrumbs
+		$GLOBALS['handy_custom_single_product_category'] = $category;
+		
+		Handy_Custom_Logger::log("WordPress query setup for single product display: ID={$product_post->ID}", 'debug');
+	}
+
+	/**
+	 * Check if a URL path corresponds to an actual WordPress page
+	 * This prevents plugin rewrite rules from interfering with WordPress page hierarchy
+	 * 
+	 * @param string $category Category slug from URL
+	 * @param string $subcategory Subcategory slug from URL (optional)
+	 * @return bool True if WordPress page exists at this URL path
+	 */
+	private function is_wordpress_page_url($category, $subcategory = '') {
+		// Check for /products/{category}/ page structure
+		if (!empty($category)) {
+			// First check if there's a page with slug matching the category under /products
+			$parent_page = get_page_by_path('products');
+			if ($parent_page) {
+				$child_page = get_page_by_path("products/{$category}");
+				if ($child_page) {
+					Handy_Custom_Logger::log("Found WordPress page at /products/{$category}/", 'info');
+					return true;
+				}
+			}
+		}
+
+		// Check for /products/{category}/{subcategory}/ page structure
+		if (!empty($category) && !empty($subcategory)) {
+			$page_path = "products/{$category}/{$subcategory}";
+			$page = get_page_by_path($page_path);
+			if ($page) {
+				Handy_Custom_Logger::log("Found WordPress page at /{$page_path}/", 'info');
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
@@ -469,5 +546,17 @@ class Handy_Custom {
 		}
 
 		return $params;
+	}
+
+	/**
+	 * Get single product category context for breadcrumbs
+	 * Used by Yoast and other breadcrumb systems
+	 * 
+	 * @return string|false Category slug if on single product URL, false otherwise
+	 */
+	public static function get_single_product_category() {
+		return isset($GLOBALS['handy_custom_single_product_category']) 
+			? $GLOBALS['handy_custom_single_product_category'] 
+			: false;
 	}
 }
