@@ -370,6 +370,13 @@ class Handy_Custom {
 			return;
 		}
 
+		// CRITICAL: Check if this URL corresponds to an actual WordPress page
+		// This prevents the plugin from interfering with WordPress page hierarchy
+		if ($this->is_wordpress_page_url($category, $subcategory)) {
+			Handy_Custom_Logger::log("URL matches WordPress page - skipping plugin processing", 'info');
+			return;
+		}
+
 		// Validate that we're on the products page for category handling
 		if (!is_page('products')) {
 			return;
@@ -485,6 +492,41 @@ class Handy_Custom {
 		$GLOBALS['handy_custom_single_product_category'] = $category;
 		
 		Handy_Custom_Logger::log("WordPress query setup for single product display: ID={$product_post->ID}", 'debug');
+	}
+
+	/**
+	 * Check if a URL path corresponds to an actual WordPress page
+	 * This prevents plugin rewrite rules from interfering with WordPress page hierarchy
+	 * 
+	 * @param string $category Category slug from URL
+	 * @param string $subcategory Subcategory slug from URL (optional)
+	 * @return bool True if WordPress page exists at this URL path
+	 */
+	private function is_wordpress_page_url($category, $subcategory = '') {
+		// Check for /products/{category}/ page structure
+		if (!empty($category)) {
+			// First check if there's a page with slug matching the category under /products
+			$parent_page = get_page_by_path('products');
+			if ($parent_page) {
+				$child_page = get_page_by_path("products/{$category}");
+				if ($child_page) {
+					Handy_Custom_Logger::log("Found WordPress page at /products/{$category}/", 'info');
+					return true;
+				}
+			}
+		}
+
+		// Check for /products/{category}/{subcategory}/ page structure
+		if (!empty($category) && !empty($subcategory)) {
+			$page_path = "products/{$category}/{$subcategory}";
+			$page = get_page_by_path($page_path);
+			if ($page) {
+				Handy_Custom_Logger::log("Found WordPress page at /{$page_path}/", 'info');
+				return true;
+			}
+		}
+
+		return false;
 	}
 
 	/**
