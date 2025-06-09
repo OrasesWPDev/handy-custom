@@ -93,14 +93,30 @@ class Handy_Custom_Products_Filters {
 
 	/**
 	 * Get filtered product categories based on applied filters
-	 * For frontend category display, always returns the 4 top-level categories in fixed order
+	 * For frontend category display, returns top-level categories or subcategories based on context
 	 *
 	 * @param array $filters Filter parameters
 	 * @return array
 	 */
 	public static function get_filtered_categories($filters) {
-		// For categories display mode (frontend), always show the 4 top-level categories
-		// regardless of filters or published content - per user requirements
+		// Check if a specific category is requested
+		if (!empty($filters['category'])) {
+			$category_slug = $filters['category'];
+			
+			// Get subcategories for this parent category using enhanced method
+			$subcategories = self::get_all_categories(false, $category_slug);
+			
+			if (!empty($subcategories)) {
+				// Return subcategories for card display
+				return $subcategories;
+			} else {
+				// No subcategories found - return empty array to trigger list mode fallback
+				Handy_Custom_Logger::log("No subcategories found for category: {$category_slug}. Will fallback to product list.", 'info');
+				return array();
+			}
+		}
+		
+		// Default: show the top-level categories
 		return self::get_all_categories();
 	}
 
@@ -203,9 +219,10 @@ class Handy_Custom_Products_Filters {
 	 * For default display, only return top-level categories (parent = 0) 
 	 *
 	 * @param bool $top_level_only Whether to return only top-level categories
+	 * @param string $parent_category_slug Optional parent category slug to get children of specific category
 	 * @return array
 	 */
-	private static function get_all_categories($top_level_only = true) {
+	private static function get_all_categories($top_level_only = true, $parent_category_slug = null) {
 		// First, get ALL categories without meta_key restriction
 		$args = array(
 			'hide_empty' => false,
@@ -213,14 +230,23 @@ class Handy_Custom_Products_Filters {
 			'order' => 'ASC'
 		);
 		
-		if ($top_level_only) {
+		if ($parent_category_slug) {
+			// Get children of specific parent category
+			$parent_term = get_term_by('slug', $parent_category_slug, 'product-category');
+			if ($parent_term && !is_wp_error($parent_term)) {
+				$args['parent'] = $parent_term->term_id;
+			} else {
+				Handy_Custom_Logger::log("Parent category not found: {$parent_category_slug}", 'warning');
+				return array();
+			}
+		} elseif ($top_level_only) {
 			$args['parent'] = 0;
 		}
 		
 		$categories = Handy_Custom_Products_Utils::get_taxonomy_terms('product-category', $args);
 		
 		// Sort categories by display_order if we have any categories
-		if (!empty($categories) && $top_level_only) {
+		if (!empty($categories) && ($top_level_only || $parent_category_slug)) {
 			$ordered_categories = array();
 			$unordered_categories = array();
 			

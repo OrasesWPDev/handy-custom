@@ -3,11 +3,21 @@
  * Basic CSS structure for products shortcode template
  */
 
-/* Main Container - 1420px site content width */
+/* Main Container - Default 1730px for top-level categories */
 .handy-products-archive {
-    max-width: 1420px;
+    max-width: 1730px;
     margin: 0 auto;
     padding: 20px;
+}
+
+/* Container width adjustments for different display modes */
+.handy-products-archive.products-top-level {
+    max-width: 1730px;
+}
+
+.handy-products-archive.products-subcategory,
+.handy-products-archive.products-list {
+    max-width: 1451px;
 }
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-products] shortcode */
@@ -19,12 +29,24 @@
     margin-bottom: 30px;
 }
 
-/* Category View Grid (Default) - 2 columns for 1420px content width */
+/* Category View Grid - Flexible layout for different contexts */
 .products-category-view {
-    grid-template-columns: repeat(2, 1fr);
-    max-width: 1420px;
+    display: grid;
     margin: 0 auto;
-    gap: 40px;
+}
+
+/* Top-level categories: 2 columns, 850px cards, 31px gap */
+.products-top-level .products-category-view {
+    grid-template-columns: repeat(2, 850px);
+    gap: 31px;
+    justify-content: center;
+}
+
+/* Subcategories: 2 columns, 696px cards, 38px gap */
+.products-subcategory .products-category-view {
+    grid-template-columns: repeat(2, 696px);
+    gap: 38px;
+    justify-content: center;
 }
 
 /* Product List View Grid - 2 columns for 1420px content width */
@@ -297,18 +319,26 @@
 }
 
 /* Responsive Design */
-/* Tablet: 550px to 849px */
-@media (max-width: 849px) {
+/* Large Desktop and up: 1800px+ (maintains fixed card sizes) */
+@media (min-width: 1800px) {
+    .products-top-level .products-category-view,
+    .products-subcategory .products-category-view {
+        /* Keep fixed card sizes on very large screens */
+    }
+}
+
+/* Tablet: 550px to 1450px */
+@media (max-width: 1450px) {
     .handy-products-archive {
         padding: 15px;
     }
     
-    /* Filter responsive styles removed - handled by unified filter system */
-    
-    /* Category view - 2 columns on tablet */
-    .products-category-view {
+    /* Category view - responsive 2 columns on tablet */
+    .products-top-level .products-category-view,
+    .products-subcategory .products-category-view {
         grid-template-columns: repeat(2, 1fr);
         gap: 20px;
+        max-width: 100%;
     }
     
     /* Product list view - 2 columns on tablet */
@@ -333,7 +363,8 @@
     }
     
     /* Category view - 1 column on mobile */
-    .products-category-view {
+    .products-top-level .products-category-view,
+    .products-subcategory .products-category-view {
         grid-template-columns: 1fr;
         gap: 15px;
     }

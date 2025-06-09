@@ -24,14 +24,22 @@ class Handy_Custom_Products_Renderer {
 		// Get display mode (default to 'categories')
 		$display_mode = isset($filters['display']) ? $filters['display'] : 'categories';
 		
-		// Always show filters in both modes, but category filter only in list mode
-		$include_category_filter = ($display_mode === 'list');
+		// Check for category parameter and handle subcategory logic
+		if ($display_mode === 'categories' && !empty($filters['category'])) {
+			// Try to get subcategories first
+			$categories = $this->get_filtered_categories($filters);
+			
+			// If no subcategories found, fall back to list mode
+			if (empty($categories)) {
+				$display_mode = 'list';
+				Handy_Custom_Logger::log("Falling back to list mode for category: {$filters['category']}", 'info');
+			}
+		}
 
 		// Load the main archive template with appropriate data
 		$template_vars = array(
 			'filters' => $filters,
-			'display_mode' => $display_mode,
-			'filter_options' => $this->get_filter_options($include_category_filter, true) // Always show filters
+			'display_mode' => $display_mode
 		);
 
 		// Add data based on display mode
@@ -66,19 +74,6 @@ class Handy_Custom_Products_Renderer {
 		return Handy_Custom_Products_Filters::get_filtered_products($filters);
 	}
 
-	/**
-	 * Get filter options for dropdowns
-	 *
-	 * @param bool $include_category_filter Whether to include category filter
-	 * @param bool $force_show_filters Whether to force showing filters even in categories mode
-	 * @return array
-	 */
-	private function get_filter_options($include_category_filter = false, $force_show_filters = false) {
-		if (!$force_show_filters && !$include_category_filter) {
-			return array(); // Don't show filters unless forced or in list mode
-		}
-		return Handy_Custom_Products_Filters::get_filter_options(array(), $include_category_filter);
-	}
 
 	/**
 	 * Load a template file
@@ -100,7 +95,6 @@ class Handy_Custom_Products_Renderer {
 		$categories = isset($variables['categories']) ? $variables['categories'] : array();
 		$products = isset($variables['products']) ? $variables['products'] : null;
 		$display_mode = isset($variables['display_mode']) ? $variables['display_mode'] : 'categories';
-		$filter_options = isset($variables['filter_options']) ? $variables['filter_options'] : array();
 		
 		// Include template
 		include $template_path;

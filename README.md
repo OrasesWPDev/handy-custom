@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.7-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -144,6 +144,13 @@ The plugin now includes dedicated filter shortcodes that provide dynamic, standa
 // Display all products alphabetically (product catalog mode)
 [products display="list"]
 
+// NEW in v1.7.0: Hierarchical category display
+[products category="crab"]                      // Show subcategories of 'crab' as cards
+[products category="shrimp"]                    // Show subcategories of 'shrimp' as cards
+
+// Automatic fallback to product list when no subcategories exist
+[products category="shrimp"]                    // Falls back to show all shrimp products in list mode
+
 // Filter by category in list mode
 [products display="list" category="crab"]
 
@@ -156,6 +163,20 @@ The plugin now includes dedicated filter shortcodes that provide dynamic, standa
 // Market-specific filtering
 [products display="list" market_segment="retail" product_type="appetizers"]
 ```
+
+### New Hierarchical Category Display (v1.7.0)
+
+The plugin now supports **hierarchical category navigation** with intelligent fallback:
+
+**When a category has subcategories:**
+- `[products category="crab"]` displays subcategory cards (crab-cakes, crab-meat, soft-shell-crab)
+- Uses 1451px container width with 696px cards and 38px spacing
+- Perfect for category drill-down navigation
+
+**When a category has no subcategories:**
+- `[products category="shrimp"]` automatically falls back to product list mode
+- Shows all products in that category with standard list layout
+- Maintains consistent user experience
 
 ### Recipe Filtering
 
@@ -413,7 +434,18 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.7 (Latest)
+### Version 1.7.0 (Latest)
+- **Hierarchical Category Display**: Added support for `[products category="parent"]` to show subcategories as cards
+- **Intelligent Fallback**: Categories without subcategories automatically display products in list mode
+- **Enhanced CSS Layout**: Different container widths - 1730px for top-level, 1451px for subcategories/lists
+- **Responsive Card Sizing**: 850px cards for top-level categories, 696px for subcategories with appropriate spacing
+- **Breadcrumb Integration**: Enhanced breadcrumb support following hierarchy - Home / Products / Category / Sub Category / Post Title
+- **Template Improvements**: Added CSS classes for different display contexts (products-top-level, products-subcategory, products-list)
+- **Filter System Cleanup**: Removed filter display from products/recipes shortcodes (now handled by dedicated filter shortcodes)
+- **Performance Optimization**: Enhanced category query system with improved caching and sorting
+- **User Experience**: Seamless navigation through category hierarchies with consistent visual design
+
+### Version 1.6.7
 - **Complete WordPress Page Control**: Plugin now ONLY handles single product URLs `/products/{category}/{product-slug}/` leaving ALL other `/products/` URLs to WordPress
 - **Dynamic Category Support**: Automatically detects new top-level product categories and generates rewrite rules accordingly
 - **No More Category URL Interference**: Removed problematic `/products/{category}/` rewrite rule that captured WordPress pages
