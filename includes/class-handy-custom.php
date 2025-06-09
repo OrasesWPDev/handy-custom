@@ -55,10 +55,18 @@ class Handy_Custom {
 		// Permalink generation hooks
 		add_filter('post_type_link', array($this, 'custom_product_permalink'), 10, 2);
 		
-		// Category management hooks - regenerate rewrite rules when categories change
+		// Post and category management hooks - regenerate rewrite rules when posts or categories change
 		add_action('created_product-category', array($this, 'regenerate_rewrite_rules'));
 		add_action('edited_product-category', array($this, 'regenerate_rewrite_rules'));
 		add_action('deleted_product-category', array($this, 'regenerate_rewrite_rules'));
+		add_action('created_recipe-category', array($this, 'regenerate_rewrite_rules'));
+		add_action('edited_recipe-category', array($this, 'regenerate_rewrite_rules'));
+		add_action('deleted_recipe-category', array($this, 'regenerate_rewrite_rules'));
+		
+		// Post hooks - regenerate rewrite rules when posts are created/updated/deleted
+		add_action('save_post_product', array($this, 'regenerate_rewrite_rules'));
+		add_action('save_post_recipe', array($this, 'regenerate_rewrite_rules'));
+		add_action('before_delete_post', array($this, 'regenerate_rewrite_rules'));
 
 		// Breadcrumb hooks for single products
 		add_filter('wpseo_breadcrumb_links', array($this, 'modify_yoast_breadcrumbs'));
@@ -328,74 +336,118 @@ class Handy_Custom {
 	}
 
 	/**
-	 * Get all top-level product categories (parent = 0)
-	 * 
-	 * @return array Array of category slugs
-	 */
-	private function get_top_level_product_categories() {
-		$categories = get_terms(array(
-			'taxonomy' => 'product-category',
-			'hide_empty' => false,
-			'parent' => 0, // Only top-level categories
-			'fields' => 'slugs' // Return only slugs
-		));
-		
-		if (is_wp_error($categories)) {
-			Handy_Custom_Logger::log('Error fetching product categories: ' . $categories->get_error_message(), 'error');
-			return array();
-		}
-		
-		return is_array($categories) ? $categories : array();
-	}
-
-	/**
-	 * Regenerate rewrite rules when product categories are modified
-	 * This ensures dynamic category support
+	 * Regenerate rewrite rules when posts or categories are modified
+	 * This ensures dynamic URL support for new/updated posts
 	 */
 	public function regenerate_rewrite_rules() {
-		Handy_Custom_Logger::log('Product categories modified - regenerating rewrite rules', 'info');
+		Handy_Custom_Logger::log('Posts or categories modified - regenerating rewrite rules', 'info');
 		flush_rewrite_rules();
 	}
 
 	/**
-	 * Add URL rewrite rules for single products only
-	 * Only handles URLs: /products/{top-level-category}/{product-slug}/
-	 * Leaves all other /products/ URLs to WordPress page management
+	 * Add specific URL rewrite rules for actual published products and recipes only
+	 * Generates individual rules for each published post to prevent WordPress page interference
+	 * 
+	 * User requirement: "there is to be no interference with any page creation via this code base 
+	 * unless it is specifically a single post title in the products or recipe custom post type"
 	 */
 	public function add_rewrite_rules() {
-		// Get dynamic list of top-level product categories
-		$top_level_categories = $this->get_top_level_product_categories();
+		$product_rules_added = $this->add_specific_post_rewrite_rules('product', 'products');
+		$recipe_rules_added = $this->add_specific_post_rewrite_rules('recipe', 'recipes');
 		
-		if (!empty($top_level_categories)) {
-			// Create regex pattern for only valid top-level categories
-			$category_pattern = '(' . implode('|', array_map('preg_quote', $top_level_categories)) . ')';
-			
-			// /products/{valid-top-level-category}/{product-slug}/ - single product page only
-			add_rewrite_rule(
-				'^products/' . $category_pattern . '/([^/]+)/?$',
-				'index.php?post_type=product&product_category=$matches[1]&product_slug=$matches[2]',
-				'top'
-			);
-			
-			Handy_Custom_Logger::log('Dynamic single product URL rewrite rules added for categories: ' . implode(', ', $top_level_categories), 'info');
-		} else {
-			Handy_Custom_Logger::log('No top-level product categories found - no rewrite rules added', 'warning');
-		}
+		Handy_Custom_Logger::log("Specific rewrite rules added: {$product_rules_added} products, {$recipe_rules_added} recipes", 'info');
 	}
 
 	/**
-	 * Add custom query variables for single product URLs
+	 * Add specific rewrite rules for actual published posts of given post type
+	 * Only creates rules for posts that actually exist - no broad patterns
+	 *
+	 * @param string $post_type Post type slug (product or recipe)
+	 * @param string $url_prefix URL prefix (products or recipes)
+	 * @return int Number of rules added
+	 */
+	private function add_specific_post_rewrite_rules($post_type, $url_prefix) {
+		// Get all published posts of this type
+		$posts = get_posts(array(
+			'post_type' => $post_type,
+			'post_status' => 'publish',
+			'posts_per_page' => -1,
+			'fields' => 'ids'
+		));
+
+		if (empty($posts)) {
+			Handy_Custom_Logger::log("No published {$post_type} posts found - no rewrite rules added", 'info');
+			return 0;
+		}
+
+		$rules_added = 0;
+		$taxonomy = $post_type . '-category';
+
+		foreach ($posts as $post_id) {
+			$post = get_post($post_id);
+			if (!$post) continue;
+
+			// Get the primary category for this post
+			$primary_category = $this->get_post_primary_category($post_id, $taxonomy);
+			if (!$primary_category) continue;
+
+			// Create specific rewrite rule for this exact post
+			$pattern = '^' . $url_prefix . '/' . preg_quote($primary_category->slug) . '/' . preg_quote($post->post_name) . '/?$';
+			$rewrite = 'index.php?post_type=' . $post_type . '&' . $post_type . '_category=' . $primary_category->slug . '&' . $post_type . '_slug=' . $post->post_name;
+
+			add_rewrite_rule($pattern, $rewrite, 'top');
+			$rules_added++;
+
+			Handy_Custom_Logger::log("Added specific rewrite rule: /{$url_prefix}/{$primary_category->slug}/{$post->post_name}/ -> {$post_type} ID {$post_id}", 'debug');
+		}
+
+		return $rules_added;
+	}
+
+	/**
+	 * Get primary category for a post (top-level category preferred)
+	 *
+	 * @param int $post_id Post ID
+	 * @param string $taxonomy Taxonomy name
+	 * @return WP_Term|false Primary category term or false if none found
+	 */
+	private function get_post_primary_category($post_id, $taxonomy) {
+		$categories = wp_get_post_terms($post_id, $taxonomy);
+		
+		if (is_wp_error($categories) || empty($categories)) {
+			return false;
+		}
+
+		// Find top-level category (parent = 0) first
+		foreach ($categories as $category) {
+			if ($category->parent == 0) {
+				return $category;
+			}
+		}
+
+		// Fallback to first assigned category
+		return $categories[0];
+	}
+
+	/**
+	 * Add custom query variables for single product and recipe URLs
 	 */
 	public function add_query_vars($vars) {
+		// Product query vars
 		$vars[] = 'product_category';
 		$vars[] = 'product_slug';
+		
+		// Recipe query vars
+		$vars[] = 'recipe_category';
+		$vars[] = 'recipe_slug';
+		
 		return $vars;
 	}
 
 	/**
-	 * Handle single product URLs only
-	 * Only processes /products/{top-level-category}/{product-slug}/ URLs
-	 * All other /products/ URLs remain under WordPress page control
+	 * Handle single product and recipe URLs only
+	 * Only processes specific post URLs that have been registered via rewrite rules
+	 * All other URLs remain under WordPress page control
 	 */
 	public function handle_product_urls() {
 		// Skip processing entirely in admin contexts to prevent editing interference
@@ -403,51 +455,62 @@ class Handy_Custom {
 			return;
 		}
 		
-		$category = get_query_var('product_category');
+		// Check for product URLs
+		$product_category = get_query_var('product_category');
 		$product_slug = get_query_var('product_slug');
-
-		// Only handle single product URLs - both category and product_slug must be present
-		if (!empty($category) && !empty($product_slug)) {
-			$this->handle_single_product_url($category, $product_slug);
+		
+		if (!empty($product_category) && !empty($product_slug)) {
+			$this->handle_single_post_url('product', $product_category, $product_slug);
+			return;
+		}
+		
+		// Check for recipe URLs
+		$recipe_category = get_query_var('recipe_category');
+		$recipe_slug = get_query_var('recipe_slug');
+		
+		if (!empty($recipe_category) && !empty($recipe_slug)) {
+			$this->handle_single_post_url('recipe', $recipe_category, $recipe_slug);
 			return;
 		}
 
-		// If we don't have both parameters, this is not a single product URL
-		// Let WordPress handle all other /products/ URLs as regular pages
-		Handy_Custom_Logger::log('Not a single product URL - letting WordPress handle page routing', 'debug');
+		// If we don't have the required parameters, this is not a custom post URL
+		// Let WordPress handle all other URLs as regular pages
+		Handy_Custom_Logger::log('Not a custom post URL - letting WordPress handle page routing', 'debug');
 	}
 
 	/**
-	 * Handle single product URL requests
-	 * Serves content directly on /products/{category}/{product-slug}/ URLs
+	 * Handle single post URL requests for products and recipes
+	 * Serves content directly on custom URLs
 	 *
-	 * @param string $category Product category slug
-	 * @param string $product_slug Product post slug
+	 * @param string $post_type Post type (product or recipe)
+	 * @param string $category Category slug
+	 * @param string $post_slug Post slug
 	 */
-	private function handle_single_product_url($category, $product_slug) {
-		Handy_Custom_Logger::log("Single product URL detected: category={$category}, slug={$product_slug}", 'info');
+	private function handle_single_post_url($post_type, $category, $post_slug) {
+		Handy_Custom_Logger::log("Single {$post_type} URL detected: category={$category}, slug={$post_slug}", 'info');
 		
-		// Find product by slug
-		$product = get_posts(array(
-			'name' => $product_slug,
-			'post_type' => 'product',
+		// Find post by slug and type
+		$posts = get_posts(array(
+			'name' => $post_slug,
+			'post_type' => $post_type,
 			'post_status' => 'publish',
 			'numberposts' => 1
 		));
 		
-		if (empty($product)) {
-			Handy_Custom_Logger::log("Product not found for slug: {$product_slug}", 'warning');
+		if (empty($posts)) {
+			Handy_Custom_Logger::log("{$post_type} not found for slug: {$post_slug}", 'warning');
 			// Let WordPress handle the 404
 			return;
 		}
 		
-		$product_post = $product[0];
+		$post = $posts[0];
+		$taxonomy = $post_type . '-category';
 		
-		// Verify the product belongs to the specified category
-		$product_categories = wp_get_post_terms($product_post->ID, 'product-category');
+		// Verify the post belongs to the specified category
+		$post_categories = wp_get_post_terms($post->ID, $taxonomy);
 		$category_match = false;
 		
-		foreach ($product_categories as $term) {
+		foreach ($post_categories as $term) {
 			if ($term->slug === $category || 
 				($term->parent && get_term($term->parent)->slug === $category)) {
 				$category_match = true;
@@ -456,27 +519,29 @@ class Handy_Custom {
 		}
 		
 		if (!$category_match) {
-			Handy_Custom_Logger::log("Product {$product_slug} does not belong to category {$category}", 'warning');
+			Handy_Custom_Logger::log("{$post_type} {$post_slug} does not belong to category {$category}", 'warning');
 			// Let WordPress handle the 404
 			return;
 		}
 		
-		// Set up WordPress to display this product directly
-		$this->setup_single_product_display($product_post, $category);
+		// Set up WordPress to display this post directly
+		$this->setup_single_post_display($post, $category, $post_type);
 		
-		Handy_Custom_Logger::log("Serving product directly on clean URL: /products/{$category}/{$product_slug}/", 'info');
+		$url_prefix = $post_type === 'product' ? 'products' : 'recipes';
+		Handy_Custom_Logger::log("Serving {$post_type} directly on clean URL: /{$url_prefix}/{$category}/{$post_slug}/", 'info');
 	}
 
 	/**
-	 * Setup WordPress to display a single product on clean URLs
+	 * Setup WordPress to display a single post on clean URLs (products or recipes)
 	 * 
-	 * @param WP_Post $product_post Product post object
+	 * @param WP_Post $post Post object
 	 * @param string $category Category slug for breadcrumb context
+	 * @param string $post_type Post type (product or recipe)
 	 */
-	private function setup_single_product_display($product_post, $category) {
-		global $wp_query, $post;
+	private function setup_single_post_display($post, $category, $post_type) {
+		global $wp_query;
 		
-		// Set up the main query as if this is a single product page
+		// Set up the main query as if this is a single post page
 		$wp_query->is_single = true;
 		$wp_query->is_singular = true;
 		$wp_query->is_404 = false;
@@ -485,23 +550,27 @@ class Handy_Custom {
 		$wp_query->is_archive = false;
 		
 		// Set the queried object
-		$wp_query->queried_object = $product_post;
-		$wp_query->queried_object_id = $product_post->ID;
+		$wp_query->queried_object = $post;
+		$wp_query->queried_object_id = $post->ID;
 		
 		// Set post data
-		$wp_query->post = $product_post;
-		$wp_query->posts = array($product_post);
+		$wp_query->post = $post;
+		$wp_query->posts = array($post);
 		$wp_query->post_count = 1;
 		$wp_query->found_posts = 1;
 		
 		// Set global post
-		$post = $product_post;
+		$GLOBALS['post'] = $post;
 		setup_postdata($post);
 		
-		// Store category context for breadcrumbs
-		$GLOBALS['handy_custom_single_product_category'] = $category;
+		// Store category context for breadcrumbs (maintain backward compatibility for products)
+		if ($post_type === 'product') {
+			$GLOBALS['handy_custom_single_product_category'] = $category;
+		} else {
+			$GLOBALS['handy_custom_single_' . $post_type . '_category'] = $category;
+		}
 		
-		Handy_Custom_Logger::log("WordPress query setup for single product display: ID={$product_post->ID}", 'debug');
+		Handy_Custom_Logger::log("WordPress query setup for single {$post_type} display: ID={$post->ID}", 'debug');
 	}
 
 
