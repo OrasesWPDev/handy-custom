@@ -315,13 +315,13 @@ class Handy_Custom {
 	}
 
 	/**
-	 * Add URL rewrite rules for product categories and subcategories
+	 * Add URL rewrite rules for product categories, subcategories, and single products
 	 */
 	public function add_rewrite_rules() {
-		// /products/{category}/{subcategory}/ - subcategory page
+		// /products/{category}/{product-slug}/ - single product page
 		add_rewrite_rule(
 			'^products/([^/]+)/([^/]+)/?$',
-			'index.php?pagename=products&product_category=$matches[1]&product_subcategory=$matches[2]',
+			'index.php?post_type=product&product_category=$matches[1]&product_slug=$matches[2]',
 			'top'
 		);
 
@@ -332,7 +332,7 @@ class Handy_Custom {
 			'top'
 		);
 
-		Handy_Custom_Logger::log('Product URL rewrite rules added', 'info');
+		Handy_Custom_Logger::log('Product URL rewrite rules added (including single products)', 'info');
 	}
 
 	/**
@@ -341,12 +341,13 @@ class Handy_Custom {
 	public function add_query_vars($vars) {
 		$vars[] = 'product_category';
 		$vars[] = 'product_subcategory';
+		$vars[] = 'product_slug';
 		return $vars;
 	}
 
 	/**
 	 * Handle product URL redirects and parameter injection
-	 * Only activates when page contains product shortcodes
+	 * Handles both category pages and single product pages
 	 */
 	public function handle_product_urls() {
 		// Skip processing entirely in admin contexts to prevent editing interference
@@ -356,13 +357,20 @@ class Handy_Custom {
 		
 		$category = get_query_var('product_category');
 		$subcategory = get_query_var('product_subcategory');
+		$product_slug = get_query_var('product_slug');
 
-		// Only process if we have product URL parameters
+		// Handle single product URLs first
+		if (!empty($category) && !empty($product_slug)) {
+			$this->handle_single_product_url($category, $product_slug);
+			return;
+		}
+
+		// Only process category/subcategory if we have those parameters
 		if (empty($category) && empty($subcategory)) {
 			return;
 		}
 
-		// Validate that we're on the products page
+		// Validate that we're on the products page for category handling
 		if (!is_page('products')) {
 			return;
 		}
@@ -390,6 +398,58 @@ class Handy_Custom {
 			$GLOBALS['handy_custom_url_subcategory'] = sanitize_text_field($subcategory);
 			Handy_Custom_Logger::log("URL subcategory parameter detected: {$subcategory}", 'info');
 		}
+	}
+
+	/**
+	 * Handle single product URL requests
+	 * Redirects /products/{category}/{product-slug}/ to actual product post
+	 *
+	 * @param string $category Product category slug
+	 * @param string $product_slug Product post slug
+	 */
+	private function handle_single_product_url($category, $product_slug) {
+		Handy_Custom_Logger::log("Single product URL detected: category={$category}, slug={$product_slug}", 'info');
+		
+		// Find product by slug
+		$product = get_posts(array(
+			'name' => $product_slug,
+			'post_type' => 'product',
+			'post_status' => 'publish',
+			'numberposts' => 1
+		));
+		
+		if (empty($product)) {
+			Handy_Custom_Logger::log("Product not found for slug: {$product_slug}", 'warning');
+			// Let WordPress handle the 404
+			return;
+		}
+		
+		$product_post = $product[0];
+		
+		// Verify the product belongs to the specified category
+		$product_categories = wp_get_post_terms($product_post->ID, 'product-category');
+		$category_match = false;
+		
+		foreach ($product_categories as $term) {
+			if ($term->slug === $category || 
+				($term->parent && get_term($term->parent)->slug === $category)) {
+				$category_match = true;
+				break;
+			}
+		}
+		
+		if (!$category_match) {
+			Handy_Custom_Logger::log("Product {$product_slug} does not belong to category {$category}", 'warning');
+			// Let WordPress handle the 404
+			return;
+		}
+		
+		// Redirect to the actual product post
+		$product_url = get_permalink($product_post->ID);
+		Handy_Custom_Logger::log("Redirecting to product URL: {$product_url}", 'info');
+		
+		wp_redirect($product_url, 301);
+		exit;
 	}
 
 	/**
