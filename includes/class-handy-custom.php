@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.6.7';
+	const VERSION = '1.6.8';
 
 	/**
 	 * Single instance of the class
@@ -510,6 +510,30 @@ class Handy_Custom {
 		return isset($GLOBALS['handy_custom_single_product_category']) 
 			? $GLOBALS['handy_custom_single_product_category'] 
 			: false;
+	}
+
+	/**
+	 * Get URL parameters from the current request
+	 * Extracts category and product slug from rewrite rules
+	 * 
+	 * @return array URL parameters array
+	 */
+	public static function get_url_parameters() {
+		$params = array();
+		
+		// Get category from query var (set by rewrite rules)
+		$category = get_query_var('product_category');
+		if (!empty($category)) {
+			$params['category'] = $category;
+		}
+		
+		// Get product slug from query var (set by rewrite rules)
+		$product_slug = get_query_var('product_slug');
+		if (!empty($product_slug)) {
+			$params['product_slug'] = $product_slug;
+		}
+		
+		return $params;
 	}
 
 	/**
