@@ -349,6 +349,11 @@ class Handy_Custom {
 	 * Only activates when page contains product shortcodes
 	 */
 	public function handle_product_urls() {
+		// Skip processing entirely in admin contexts to prevent editing interference
+		if (is_admin()) {
+			return;
+		}
+		
 		$category = get_query_var('product_category');
 		$subcategory = get_query_var('product_subcategory');
 
