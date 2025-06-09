@@ -194,17 +194,23 @@ class Handy_Custom_Shortcodes {
 	/**
 	 * Filter Products shortcode handler
 	 * Renders only product taxonomy filters with URL parameter integration
+	 * Now supports category/subcategory context filtering
 	 *
 	 * User request: "create a new shortcode: [filter-products] to only show 
 	 * the taxonomies in products"
+	 * 
+	 * Update request: "when a category flag is applied, it needs to iterate through all products 
+	 * under the shrimp category, and only show the filters that have been attached to those products"
 	 *
 	 * @param array $atts Shortcode attributes
 	 * @return string HTML for product filters
 	 */
 	public static function filter_products_shortcode($atts) {
 		$defaults = array(
-			'display' => '',    // Comma-separated list of taxonomies to show
-			'exclude' => ''     // Comma-separated list of taxonomies to exclude
+			'display' => '',      // Comma-separated list of taxonomies to show
+			'exclude' => '',      // Comma-separated list of taxonomies to exclude
+			'category' => '',     // Filter context to specific category
+			'subcategory' => ''   // Filter context to specific subcategory
 		);
 		$atts = shortcode_atts($defaults, $atts, 'filter-products');
 
@@ -222,6 +228,7 @@ class Handy_Custom_Shortcodes {
 	/**
 	 * Filter Recipes shortcode handler  
 	 * Renders only recipe taxonomy filters with URL parameter integration
+	 * Now supports category/subcategory context filtering
 	 *
 	 * User request: "create a new shortcode: [filter-recipe] to only show
 	 * the taxonomies in recipes"
@@ -231,8 +238,10 @@ class Handy_Custom_Shortcodes {
 	 */
 	public static function filter_recipes_shortcode($atts) {
 		$defaults = array(
-			'display' => '',    // Comma-separated list of taxonomies to show
-			'exclude' => ''     // Comma-separated list of taxonomies to exclude
+			'display' => '',      // Comma-separated list of taxonomies to show
+			'exclude' => '',      // Comma-separated list of taxonomies to exclude
+			'category' => '',     // Filter context to specific category (if applicable to recipes)
+			'subcategory' => ''   // Filter context to specific subcategory (if applicable to recipes)
 		);
 		$atts = shortcode_atts($defaults, $atts, 'filter-recipes');
 
