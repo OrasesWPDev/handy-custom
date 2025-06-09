@@ -59,6 +59,11 @@ class Handy_Custom {
 		add_action('created_product-category', array($this, 'regenerate_rewrite_rules'));
 		add_action('edited_product-category', array($this, 'regenerate_rewrite_rules'));
 		add_action('deleted_product-category', array($this, 'regenerate_rewrite_rules'));
+
+		// Breadcrumb hooks for single products
+		add_filter('wpseo_breadcrumb_links', array($this, 'modify_yoast_breadcrumbs'));
+		add_filter('breadcrumb_trail_get_items', array($this, 'modify_breadcrumb_trail_items'));
+		add_filter('woocommerce_get_breadcrumb', array($this, 'modify_woocommerce_breadcrumbs'));
 	}
 
 	/**
@@ -586,5 +591,136 @@ class Handy_Custom {
 		Handy_Custom_Logger::log("Generated custom permalink for product {$post->ID}: {$custom_url}", 'debug');
 		
 		return $custom_url;
+	}
+
+	/**
+	 * Modify Yoast SEO breadcrumbs for single products
+	 * Creates hierarchy: Home / Products / Category / Sub Category / Post Title
+	 *
+	 * @param array $breadcrumbs Yoast breadcrumb array
+	 * @return array Modified breadcrumb array
+	 */
+	public function modify_yoast_breadcrumbs($breadcrumbs) {
+		if (!is_singular('product')) {
+			return $breadcrumbs;
+		}
+
+		global $post;
+		$category_context = self::get_single_product_category();
+		
+		// Get product categories
+		$categories = wp_get_post_terms($post->ID, 'product-category', array('orderby' => 'parent'));
+		
+		if (empty($categories) || is_wp_error($categories)) {
+			return $breadcrumbs;
+		}
+		
+		// Build custom breadcrumb structure
+		$custom_breadcrumbs = array();
+		
+		// Keep Home link from existing breadcrumbs
+		if (!empty($breadcrumbs) && isset($breadcrumbs[0])) {
+			$custom_breadcrumbs[] = $breadcrumbs[0];
+		}
+		
+		// Add Products link
+		$custom_breadcrumbs[] = array(
+			'text' => 'Products',
+			'url'  => home_url('/products/'), // Adjust URL as needed
+		);
+		
+		// Find primary category (with context preference)
+		$primary_category = $this->get_primary_product_category($categories, $category_context);
+		
+		if ($primary_category) {
+			// Add parent category if exists
+			if ($primary_category->parent > 0) {
+				$parent_category = get_term($primary_category->parent, 'product-category');
+				if ($parent_category && !is_wp_error($parent_category)) {
+					$custom_breadcrumbs[] = array(
+						'text' => $parent_category->name,
+						'url'  => home_url("/products/{$parent_category->slug}/"),
+					);
+				}
+			}
+			
+			// Add the primary category
+			$custom_breadcrumbs[] = array(
+				'text' => $primary_category->name,
+				'url'  => home_url("/products/{$primary_category->slug}/"),
+			);
+		}
+		
+		// Add current product (no URL - final item)
+		$custom_breadcrumbs[] = array(
+			'text' => get_the_title($post->ID),
+			'url'  => false,
+		);
+		
+		return $custom_breadcrumbs;
+	}
+
+	/**
+	 * Modify Breadcrumb Trail plugin breadcrumbs for single products
+	 *
+	 * @param array $items Breadcrumb trail items
+	 * @return array Modified breadcrumb items
+	 */
+	public function modify_breadcrumb_trail_items($items) {
+		if (!is_singular('product')) {
+			return $items;
+		}
+
+		// Use similar logic to Yoast but adapt to Breadcrumb Trail format
+		// This would need to be implemented based on the Breadcrumb Trail plugin structure
+		return $items;
+	}
+
+	/**
+	 * Modify WooCommerce breadcrumbs for single products
+	 *
+	 * @param array $breadcrumbs WooCommerce breadcrumb array
+	 * @return array Modified breadcrumb array
+	 */
+	public function modify_woocommerce_breadcrumbs($breadcrumbs) {
+		if (!is_singular('product')) {
+			return $breadcrumbs;
+		}
+
+		// Use similar logic to Yoast but adapt to WooCommerce format
+		// This would need to be implemented based on WooCommerce breadcrumb structure
+		return $breadcrumbs;
+	}
+
+	/**
+	 * Get primary product category with context preference
+	 *
+	 * @param array $categories Array of product category terms
+	 * @param string|false $context_category Preferred category from URL context
+	 * @return WP_Term|false Primary category or false if none found
+	 */
+	private function get_primary_product_category($categories, $context_category = false) {
+		if (empty($categories)) {
+			return false;
+		}
+
+		// If we have URL context, prefer that category
+		if ($context_category) {
+			foreach ($categories as $category) {
+				if ($category->slug === $context_category) {
+					return $category;
+				}
+			}
+		}
+
+		// Find top-level category (parent = 0)
+		foreach ($categories as $category) {
+			if ($category->parent == 0) {
+				return $category;
+			}
+		}
+
+		// Fallback to first category
+		return $categories[0];
 	}
 }

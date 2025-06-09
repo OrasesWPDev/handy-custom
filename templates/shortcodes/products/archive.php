@@ -20,15 +20,27 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-# Log template context
+# Log template context and determine CSS classes
 $context_info = 'Loading products archive template with ' . count($categories) . ' categories';
 if (!empty($filters['subcategory'])) {
     $context_info .= " (subcategory: {$filters['subcategory']})";
 }
-Handy_Custom_Logger::log($context_info, 'info');
+
+// Determine container CSS class based on context
+$container_class = 'handy-products-archive';
+if ($display_mode === 'list') {
+    $container_class .= ' products-list';
+} elseif (!empty($filters['category'])) {
+    $container_class .= ' products-subcategory';
+} else {
+    $container_class .= ' products-top-level';
+}
+
+Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'info');
 ?>
 
-<div class="handy-products-archive" data-shortcode="products" data-display-mode="<?php echo esc_attr($display_mode); ?>"
+<div class="<?php echo esc_attr($container_class); ?>" data-shortcode="products" data-display-mode="<?php echo esc_attr($display_mode); ?>"
+     <?php if (!empty($filters['category'])): ?>data-category="<?php echo esc_attr($filters['category']); ?>"<?php endif; ?>
      <?php if (!empty($filters['subcategory'])): ?>data-subcategory="<?php echo esc_attr($filters['subcategory']); ?>"<?php endif; ?>>
     
     <!-- Filter Controls Removed: Use [filter-products] shortcode instead -->
