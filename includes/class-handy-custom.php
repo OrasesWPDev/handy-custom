@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.6.6';
+	const VERSION = '1.6.7';
 
 	/**
 	 * Single instance of the class
@@ -54,6 +54,11 @@ class Handy_Custom {
 		
 		// Permalink generation hooks
 		add_filter('post_type_link', array($this, 'custom_product_permalink'), 10, 2);
+		
+		// Category management hooks - regenerate rewrite rules when categories change
+		add_action('created_product-category', array($this, 'regenerate_rewrite_rules'));
+		add_action('edited_product-category', array($this, 'regenerate_rewrite_rules'));
+		add_action('deleted_product-category', array($this, 'regenerate_rewrite_rules'));
 	}
 
 	/**
@@ -318,39 +323,74 @@ class Handy_Custom {
 	}
 
 	/**
-	 * Add URL rewrite rules for product categories, subcategories, and single products
+	 * Get all top-level product categories (parent = 0)
+	 * 
+	 * @return array Array of category slugs
 	 */
-	public function add_rewrite_rules() {
-		// /products/{category}/{product-slug}/ - single product page
-		add_rewrite_rule(
-			'^products/([^/]+)/([^/]+)/?$',
-			'index.php?post_type=product&product_category=$matches[1]&product_slug=$matches[2]',
-			'top'
-		);
-
-		// /products/{category}/ - category page
-		add_rewrite_rule(
-			'^products/([^/]+)/?$',
-			'index.php?pagename=products&product_category=$matches[1]',
-			'top'
-		);
-
-		Handy_Custom_Logger::log('Product URL rewrite rules added (including single products)', 'info');
+	private function get_top_level_product_categories() {
+		$categories = get_terms(array(
+			'taxonomy' => 'product-category',
+			'hide_empty' => false,
+			'parent' => 0, // Only top-level categories
+			'fields' => 'slugs' // Return only slugs
+		));
+		
+		if (is_wp_error($categories)) {
+			Handy_Custom_Logger::log('Error fetching product categories: ' . $categories->get_error_message(), 'error');
+			return array();
+		}
+		
+		return is_array($categories) ? $categories : array();
 	}
 
 	/**
-	 * Add custom query variables
+	 * Regenerate rewrite rules when product categories are modified
+	 * This ensures dynamic category support
+	 */
+	public function regenerate_rewrite_rules() {
+		Handy_Custom_Logger::log('Product categories modified - regenerating rewrite rules', 'info');
+		flush_rewrite_rules();
+	}
+
+	/**
+	 * Add URL rewrite rules for single products only
+	 * Only handles URLs: /products/{top-level-category}/{product-slug}/
+	 * Leaves all other /products/ URLs to WordPress page management
+	 */
+	public function add_rewrite_rules() {
+		// Get dynamic list of top-level product categories
+		$top_level_categories = $this->get_top_level_product_categories();
+		
+		if (!empty($top_level_categories)) {
+			// Create regex pattern for only valid top-level categories
+			$category_pattern = '(' . implode('|', array_map('preg_quote', $top_level_categories)) . ')';
+			
+			// /products/{valid-top-level-category}/{product-slug}/ - single product page only
+			add_rewrite_rule(
+				'^products/' . $category_pattern . '/([^/]+)/?$',
+				'index.php?post_type=product&product_category=$matches[1]&product_slug=$matches[2]',
+				'top'
+			);
+			
+			Handy_Custom_Logger::log('Dynamic single product URL rewrite rules added for categories: ' . implode(', ', $top_level_categories), 'info');
+		} else {
+			Handy_Custom_Logger::log('No top-level product categories found - no rewrite rules added', 'warning');
+		}
+	}
+
+	/**
+	 * Add custom query variables for single product URLs
 	 */
 	public function add_query_vars($vars) {
 		$vars[] = 'product_category';
-		$vars[] = 'product_subcategory';
 		$vars[] = 'product_slug';
 		return $vars;
 	}
 
 	/**
-	 * Handle product URL redirects and parameter injection
-	 * Handles both category pages and single product pages
+	 * Handle single product URLs only
+	 * Only processes /products/{top-level-category}/{product-slug}/ URLs
+	 * All other /products/ URLs remain under WordPress page control
 	 */
 	public function handle_product_urls() {
 		// Skip processing entirely in admin contexts to prevent editing interference
@@ -359,55 +399,17 @@ class Handy_Custom {
 		}
 		
 		$category = get_query_var('product_category');
-		$subcategory = get_query_var('product_subcategory');
 		$product_slug = get_query_var('product_slug');
 
-		// Handle single product URLs first
+		// Only handle single product URLs - both category and product_slug must be present
 		if (!empty($category) && !empty($product_slug)) {
 			$this->handle_single_product_url($category, $product_slug);
 			return;
 		}
 
-		// Only process category/subcategory if we have those parameters
-		if (empty($category) && empty($subcategory)) {
-			return;
-		}
-
-		// CRITICAL: Check if this URL corresponds to an actual WordPress page
-		// This prevents the plugin from interfering with WordPress page hierarchy
-		if ($this->is_wordpress_page_url($category, $subcategory)) {
-			Handy_Custom_Logger::log("URL matches WordPress page - skipping plugin processing", 'info');
-			return;
-		}
-
-		// Validate that we're on the products page for category handling
-		if (!is_page('products')) {
-			return;
-		}
-
-		// Only set global parameters if page contains product shortcodes
-		// This prevents forcing shortcode behavior on pages meant for UX Builder editing
-		global $post;
-		if ($post && !empty($post->post_content)) {
-			$has_product_shortcodes = has_shortcode($post->post_content, 'products') || 
-									  has_shortcode($post->post_content, 'filter-products');
-			
-			if (!$has_product_shortcodes) {
-				Handy_Custom_Logger::log("URL parameters ignored - no product shortcodes found on page", 'info');
-				return;
-			}
-		}
-
-		// Store parameters for shortcode access
-		if (!empty($category)) {
-			$GLOBALS['handy_custom_url_category'] = sanitize_text_field($category);
-			Handy_Custom_Logger::log("URL category parameter detected: {$category}", 'info');
-		}
-
-		if (!empty($subcategory)) {
-			$GLOBALS['handy_custom_url_subcategory'] = sanitize_text_field($subcategory);
-			Handy_Custom_Logger::log("URL subcategory parameter detected: {$subcategory}", 'info');
-		}
+		// If we don't have both parameters, this is not a single product URL
+		// Let WordPress handle all other /products/ URLs as regular pages
+		Handy_Custom_Logger::log('Not a single product URL - letting WordPress handle page routing', 'debug');
 	}
 
 	/**
@@ -497,59 +499,6 @@ class Handy_Custom {
 		Handy_Custom_Logger::log("WordPress query setup for single product display: ID={$product_post->ID}", 'debug');
 	}
 
-	/**
-	 * Check if a URL path corresponds to an actual WordPress page
-	 * This prevents plugin rewrite rules from interfering with WordPress page hierarchy
-	 * 
-	 * @param string $category Category slug from URL
-	 * @param string $subcategory Subcategory slug from URL (optional)
-	 * @return bool True if WordPress page exists at this URL path
-	 */
-	private function is_wordpress_page_url($category, $subcategory = '') {
-		// Check for /products/{category}/ page structure
-		if (!empty($category)) {
-			// First check if there's a page with slug matching the category under /products
-			$parent_page = get_page_by_path('products');
-			if ($parent_page) {
-				$child_page = get_page_by_path("products/{$category}");
-				if ($child_page) {
-					Handy_Custom_Logger::log("Found WordPress page at /products/{$category}/", 'info');
-					return true;
-				}
-			}
-		}
-
-		// Check for /products/{category}/{subcategory}/ page structure
-		if (!empty($category) && !empty($subcategory)) {
-			$page_path = "products/{$category}/{$subcategory}";
-			$page = get_page_by_path($page_path);
-			if ($page) {
-				Handy_Custom_Logger::log("Found WordPress page at /{$page_path}/", 'info');
-				return true;
-			}
-		}
-
-		return false;
-	}
-
-	/**
-	 * Get URL-based product parameters for shortcode use
-	 * 
-	 * @return array Array of URL-based parameters
-	 */
-	public static function get_url_parameters() {
-		$params = array();
-
-		if (isset($GLOBALS['handy_custom_url_category'])) {
-			$params['category'] = $GLOBALS['handy_custom_url_category'];
-		}
-
-		if (isset($GLOBALS['handy_custom_url_subcategory'])) {
-			$params['subcategory'] = $GLOBALS['handy_custom_url_subcategory'];
-		}
-
-		return $params;
-	}
 
 	/**
 	 * Get single product category context for breadcrumbs

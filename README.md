@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.6.6-green.svg)
+![Version](https://img.shields.io/badge/version-1.6.7-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -21,7 +21,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 
 ### 🛍️ Products Module
 - **Advanced Shortcode**: `[products]` with 8 filter parameters
-- **SEO-Friendly URLs**: `/products/{category}/{product-slug}/` structure for single products, `/products/{category}/` for category pages
+- **SEO-Friendly URLs**: `/products/{category}/{product-slug}/` structure for single products only - leaves all other `/products/` URLs to WordPress page management
 - **Smart Category Detection**: Automatic parent category resolution for subcategories
 - **Rich Product Cards**: Featured images, descriptions, action buttons
 - **Comprehensive Filtering**:
@@ -413,7 +413,18 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.6.5 (Latest)
+### Version 1.6.7 (Latest)
+- **Complete WordPress Page Control**: Plugin now ONLY handles single product URLs `/products/{category}/{product-slug}/` leaving ALL other `/products/` URLs to WordPress
+- **Dynamic Category Support**: Automatically detects new top-level product categories and generates rewrite rules accordingly
+- **No More Category URL Interference**: Removed problematic `/products/{category}/` rewrite rule that captured WordPress pages
+- **Child Page Freedom**: WordPress child pages under `/products/` work normally without plugin interference
+- **Future-Proof Categories**: New top-level categories added via admin or CSV import automatically get URL support
+- **User instruction**: Plugin restricts WordPress page interference to only single product title pages as requested
+
+### Version 1.6.6
+- Fix single product URL structure with category-based permalinks
+
+### Version 1.6.5
 - **WordPress Page Hierarchy Fix**: Plugin no longer interferes with creating WordPress pages under /products/ parent
 - **Flatsome UX Builder Compatibility**: Can now create `/products/crab/` pages and set parent/child relationships without errors
 - **Smart URL Detection**: Plugin checks for existing WordPress pages before applying rewrite rules
