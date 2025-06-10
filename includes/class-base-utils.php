@@ -338,8 +338,10 @@ abstract class Handy_Custom_Base_Utils {
 	}
 
 	/**
-	 * Initialize cache invalidation hooks
-	 * Should be called during plugin initialization
+	 * Initialize comprehensive cache invalidation hooks
+	 * Implements immediate cache busting when categories are changed
+	 * 
+	 * User requirement: "cache is busted the moment a user changes anything in the product categories"
 	 */
 	public static function init_cache_invalidation() {
 		// Clear query cache when posts are updated
@@ -353,7 +355,23 @@ abstract class Handy_Custom_Base_Utils {
 		add_action('edited_term', array(__CLASS__, 'invalidate_cache_on_term_update'), 10, 3);
 		add_action('deleted_term', array(__CLASS__, 'invalidate_cache_on_term_update'), 10, 3);
 		
-		Handy_Custom_Logger::log('Cache invalidation hooks initialized', 'info');
+		// COMPREHENSIVE CACHE INVALIDATION: Term meta changes (display_order, featured images, etc.)
+		add_action('added_term_meta', array(__CLASS__, 'invalidate_cache_on_term_meta_update'), 10, 4);
+		add_action('updated_term_meta', array(__CLASS__, 'invalidate_cache_on_term_meta_update'), 10, 4);
+		add_action('deleted_term_meta', array(__CLASS__, 'invalidate_cache_on_term_meta_update'), 10, 4);
+		
+		// COMPREHENSIVE CACHE INVALIDATION: Category assignments to posts
+		add_action('set_object_terms', array(__CLASS__, 'invalidate_cache_on_object_terms_update'), 10, 6);
+		
+		// COMPREHENSIVE CACHE INVALIDATION: ACF field updates on taxonomy pages
+		add_action('acf/save_post', array(__CLASS__, 'invalidate_cache_on_acf_update'));
+		
+		// COMPREHENSIVE CACHE INVALIDATION: WordPress core term updates that might be missed
+		add_action('create_term', array(__CLASS__, 'invalidate_cache_on_term_change'), 10, 3);
+		add_action('edit_term', array(__CLASS__, 'invalidate_cache_on_term_change'), 10, 3);
+		add_action('delete_term', array(__CLASS__, 'invalidate_cache_on_term_change'), 10, 3);
+		
+		Handy_Custom_Logger::log('Comprehensive cache invalidation hooks initialized', 'info');
 	}
 
 	/**
@@ -397,6 +415,153 @@ abstract class Handy_Custom_Base_Utils {
 			
 			Handy_Custom_Logger::log("Caches cleared due to {$taxonomy} term update (ID: {$term_id})", 'info');
 		}
+	}
+
+	/**
+	 * Invalidate cache when term meta is updated (display_order, featured images, etc.)
+	 * 
+	 * @param int $meta_id Meta ID
+	 * @param int $object_id Term ID
+	 * @param string $meta_key Meta key
+	 * @param mixed $meta_value Meta value
+	 */
+	public static function invalidate_cache_on_term_meta_update($meta_id, $object_id, $meta_key, $meta_value) {
+		// Get the term to determine its taxonomy
+		$term = get_term($object_id);
+		
+		if (!$term || is_wp_error($term)) {
+			return;
+		}
+		
+		// Check if this is a relevant taxonomy
+		$relevant_taxonomies = array(
+			'product-category', 'grade', 'market-segment', 'product-cooking-method',
+			'product-menu-occasion', 'product-type', 'size', 'product-species',
+			'brand', 'certification', 'recipe-category', 'recipe-cooking-method',
+			'recipe-menu-occasion'
+		);
+		
+		if (in_array($term->taxonomy, $relevant_taxonomies)) {
+			// Nuclear approach: Clear all caches when meta changes
+			self::clear_all_caches();
+			
+			Handy_Custom_Logger::log("All caches cleared due to term meta update: {$meta_key} for term {$object_id} ({$term->taxonomy})", 'info');
+		}
+	}
+
+	/**
+	 * Invalidate cache when object terms are updated (category assignments)
+	 * 
+	 * @param int $object_id Object ID
+	 * @param array $terms Array of term IDs
+	 * @param array $taxonomy_terms Array of taxonomy term IDs
+	 * @param string $taxonomy Taxonomy slug
+	 * @param bool $append Whether to append or replace terms
+	 * @param array $old_taxonomy_terms Old term IDs
+	 */
+	public static function invalidate_cache_on_object_terms_update($object_id, $terms, $taxonomy_terms, $taxonomy, $append, $old_taxonomy_terms) {
+		// Check if this is a relevant taxonomy
+		$relevant_taxonomies = array(
+			'product-category', 'grade', 'market-segment', 'product-cooking-method',
+			'product-menu-occasion', 'product-type', 'size', 'product-species',
+			'brand', 'certification', 'recipe-category', 'recipe-cooking-method',
+			'recipe-menu-occasion'
+		);
+		
+		if (in_array($taxonomy, $relevant_taxonomies)) {
+			// Clear term and query caches
+			self::clear_term_cache($taxonomy);
+			
+			$post_type = get_post_type($object_id);
+			if (in_array($post_type, array('product', 'recipe'))) {
+				self::clear_query_cache($post_type);
+			}
+			
+			Handy_Custom_Logger::log("Caches cleared due to term assignment change for object {$object_id} in taxonomy {$taxonomy}", 'info');
+		}
+	}
+
+	/**
+	 * Invalidate cache when ACF fields are updated on taxonomy pages
+	 * 
+	 * @param string|int $post_id Post ID or taxonomy term ID
+	 */
+	public static function invalidate_cache_on_acf_update($post_id) {
+		// Check if this is a taxonomy term (ACF uses "term_123" format for term IDs)
+		if (is_string($post_id) && strpos($post_id, 'term_') === 0) {
+			$term_id = (int) str_replace('term_', '', $post_id);
+			$term = get_term($term_id);
+			
+			if (!$term || is_wp_error($term)) {
+				return;
+			}
+			
+			// Check if this is a relevant taxonomy
+			$relevant_taxonomies = array(
+				'product-category', 'grade', 'market-segment', 'product-cooking-method',
+				'product-menu-occasion', 'product-type', 'size', 'product-species',
+				'brand', 'certification', 'recipe-category', 'recipe-cooking-method',
+				'recipe-menu-occasion'
+			);
+			
+			if (in_array($term->taxonomy, $relevant_taxonomies)) {
+				// Nuclear approach: Clear all caches when ACF fields change
+				self::clear_all_caches();
+				
+				Handy_Custom_Logger::log("All caches cleared due to ACF field update for term {$term_id} ({$term->taxonomy})", 'info');
+			}
+		}
+	}
+
+	/**
+	 * Invalidate cache on core WordPress term changes (backup hook)
+	 * 
+	 * @param int $term_id Term ID
+	 * @param int $taxonomy_id Taxonomy ID
+	 * @param string $taxonomy Taxonomy slug
+	 */
+	public static function invalidate_cache_on_term_change($term_id, $taxonomy_id, $taxonomy) {
+		// This is a backup to the main term update hooks
+		// Use same logic as invalidate_cache_on_term_update but with different logging
+		$relevant_taxonomies = array(
+			'product-category', 'grade', 'market-segment', 'product-cooking-method',
+			'product-menu-occasion', 'product-type', 'size', 'product-species',
+			'brand', 'certification', 'recipe-category', 'recipe-cooking-method',
+			'recipe-menu-occasion'
+		);
+		
+		if (in_array($taxonomy, $relevant_taxonomies)) {
+			self::clear_term_cache($taxonomy);
+			
+			$post_type = (strpos($taxonomy, 'product-') === 0 || in_array($taxonomy, array('grade', 'market-segment', 'size', 'brand', 'certification'))) ? 'product' : 'recipe';
+			self::clear_query_cache($post_type);
+			
+			Handy_Custom_Logger::log("Caches cleared via backup hook due to {$taxonomy} term change (ID: {$term_id})", 'info');
+		}
+	}
+
+	/**
+	 * Nuclear option: Clear all plugin caches
+	 * Used when we want to ensure no stale data remains
+	 */
+	public static function clear_all_caches() {
+		// Clear all static caches
+		self::$term_cache = array();
+		self::$term_exists_cache = array();
+		
+		// Clear all term caches
+		self::clear_term_cache();
+		
+		// Clear all query caches
+		self::clear_query_cache('product');
+		self::clear_query_cache('recipe');
+		
+		// Clear WordPress object cache group
+		if (wp_cache_supports('flush_group')) {
+			wp_cache_flush_group(self::get_cache_group());
+		}
+		
+		Handy_Custom_Logger::log('All plugin caches cleared (nuclear option)', 'info');
 	}
 
 	/**
