@@ -4,9 +4,9 @@
  * Features recipe-specific layout with prep time and servings display
  */
 
-/* Main Container - 1420px site content width */
+/* Main Container - 1440px uniform content width */
 .handy-recipes-archive {
-    max-width: 1420px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 20px;
 }

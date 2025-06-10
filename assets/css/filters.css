@@ -8,7 +8,7 @@
  */
 
 /* ==========================================================================
-   Filter Container Styles - 1420px site content width
+   Filter Container Styles - 1440px uniform content width
    ========================================================================== */
 
 .handy-filters {
@@ -18,7 +18,7 @@
     padding: 20px;
     margin-bottom: 30px;
     position: relative;
-    max-width: 1420px;
+    max-width: 1440px;
     margin-left: auto;
     margin-right: auto;
 }

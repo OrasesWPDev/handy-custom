@@ -3,21 +3,18 @@
  * Basic CSS structure for products shortcode template
  */
 
-/* Main Container - Default 1730px for top-level categories */
+/* Main Container - Uniform 1440px content width */
 .handy-products-archive {
-    max-width: 1730px;
+    max-width: 1440px;
     margin: 0 auto;
     padding: 20px;
 }
 
 /* Container width adjustments for different display modes */
-.handy-products-archive.products-top-level {
-    max-width: 1730px;
-}
-
+.handy-products-archive.products-top-level,
 .handy-products-archive.products-subcategory,
 .handy-products-archive.products-list {
-    max-width: 1451px;
+    max-width: 1440px;
 }
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-products] shortcode */
@@ -35,18 +32,20 @@
     margin: 0 auto;
 }
 
-/* Top-level categories: 2 columns, 850px cards, 31px gap */
+/* Top-level categories: 2 columns adjusted for 1440px width */
 .products-top-level .products-category-view {
-    grid-template-columns: repeat(2, 850px);
-    gap: 31px;
-    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
-/* Subcategories: 2 columns, 696px cards, 38px gap */
+/* Subcategories: 2 columns adjusted for 1440px width */
 .products-subcategory .products-category-view {
-    grid-template-columns: repeat(2, 696px);
-    gap: 38px;
-    justify-content: center;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    max-width: 1400px;
+    margin: 0 auto;
 }
 
 /* Product List View Grid - 2 columns for 1420px content width */
