@@ -201,6 +201,31 @@ abstract class Handy_Custom_Base_Utils {
 			}
 			Handy_Custom_Logger::log('Term cache cleared via individual key deletion' . ($taxonomy ? " for taxonomy: {$taxonomy}" : ''), 'info');
 		}
+		
+		// CRITICAL: Also clear WordPress core term caches for immediate updates
+		if ($taxonomy) {
+			// Clear specific taxonomy WordPress caches
+			wp_cache_delete('all_ids', "taxonomy_{$taxonomy}");
+			wp_cache_delete('get', "taxonomy_{$taxonomy}");
+			wp_cache_delete("{$taxonomy}_relationships", 'terms');
+			
+			// Clear individual term caches for this taxonomy
+			$terms = get_terms(array(
+				'taxonomy' => $taxonomy,
+				'hide_empty' => false,
+				'fields' => 'ids',
+				'cache_domain' => 'core'
+			));
+			
+			if (!is_wp_error($terms) && !empty($terms)) {
+				foreach ($terms as $term_id) {
+					wp_cache_delete($term_id, 'terms');
+					wp_cache_delete($term_id, "term_meta");
+				}
+			}
+			
+			Handy_Custom_Logger::log("WordPress core term cache cleared for taxonomy: {$taxonomy}", 'info');
+		}
 	}
 
 	/**
@@ -561,7 +586,55 @@ abstract class Handy_Custom_Base_Utils {
 			wp_cache_flush_group(self::get_cache_group());
 		}
 		
+		// CRITICAL: Clear WordPress core term caches to ensure breadcrumbs update
+		self::clear_wordpress_term_caches();
+		
 		Handy_Custom_Logger::log('All plugin caches cleared (nuclear option)', 'info');
+	}
+
+	/**
+	 * Clear WordPress core term caches for immediate category updates
+	 * Ensures breadcrumbs and category displays update immediately
+	 */
+	public static function clear_wordpress_term_caches() {
+		$relevant_taxonomies = array(
+			'product-category', 'grade', 'market-segment', 'product-cooking-method',
+			'product-menu-occasion', 'product-type', 'size', 'product-species',
+			'brand', 'certification', 'recipe-category', 'recipe-cooking-method',
+			'recipe-menu-occasion'
+		);
+		
+		foreach ($relevant_taxonomies as $taxonomy) {
+			// Clear WordPress term cache for this taxonomy
+			wp_cache_delete('all_ids', "taxonomy_{$taxonomy}");
+			wp_cache_delete('get', "taxonomy_{$taxonomy}");
+			
+			// Clear term relationships cache  
+			wp_cache_delete("{$taxonomy}_relationships", 'terms');
+			
+			// Clear individual term caches by getting all terms and clearing each
+			$terms = get_terms(array(
+				'taxonomy' => $taxonomy,
+				'hide_empty' => false,
+				'fields' => 'ids',
+				'cache_domain' => 'core' // Force fresh query
+			));
+			
+			if (!is_wp_error($terms) && !empty($terms)) {
+				foreach ($terms as $term_id) {
+					wp_cache_delete($term_id, 'terms');
+					wp_cache_delete($term_id, "term_meta");
+				}
+			}
+		}
+		
+		// Clear term relationship caches for relevant post types
+		$post_types = array('product', 'recipe');
+		foreach ($post_types as $post_type) {
+			wp_cache_delete("{$post_type}_relationships", 'terms');
+		}
+		
+		Handy_Custom_Logger::log('WordPress core term caches cleared for immediate category updates', 'info');
 	}
 
 	/**
