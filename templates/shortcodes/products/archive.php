@@ -109,9 +109,6 @@ Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'in
                 <!-- No Products Found -->
                 <div class="no-results">
                     <p>No products found matching the selected filters.</p>
-                    <?php if (!empty(array_filter($filters))): ?>
-                        <button type="button" class="btn btn-clear-filters">Clear Filters</button>
-                    <?php endif; ?>
                 </div>
                 
             <?php endif; ?>
@@ -190,9 +187,6 @@ Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'in
                 <!-- No Categories Found -->
                 <div class="no-results">
                     <p>No categories found matching the selected filters.</p>
-                    <?php if (!empty(array_filter($filters))): ?>
-                        <button type="button" class="btn btn-clear-filters">Clear Filters</button>
-                    <?php endif; ?>
                 </div>
                 
             <?php endif; ?>

@@ -279,4 +279,70 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 
 		return $breadcrumbs;
 	}
+
+	/**
+	 * Validate internal URL for Shop Now buttons
+	 * Ensures URL starts with /products/ and is internal to the site
+	 *
+	 * @param string $url URL to validate
+	 * @return bool True if valid internal products URL
+	 */
+	public static function validate_shop_now_url($url) {
+		if (empty($url)) {
+			return false;
+		}
+
+		// Sanitize the URL
+		$url = sanitize_text_field($url);
+		
+		// Check if URL starts with /products/
+		if (strpos($url, '/products/') !== 0) {
+			Handy_Custom_Logger::log("Shop Now URL validation failed - must start with /products/: {$url}", 'warning');
+			return false;
+		}
+
+		// Ensure it's a relative URL (starts with /) - no external links
+		if (strpos($url, 'http') === 0 || strpos($url, '//') === 0) {
+			Handy_Custom_Logger::log("Shop Now URL validation failed - external URLs not allowed: {$url}", 'warning');
+			return false;
+		}
+
+		// Additional security: no javascript or suspicious content
+		if (preg_match('/javascript:|data:|vbscript:/i', $url)) {
+			Handy_Custom_Logger::log("Shop Now URL validation failed - suspicious content detected: {$url}", 'error');
+			return false;
+		}
+
+		Handy_Custom_Logger::log("Shop Now URL validated successfully: {$url}", 'debug');
+		return true;
+	}
+
+	/**
+	 * Get Shop Now URL for a category term from ACF field
+	 *
+	 * @param WP_Term|int $term_or_id Category term object or term ID
+	 * @return string|false Validated Shop Now URL or false if invalid/empty
+	 */
+	public static function get_shop_now_url($term_or_id) {
+		if (empty($term_or_id)) {
+			return false;
+		}
+
+		// Get term ID
+		$term_id = is_object($term_or_id) ? $term_or_id->term_id : absint($term_or_id);
+		
+		if (empty($term_id)) {
+			return false;
+		}
+
+		// Get ACF field value
+		$shop_url = get_field('internal_url_for_this_product_category_or_subcategory', 'product-category_' . $term_id);
+		
+		// Validate the URL
+		if (self::validate_shop_now_url($shop_url)) {
+			return esc_url($shop_url);
+		}
+
+		return false;
+	}
 }

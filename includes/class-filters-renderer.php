@@ -358,6 +358,36 @@ class Handy_Custom_Filters_Renderer {
 	}
 
 	/**
+	 * Check if any filters are currently active
+	 * Used to determine whether to show Clear Filters button
+	 *
+	 * @param array $filters Current filter values from URL or form
+	 * @return bool True if any filters are active
+	 */
+	public function has_active_filters($filters = array()) {
+		// If no filters passed, get from URL parameters
+		if (empty($filters)) {
+			$filters = $_GET;
+		}
+
+		// Define filter keys to check (excluding pagination and display parameters)
+		$filter_keys = array(
+			'category', 'subcategory', 'grade', 'market_segment', 
+			'cooking_method', 'menu_occasion', 'product_type', 'size'
+		);
+
+		foreach ($filter_keys as $key) {
+			if (!empty($filters[$key]) && $filters[$key] !== '') {
+				Handy_Custom_Logger::log("Active filter detected: {$key} = {$filters[$key]}", 'debug');
+				return true;
+			}
+		}
+
+		Handy_Custom_Logger::log('No active filters detected', 'debug');
+		return false;
+	}
+
+	/**
 	 * Load unified filter template
 	 *
 	 * @param string $content_type Content type (products/recipes)
@@ -380,7 +410,10 @@ class Handy_Custom_Filters_Renderer {
 		// Extract variables for template use
 		$filters = $current_filters;
 		
-		Handy_Custom_Logger::log("Loading filter template for {$content_type} with " . count($filter_options) . " filter groups", 'info');
+		// Add active filter detection for template
+		$has_active_filters = $this->has_active_filters($current_filters);
+		
+		Handy_Custom_Logger::log("Loading filter template for {$content_type} with " . count($filter_options) . " filter groups, active filters: " . ($has_active_filters ? 'yes' : 'no'), 'info');
 
 		// Include template
 		include $template_path;
