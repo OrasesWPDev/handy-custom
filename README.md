@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.4-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.5-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -449,7 +449,12 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.4 (Latest)
+### Version 1.7.5 (Latest)
+- **Fixed Shop Now Button URLs**: Shop Now buttons now correctly use `/products/{category}/` format instead of `/product-category/{category}/`
+- **Improved URL Fallback**: When ACF field `internal_url_for_this_product_category_or_subcategory` is empty, fallback URLs now use custom products URL structure
+- **Enhanced Category URL Generation**: Updated `get_category_page_url()` to use `Handy_Custom_Products_Utils::get_category_url()` for consistent URL formatting
+
+### Version 1.7.4
 - **Shop Now Buttons with ACF Integration**: Category cards now use ACF field `internal_url_for_this_product_category_or_subcategory` for Shop Now button URLs
 - **URL Validation for Shop Now**: Added security validation ensuring Shop Now URLs start with `/products/` and are internal to the site
 - **Enhanced Clear Filters UX**: Moved Clear Filters button from products grid to filter shortcode for better organization
