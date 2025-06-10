@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.8.0-green.svg)
+![Version](https://img.shields.io/badge/version-1.8.2-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -39,6 +39,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 ### ⚡ Technical Features
 - **AJAX Filtering**: Real-time updates without page reloads
 - **Performance Optimized**: Two-tier caching system for taxonomy terms
+- **Comprehensive Cache Invalidation**: Immediate cache busting when categories are modified (v1.8.2)
 - **Conditional Asset Loading**: CSS/JS only loaded when needed
 - **Debug Logging**: Comprehensive logging system for troubleshooting
 - **Template System**: Customizable templates for complete control
@@ -386,6 +387,11 @@ Override templates by copying to your theme:
 The plugin includes several performance features:
 
 - **Term Caching**: Two-tier caching (WordPress object cache + static cache)
+- **Comprehensive Cache Invalidation (v1.8.2)**: Immediate cache busting on any category change
+  - Term meta updates (display_order, featured images, descriptions)
+  - ACF field changes on taxonomy pages
+  - Category assignments to posts
+  - WordPress core term cache clearing for instant breadcrumb updates
 - **Conditional Loading**: Assets only load on pages with shortcodes
 - **Query Optimization**: Efficient database queries with proper indexing
 
@@ -399,6 +405,9 @@ $stats = Handy_Custom_Base_Utils::get_cache_stats();
 
 // Clear term cache
 Handy_Custom_Base_Utils::clear_term_cache('product-category');
+
+// Nuclear option: Clear all plugin caches (v1.8.2)
+Handy_Custom_Base_Utils::clear_all_caches();
 ```
 
 ## 📥 Data Import
@@ -450,7 +459,20 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.8.0 (Latest)
+### Version 1.8.2 (Latest)
+- **Comprehensive Cache Invalidation**: Complete cache busting system that immediately clears caches when product categories are modified
+- **WordPress Core Cache Clearing**: Enhanced cache clearing to include WordPress's built-in term caches for instant breadcrumb updates
+- **ACF Field Change Detection**: Cache automatically clears when ACF fields are updated on taxonomy pages
+- **Term Meta Cache Busting**: Immediate cache invalidation when display_order, featured images, or other term meta is updated
+- **Category Assignment Tracking**: Cache clears when categories are assigned/removed from posts
+- **Nuclear Cache Option**: Complete cache clearing method for critical updates
+- **Enhanced Logging**: Comprehensive logging for all cache invalidation events
+
+### Version 1.8.1
+- **Standardized Filter CSS**: Unified responsive design patterns across all shortcode CSS files
+- **Consistent Content Width**: Applied 1440px uniform content width to filter shortcodes
+
+### Version 1.8.0
 - **Updated Button Links**: Shop Now buttons now link to `/product-locator/` instead of category pages
 - **Swapped Button Functions**: Find Out More buttons now use ACF field `internal_url_for_this_product_category_or_subcategory` (previously used by Shop Now)
 - **Uniform Content Width**: Standardized all content areas to 1440px width for consistent layout
