@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.5-green.svg)
+![Version](https://img.shields.io/badge/version-1.8.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -256,14 +256,15 @@ Create these custom fields for enhanced functionality:
 'servings'               // Number field
 ```
 
-**New in Version 1.7.4: Shop Now URLs**
+**New in Version 1.8.0: Updated Button Functionality**
 
-Category Shop Now buttons now use the ACF field `internal_url_for_this_product_category_or_subcategory`:
-- **Field Type**: URL field
-- **Applied To**: Both `product-category` and `recipe-category` taxonomies  
-- **Format**: Internal paths like `/products/crab/crab-cakes`
+Category card buttons have been updated with new functionality:
+- **Shop Now Buttons**: Now link to `/product-locator/` page for all categories
+- **Find Out More Buttons**: Use the ACF field `internal_url_for_this_product_category_or_subcategory` for custom URLs
+- **Field Type**: URL field (applied to both `product-category` and `recipe-category` taxonomies)
+- **Format**: Internal paths like `/products/crab/crab-cakes` 
 - **Validation**: Must start with `/products/` for security
-- **Fallback**: If empty, buttons link to category page URL
+- **Fallback**: If ACF field is empty, Find Out More buttons link to category page URL
 
 ### Asset Customization
 
@@ -449,7 +450,14 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.5 (Latest)
+### Version 1.8.0 (Latest)
+- **Updated Button Links**: Shop Now buttons now link to `/product-locator/` instead of category pages
+- **Swapped Button Functions**: Find Out More buttons now use ACF field `internal_url_for_this_product_category_or_subcategory` (previously used by Shop Now)
+- **Uniform Content Width**: Standardized all content areas to 1440px width for consistent layout
+- **Standardized Card Layout**: All category/subcategory cards now use 695px width with 35px gaps and 240px outer padding on desktop
+- **Improved Responsive Design**: Updated breakpoints to 1600px with consistent padding (40px tablet, 20px mobile)
+
+### Version 1.7.5
 - **Fixed Shop Now Button URLs**: Shop Now buttons now correctly use `/products/{category}/` format instead of `/product-category/{category}/`
 - **Improved URL Fallback**: When ACF field `internal_url_for_this_product_category_or_subcategory` is empty, fallback URLs now use custom products URL structure
 - **Enhanced Category URL Generation**: Updated `get_category_page_url()` to use `Handy_Custom_Products_Utils::get_category_url()` for consistent URL formatting

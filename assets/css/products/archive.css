@@ -3,21 +3,18 @@
  * Basic CSS structure for products shortcode template
  */
 
-/* Main Container - Default 1730px for top-level categories */
+/* Main Container - Uniform 1440px content width with standardized padding */
 .handy-products-archive {
-    max-width: 1730px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 240px;
 }
 
 /* Container width adjustments for different display modes */
-.handy-products-archive.products-top-level {
-    max-width: 1730px;
-}
-
+.handy-products-archive.products-top-level,
 .handy-products-archive.products-subcategory,
 .handy-products-archive.products-list {
-    max-width: 1451px;
+    max-width: 1440px;
 }
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-products] shortcode */
@@ -35,17 +32,11 @@
     margin: 0 auto;
 }
 
-/* Top-level categories: 2 columns, 850px cards, 31px gap */
-.products-top-level .products-category-view {
-    grid-template-columns: repeat(2, 850px);
-    gap: 31px;
-    justify-content: center;
-}
-
-/* Subcategories: 2 columns, 696px cards, 38px gap */
+/* Standardized category cards: 695px width, 35px gap */
+.products-top-level .products-category-view,
 .products-subcategory .products-category-view {
-    grid-template-columns: repeat(2, 696px);
-    gap: 38px;
+    grid-template-columns: repeat(2, 695px);
+    gap: 35px;
     justify-content: center;
 }
 
@@ -327,17 +318,17 @@
     }
 }
 
-/* Tablet: 550px to 1450px */
-@media (max-width: 1450px) {
+/* Tablet: 1600px and below - adjust for standardized card layout */
+@media (max-width: 1600px) {
     .handy-products-archive {
-        padding: 15px;
+        padding: 15px 40px;
     }
     
-    /* Category view - responsive 2 columns on tablet */
+    /* Category view - responsive 2 columns maintaining proportional gap */
     .products-top-level .products-category-view,
     .products-subcategory .products-category-view {
         grid-template-columns: repeat(2, 1fr);
-        gap: 20px;
+        gap: 35px;
         max-width: 100%;
     }
     
@@ -359,14 +350,14 @@
 /* Mobile: 549px and below */
 @media (max-width: 549px) {
     .handy-products-archive {
-        padding: 10px;
+        padding: 10px 20px;
     }
     
     /* Category view - 1 column on mobile */
     .products-top-level .products-category-view,
     .products-subcategory .products-category-view {
         grid-template-columns: 1fr;
-        gap: 15px;
+        gap: 35px;
     }
     
     /* Product list view - 1 column on mobile */

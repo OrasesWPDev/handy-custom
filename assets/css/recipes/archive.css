@@ -4,11 +4,11 @@
  * Features recipe-specific layout with prep time and servings display
  */
 
-/* Main Container - 1420px site content width */
+/* Main Container - 1440px uniform content width with standardized padding */
 .handy-recipes-archive {
-    max-width: 1420px;
+    max-width: 1440px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 20px 240px;
 }
 
 /* Archive Header */
@@ -47,11 +47,11 @@
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-recipes] shortcode */
 
-/* Recipes Grid - 4-column layout for 1420px content width (matches design example) */
+/* Recipes Grid - 4-column layout with standardized 35px gap */
 .handy-recipes-grid {
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    gap: 30px;
+    gap: 35px;
     margin-bottom: 30px;
 }
 
@@ -239,16 +239,16 @@
     font-size: 16px;
 }
 
-/* Responsive Design - Match site breakpoints: 850px+, 550-849px, 549px- */
-/* Tablet: 550px to 849px - 2 columns */
-@media (max-width: 849px) and (min-width: 550px) {
+/* Responsive Design - Match standardized breakpoints */
+/* Tablet: 550px to 1600px - 2 columns */
+@media (max-width: 1600px) and (min-width: 550px) {
     .handy-recipes-archive {
-        padding: 15px;
+        padding: 15px 40px;
     }
     
     .handy-recipes-grid {
         grid-template-columns: repeat(2, 1fr);
-        gap: 25px;
+        gap: 35px;
     }
     
     .recipe-card-content {
@@ -259,7 +259,7 @@
 /* Mobile: 549px and below */
 @media (max-width: 549px) {
     .handy-recipes-archive {
-        padding: 10px;
+        padding: 10px 20px;
     }
     
     .recipes-archive-header {
@@ -274,7 +274,7 @@
     
     .handy-recipes-grid {
         grid-template-columns: 1fr;
-        gap: 20px;
+        gap: 35px;
     }
     
     .recipe-card-content {
