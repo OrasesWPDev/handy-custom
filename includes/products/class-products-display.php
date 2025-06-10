@@ -162,16 +162,17 @@ class Handy_Custom_Products_Display {
 	 * @return string
 	 */
 	public static function get_category_page_url($category) {
-		// TODO: This should link to the category-specific page built with UX Builder
-		// For now, return the default category archive URL
-		// This will need to be updated to point to the custom pages once they're created
+		// Use custom products URL structure instead of WordPress taxonomy archive
+		// This ensures Shop Now buttons use /products/{category}/ format
 		
-		$category_url = get_term_link($category);
-		
-		if (is_wp_error($category_url)) {
-			Handy_Custom_Logger::log("Error getting category URL for: {$category->slug}", 'error');
+		if (empty($category->slug)) {
+			Handy_Custom_Logger::log("Invalid category object - missing slug", 'error');
 			return '#';
 		}
+		
+		$category_url = Handy_Custom_Products_Utils::get_category_url($category->slug);
+		
+		Handy_Custom_Logger::log("Generated category URL for {$category->slug}: {$category_url}", 'debug');
 		
 		return $category_url;
 	}
