@@ -17,10 +17,10 @@
     border-radius: 8px;
     padding: 20px;
     margin-bottom: 30px;
+    margin-left: 240px;
+    margin-right: 240px;
     position: relative;
     max-width: 1440px;
-    margin-left: auto;
-    margin-right: auto;
 }
 
 .handy-filters[data-content-type="products"] {
@@ -193,8 +193,8 @@
    Responsive Design
    ========================================================================== */
 
-/* Tablet (550-849px) */
-@media (max-width: 849px) and (min-width: 550px) {
+/* Tablet (550-1600px) */
+@media (max-width: 1600px) and (min-width: 550px) {
     .filters-row {
         gap: 15px;
     }
@@ -206,6 +206,8 @@
     
     .handy-filters {
         padding: 15px;
+        margin-left: 40px;
+        margin-right: 40px;
     }
 }
 
@@ -224,6 +226,8 @@
     .handy-filters {
         padding: 15px;
         margin-bottom: 20px;
+        margin-left: 20px;
+        margin-right: 20px;
     }
     
     .filter-group label {
