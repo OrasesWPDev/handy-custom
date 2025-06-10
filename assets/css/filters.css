@@ -8,7 +8,7 @@
  */
 
 /* ==========================================================================
-   Filter Container Styles - 1440px uniform content width
+   Filter Container Styles - 1440px uniform content width with standardized padding
    ========================================================================== */
 
 .handy-filters {
@@ -16,11 +16,9 @@
     border: 1px solid #e9ecef;
     border-radius: 8px;
     padding: 20px;
-    margin-bottom: 30px;
-    margin-left: 240px;
-    margin-right: 240px;
-    position: relative;
+    margin: 0 auto 30px auto;
     max-width: 1440px;
+    position: relative;
 }
 
 .handy-filters[data-content-type="products"] {
@@ -190,11 +188,15 @@
 }
 
 /* ==========================================================================
-   Responsive Design
+   Responsive Design - Match standardized breakpoints
    ========================================================================== */
 
-/* Tablet (550-1600px) */
-@media (max-width: 1600px) and (min-width: 550px) {
+/* Tablet: 1600px and below - match products/recipes archive responsive approach */
+@media (max-width: 1600px) {
+    .handy-filters {
+        padding: 15px 40px;
+    }
+    
     .filters-row {
         gap: 15px;
     }
@@ -203,16 +205,15 @@
         min-width: 150px;
         flex-basis: calc(50% - 7.5px);
     }
-    
-    .handy-filters {
-        padding: 15px;
-        margin-left: 40px;
-        margin-right: 40px;
-    }
 }
 
-/* Mobile (549px and below) */
+/* Mobile: 549px and below - match products/recipes archive responsive approach */
 @media (max-width: 549px) {
+    .handy-filters {
+        padding: 10px 20px;
+        margin-bottom: 20px;
+    }
+    
     .filters-row {
         flex-direction: column;
         gap: 15px;
@@ -221,13 +222,6 @@
     .filter-group {
         min-width: 100%;
         flex-basis: auto;
-    }
-    
-    .handy-filters {
-        padding: 15px;
-        margin-bottom: 20px;
-        margin-left: 20px;
-        margin-right: 20px;
     }
     
     .filter-group label {
