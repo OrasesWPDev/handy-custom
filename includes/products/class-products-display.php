@@ -177,14 +177,29 @@ class Handy_Custom_Products_Display {
 	}
 
 	/**
-	 * Generate shop now URL (placeholder)
+	 * Get Shop Now URL from ACF field for category
 	 *
 	 * @param object $category Category term object
-	 * @return string
+	 * @return string Shop Now URL or fallback URL
 	 */
 	public static function get_shop_now_url($category) {
-		// TODO: Implement shop now functionality later
-		// Return dead link as requested
-		return '#';
+		if (empty($category) || !isset($category->term_id)) {
+			Handy_Custom_Logger::log('Invalid category object passed to get_shop_now_url', 'warning');
+			return '#';
+		}
+
+		// Use the utility function to get validated URL
+		$shop_url = Handy_Custom_Products_Utils::get_shop_now_url($category);
+		
+		if ($shop_url) {
+			Handy_Custom_Logger::log("Shop Now URL found for category {$category->slug}: {$shop_url}", 'debug');
+			return $shop_url;
+		}
+
+		// Fallback: if no shop URL is set, return the category page URL as fallback
+		$fallback_url = self::get_category_page_url($category);
+		Handy_Custom_Logger::log("No Shop Now URL set for category {$category->slug}, using fallback: {$fallback_url}", 'info');
+		
+		return $fallback_url;
 	}
 }

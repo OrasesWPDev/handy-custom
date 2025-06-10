@@ -76,14 +76,14 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
         </div>
         
         <!-- Clear Filters Button (only show if filters are applied) -->
-        <?php if (!empty(array_filter($filters))): ?>
+        <?php if (isset($has_active_filters) && $has_active_filters): ?>
             <div class="filter-actions">
-                <button type="button" class="btn btn-clear-filters" 
+                <button type="button" class="btn btn-clear-filters-main" 
                         data-content-type="<?php echo esc_attr($content_type); ?>">
                     Clear All Filters
                 </button>
             </div>
-            <?php Handy_Custom_Logger::log("Clear filters button displayed - active filters: " . wp_json_encode(array_filter($filters)), 'debug'); ?>
+            <?php Handy_Custom_Logger::log("Clear filters button displayed - active filters detected", 'debug'); ?>
         <?php endif; ?>
         
     <?php else: ?>

@@ -40,8 +40,8 @@
                 this.handleFilterChange(event);
             });
             
-            // Handle clear filters button
-            $(document).on('click', '.btn-clear-filters', (event) => {
+            // Handle clear filters button (both old and new classes)
+            $(document).on('click', '.btn-clear-filters, .btn-clear-filters-main', (event) => {
                 this.handleClearFilters(event);
             });
             

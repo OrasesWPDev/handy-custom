@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.7.3-green.svg)
+![Version](https://img.shields.io/badge/version-1.7.4-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -247,13 +247,23 @@ URL parameters automatically merge with shortcode attributes.
 Create these custom fields for enhanced functionality:
 
 ```php
-// For category terms
-'category_featured_image' // Image field for category cards
+// For category terms (product-category and recipe-category taxonomies)
+'category_featured_image'                              // Image field for category cards
+'internal_url_for_this_product_category_or_subcategory' // URL field for Shop Now buttons (v1.7.4+)
 
 // For recipe posts  
 'prep_time'              // Number field (minutes)
 'servings'               // Number field
 ```
+
+**New in Version 1.7.4: Shop Now URLs**
+
+Category Shop Now buttons now use the ACF field `internal_url_for_this_product_category_or_subcategory`:
+- **Field Type**: URL field
+- **Applied To**: Both `product-category` and `recipe-category` taxonomies  
+- **Format**: Internal paths like `/products/crab/crab-cakes`
+- **Validation**: Must start with `/products/` for security
+- **Fallback**: If empty, buttons link to category page URL
 
 ### Asset Customization
 
@@ -439,7 +449,15 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 
 ## 📝 Changelog
 
-### Version 1.7.3 (Latest)
+### Version 1.7.4 (Latest)
+- **Shop Now Buttons with ACF Integration**: Category cards now use ACF field `internal_url_for_this_product_category_or_subcategory` for Shop Now button URLs
+- **URL Validation for Shop Now**: Added security validation ensuring Shop Now URLs start with `/products/` and are internal to the site
+- **Enhanced Clear Filters UX**: Moved Clear Filters button from products grid to filter shortcode for better organization
+- **Conditional Clear Filters**: Clear Filters button only appears when filters are actively selected, improving UI clarity
+- **Smart Fallback for Shop Now**: If no ACF URL is set, Shop Now buttons fallback to category page URLs instead of dead links
+- **Filter State Detection**: Added intelligent detection of active filters to control Clear Filters button visibility
+
+### Version 1.7.3
 - **Fixed Subcategory Display Logic**: `[products subcategory="gluten-free"]` now correctly shows product list instead of category cards
 - **Enhanced Category Filtering**: Categories without subcategories (like shrimp) automatically display as product lists instead of empty category cards
 - **Improved Filter Context**: `[filter-products subcategory="gluten-free"]` now only shows filter options actually used by products in that subcategory
