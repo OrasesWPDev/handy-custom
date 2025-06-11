@@ -13,3 +13,5 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **Version Updates**: Always update both `handy-custom.php` header AND `Handy_Custom::VERSION` constant
 - **Debug Flag**: Filter JS respects `HANDY_CUSTOM_DEBUG` constant for console logging
 - **Auto-Updater**: Plugin includes GitHub-based auto-updater in `Handy_Custom_Plugin_Updater` class, initialized only in admin context
+  - Hooks into WordPress update system via `pre_set_site_transient_update_plugins` and `plugins_api` filters
+  - Shows update notifications in WordPress admin when GitHub releases are newer than current version

@@ -107,6 +107,10 @@ class Handy_Custom_Plugin_Updater {
 			return;
 		}
 
+		// Hook into WordPress update system
+		add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_updates'));
+		add_filter('plugins_api', array($this, 'plugin_info'), 20, 3);
+
 		// Log initialization
 		Handy_Custom_Logger::log('Plugin updater initialized for ' . $this->plugin_basename, 'info');
 	}
@@ -263,5 +267,109 @@ class Handy_Custom_Plugin_Updater {
 		$result = delete_transient($this->cache_key);
 		Handy_Custom_Logger::log('Version cache cleared', 'debug');
 		return $result;
+	}
+
+	/**
+	 * Hook into WordPress plugin update checker
+	 *
+	 * @param object $transient WordPress update transient
+	 * @return object Modified transient
+	 */
+	public function check_for_plugin_updates($transient) {
+		// If no transient or this is not the right transient, return as-is
+		if (empty($transient) || !is_object($transient)) {
+			return $transient;
+		}
+
+		// Check if our plugin is in the response already
+		if (isset($transient->response[$this->plugin_basename])) {
+			return $transient;
+		}
+
+		// Check for updates
+		$update_data = $this->check_for_updates();
+		
+		if (!$update_data || !$update_data['update_available']) {
+			return $transient;
+		}
+
+		// Prepare update object
+		$update_obj = new stdClass();
+		$update_obj->slug = $this->plugin_slug;
+		$update_obj->plugin = $this->plugin_basename;
+		$update_obj->new_version = $update_data['version'];
+		$update_obj->url = $update_data['details_url'];
+		$update_obj->package = $update_data['download_url'];
+		$update_obj->tested = $update_data['tested'];
+		$update_obj->requires_php = $update_data['requires_php'];
+
+		// Add to WordPress update response
+		$transient->response[$this->plugin_basename] = $update_obj;
+
+		Handy_Custom_Logger::log("Plugin update notification added to WordPress. New version: {$update_data['version']}", 'info');
+
+		return $transient;
+	}
+
+	/**
+	 * Provide plugin information for WordPress update screen
+	 *
+	 * @param false|object|array $result The result object or array
+	 * @param string $action The type of information being requested
+	 * @param object $args Plugin API arguments
+	 * @return false|object|array Modified result
+	 */
+	public function plugin_info($result, $action, $args) {
+		// Only process plugin_information requests for our plugin
+		if ('plugin_information' !== $action || $this->plugin_slug !== $args->slug) {
+			return $result;
+		}
+
+		// Get update data
+		$update_data = $this->check_for_updates();
+		
+		if (!$update_data) {
+			return $result;
+		}
+
+		// Get plugin header data
+		$plugin_data = get_plugin_data($this->plugin_file);
+
+		// Build plugin information object
+		$plugin_info = new stdClass();
+		$plugin_info->name = $plugin_data['Name'];
+		$plugin_info->slug = $this->plugin_slug;
+		$plugin_info->version = $update_data['version'];
+		$plugin_info->author = $plugin_data['Author'];
+		$plugin_info->author_profile = $plugin_data['AuthorURI'];
+		$plugin_info->homepage = $plugin_data['PluginURI'];
+		$plugin_info->short_description = $plugin_data['Description'];
+		$plugin_info->sections = array(
+			'description' => $plugin_data['Description'],
+			'changelog' => $this->get_changelog_content($update_data['details_url']),
+		);
+		$plugin_info->download_link = $update_data['download_url'];
+		$plugin_info->last_updated = $update_data['last_updated'];
+		$plugin_info->tested = $update_data['tested'];
+		$plugin_info->requires_php = $update_data['requires_php'];
+
+		Handy_Custom_Logger::log("Plugin information provided for update screen", 'debug');
+
+		return $plugin_info;
+	}
+
+	/**
+	 * Get changelog content for plugin information screen
+	 *
+	 * @param string $release_url GitHub release URL
+	 * @return string Changelog content
+	 */
+	private function get_changelog_content($release_url) {
+		$changelog = '<h4>Latest Release</h4>';
+		$changelog .= '<p>For detailed release notes and changelog, visit:</p>';
+		$changelog .= '<p><a href="' . esc_url($release_url) . '" target="_blank">View Release on GitHub</a></p>';
+		$changelog .= '<p><a href="' . esc_url($this->get_repository_url()) . '" target="_blank">View Repository</a></p>';
+		
+		return $changelog;
 	}
 }
