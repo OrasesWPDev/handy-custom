@@ -61,7 +61,7 @@ class Handy_Custom_Simple_Updater {
 		$this->update_checker->getVcsApi()->enableReleaseAssets();
 
 		// Set check period to 1 minute (60 seconds) for faster update detection
-		$this->update_checker->setCheckPeriod(1);
+		$this->update_checker->setCheckPeriod(1/60);
 
 		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully with 1-minute check period', 'info');
 	}
