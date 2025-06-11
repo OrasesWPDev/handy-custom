@@ -420,13 +420,32 @@ class Handy_Custom_Plugin_Updater {
 	public function fix_source_folder($source, $remote_source, $upgrader) {
 		global $wp_filesystem;
 
-		// Only handle our plugin's downloads
-		if (!isset($upgrader->skin->plugin_info) || 
-			$upgrader->skin->plugin_info['plugin'] !== $this->plugin_basename) {
+		// More robust detection for our plugin's downloads
+		$is_our_plugin = false;
+		
+		// Check multiple possible locations for plugin identification
+		if (isset($upgrader->skin->plugin_info['plugin']) && 
+			$upgrader->skin->plugin_info['plugin'] === $this->plugin_basename) {
+			$is_our_plugin = true;
+		} elseif (isset($upgrader->skin->plugin) && 
+			$upgrader->skin->plugin === $this->plugin_basename) {
+			$is_our_plugin = true;
+		} elseif (isset($upgrader->skin->plugin_info) && 
+			is_array($upgrader->skin->plugin_info) &&
+			in_array($this->plugin_basename, $upgrader->skin->plugin_info)) {
+			$is_our_plugin = true;
+		} elseif (strpos($source, 'handy-custom') !== false || 
+			strpos($source, 'OrasesWPDev') !== false) {
+			// Fallback: check if source path contains our identifiers
+			$is_our_plugin = true;
+		}
+		
+		if (!$is_our_plugin) {
 			return $source;
 		}
 
 		Handy_Custom_Logger::log("Fixing source folder structure. Original source: {$source}", 'info');
+		Handy_Custom_Logger::log("Plugin basename: {$this->plugin_basename}, Plugin slug: {$this->plugin_slug}", 'debug');
 
 		// Check if the source directory exists
 		if (!$wp_filesystem->exists($source)) {
@@ -436,13 +455,16 @@ class Handy_Custom_Plugin_Updater {
 
 		// Get the parent directory of the source
 		$source_parent = dirname($source);
+		$current_folder = basename($source);
 		
 		// Expected plugin folder name
 		$expected_folder = $this->plugin_slug;
 		$new_source = trailingslashit($source_parent) . $expected_folder;
+		
+		Handy_Custom_Logger::log("Current folder: {$current_folder}, Expected: {$expected_folder}", 'debug');
 
 		// If the source already has the correct name, return as-is
-		if (basename($source) === $expected_folder) {
+		if ($current_folder === $expected_folder) {
 			Handy_Custom_Logger::log("Source folder already has correct name: {$expected_folder}", 'debug');
 			return $source;
 		}
@@ -450,13 +472,22 @@ class Handy_Custom_Plugin_Updater {
 		// If target directory already exists, remove it
 		if ($wp_filesystem->exists($new_source)) {
 			Handy_Custom_Logger::log("Removing existing target directory: {$new_source}", 'debug');
-			$wp_filesystem->delete($new_source, true);
+			if (!$wp_filesystem->delete($new_source, true)) {
+				Handy_Custom_Logger::log("Failed to remove existing target directory: {$new_source}", 'error');
+				return new WP_Error('cleanup_failed', 'Could not remove existing target directory.');
+			}
 		}
 
 		// Rename the source folder to the expected name
+		Handy_Custom_Logger::log("Attempting to move {$source} to {$new_source}", 'debug');
+		
 		if (!$wp_filesystem->move($source, $new_source)) {
 			Handy_Custom_Logger::log("Failed to rename source folder from {$source} to {$new_source}", 'error');
-			return new WP_Error('rename_failed', 'Could not rename source folder.');
+			
+			// Fallback: If move failed, try to continue with original source
+			// This allows the update to complete even if folder naming is wrong
+			Handy_Custom_Logger::log("Continuing with original folder name as fallback", 'warning');
+			return $source;
 		}
 
 		Handy_Custom_Logger::log("Source folder renamed successfully to: {$new_source}", 'info');
