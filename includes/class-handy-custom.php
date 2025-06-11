@@ -85,6 +85,7 @@ class Handy_Custom {
 		// Admin functionality (load conditionally)
 		if (is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-admin.php';
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-plugin-updater.php';
 		}
 		
 		// Frontend functionality (load conditionally)
@@ -129,6 +130,7 @@ class Handy_Custom {
 		// Initialize admin functionality
 		if (is_admin()) {
 			Handy_Custom_Admin::init();
+			$this->init_updater();
 		}
 		
 		// Initialize frontend functionality
@@ -791,5 +793,23 @@ class Handy_Custom {
 
 		// Fallback to first category
 		return $categories[0];
+	}
+
+	/**
+	 * Initialize plugin updater
+	 */
+	private function init_updater() {
+		// Get plugin file path from main plugin file
+		$plugin_file = HANDY_CUSTOM_PLUGIN_DIR . 'handy-custom.php';
+		
+		// Initialize updater with GitHub repository info
+		new Handy_Custom_Plugin_Updater(
+			$plugin_file,
+			self::VERSION,
+			'OrasesWPDev',
+			'handy-custom'
+		);
+		
+		Handy_Custom_Logger::log('Plugin updater initialized', 'info');
 	}
 }

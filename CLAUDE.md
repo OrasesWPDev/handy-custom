@@ -12,3 +12,4 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **Category Logic**: Primary top-level category (parent=0) used for URL generation; falls back to first assigned category if no top-level found
 - **Version Updates**: Always update both `handy-custom.php` header AND `Handy_Custom::VERSION` constant
 - **Debug Flag**: Filter JS respects `HANDY_CUSTOM_DEBUG` constant for console logging
+- **Auto-Updater**: Plugin includes GitHub-based auto-updater in `Handy_Custom_Plugin_Updater` class, initialized only in admin context
