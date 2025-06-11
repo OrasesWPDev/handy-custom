@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.8.2-green.svg)
+![Version](https://img.shields.io/badge/version-1.8.9-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -479,11 +479,12 @@ The plugin includes a sophisticated GitHub-based auto-updater that eliminates th
 **For Developers/Maintainers:**
 - Proper GitHub release workflow (see Development section)
 - Semantic versioning for release tags
+- Version synchronization across all plugin files
 
 ### User Experience
 
 **Update Notifications:**
-- Automatic detection within 12 hours of new GitHub releases
+- Automatic detection within 1 minute of new GitHub releases
 - Update badges appear in WordPress admin (Plugins page, Updates page)
 - Standard WordPress update interface - no learning curve
 
@@ -496,7 +497,7 @@ The plugin includes a sophisticated GitHub-based auto-updater that eliminates th
 ### Technical Features
 
 **Performance Optimized:**
-- 12-hour caching to respect GitHub API limits (60 requests/hour)
+- 1-minute update checking for rapid deployment
 - Only checks for updates in WordPress admin
 - Efficient API calls with proper User-Agent headers
 
@@ -519,10 +520,13 @@ The plugin includes a sophisticated GitHub-based auto-updater that eliminates th
 
 **Creating Updates:**
 1. **Code Changes**: Make your changes and test locally
-2. **Version Bump**: Update version in both `handy-custom.php` header AND `Handy_Custom::VERSION` constant
+2. **Version Bump**: Update ALL version references:
+   - `handy-custom.php` header version
+   - `HANDY_CUSTOM_VERSION` constant
+   - `Handy_Custom::VERSION` constant
 3. **Commit & Push**: Push changes to main branch
-4. **Create Release**: Create GitHub release with version tag (e.g., `v1.8.3`)
-5. **Automatic Distribution**: WordPress sites automatically detect the new version
+4. **Create Release**: Create GitHub release with version tag (e.g., `v1.8.9`)
+5. **Automatic Distribution**: WordPress sites detect the new version within 1 minute
 
 **Release Best Practices:**
 ```bash
@@ -574,7 +578,7 @@ define('HANDY_CUSTOM_DEBUG', true);
 
 **Update not appearing?**
 - Check that GitHub release is newer than current version
-- Wait up to 12 hours for cache expiration, or clear cache manually
+- Wait up to 1 minute for update detection, or use "Check for updates" link
 - Verify internet connectivity and GitHub API access
 
 **Download failing?**
@@ -595,14 +599,14 @@ define('HANDY_CUSTOM_DEBUG', true);
 ### Maintenance Notes
 
 **Cache Management:**
-- Update checks are cached for 12 hours to respect GitHub's rate limits
+- Update checks are cached for 1 minute for rapid deployment
 - Cache automatically clears when updates are successfully installed
 - Manual cache clearing available for testing and troubleshooting
 
 **API Limits:**
 - GitHub allows 60 API requests per hour for unauthenticated requests
-- Plugin makes 1 request per update check (every 12+ hours)
-- Well within limits for normal WordPress usage patterns
+- Plugin makes 1 request per update check (every 1 minute)
+- Configured for rapid development deployment
 
 **No External Dependencies:**
 - No third-party update services required
@@ -611,7 +615,16 @@ define('HANDY_CUSTOM_DEBUG', true);
 
 ## 📝 Changelog
 
-### Version 1.8.2 (Latest)
+### Version 1.8.9 (Latest)
+- **YahnisElsts Auto-Updater**: Replaced custom WordPress hook implementation with industry-standard YahnisElsts Plugin Update Checker v5.6 library
+- **JavaScript Error Fix**: Eliminated `TypeError: can't access property "attr"` errors in WordPress admin during plugin updates
+- **1-Minute Update Detection**: Fast update checking for rapid deployment and testing
+- **GitHub Integration**: Seamless one-click updates directly from GitHub releases without manual ZIP uploads
+- **WordPress Core Compatibility**: No interference with WordPress core update processes
+- **Version Synchronization**: Enforced consistency across all plugin version references
+
+### Version 1.8.2
+- **Comprehensive Cache Invalidation**: Complete cache busting system that immediately clears caches when product categories are modified
 - **Comprehensive Cache Invalidation**: Complete cache busting system that immediately clears caches when product categories are modified
 - **WordPress Core Cache Clearing**: Enhanced cache clearing to include WordPress's built-in term caches for instant breadcrumb updates
 - **ACF Field Change Detection**: Cache automatically clears when ACF fields are updated on taxonomy pages
