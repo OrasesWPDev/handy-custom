@@ -15,3 +15,4 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **Auto-Updater**: Plugin includes GitHub-based auto-updater in `Handy_Custom_Plugin_Updater` class, initialized only in admin context
   - Hooks into WordPress update system via `pre_set_site_transient_update_plugins` and `plugins_api` filters
   - Shows update notifications in WordPress admin when GitHub releases are newer than current version
+  - Handles GitHub ZIP download and folder structure via `upgrader_pre_download` and `upgrader_source_selection` filters

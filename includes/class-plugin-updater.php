@@ -110,6 +110,10 @@ class Handy_Custom_Plugin_Updater {
 		// Hook into WordPress update system
 		add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_updates'));
 		add_filter('plugins_api', array($this, 'plugin_info'), 20, 3);
+		
+		// Hook into upgrade process
+		add_filter('upgrader_pre_download', array($this, 'download_package'), 10, 3);
+		add_filter('upgrader_source_selection', array($this, 'fix_source_folder'), 10, 3);
 
 		// Log initialization
 		Handy_Custom_Logger::log('Plugin updater initialized for ' . $this->plugin_basename, 'info');
@@ -371,5 +375,104 @@ class Handy_Custom_Plugin_Updater {
 		$changelog .= '<p><a href="' . esc_url($this->get_repository_url()) . '" target="_blank">View Repository</a></p>';
 		
 		return $changelog;
+	}
+
+	/**
+	 * Download package from GitHub
+	 *
+	 * @param bool $result Whether to bail without returning the package
+	 * @param string $package The package URL
+	 * @param WP_Upgrader $upgrader The WP_Upgrader instance
+	 * @return bool|string Downloaded package file path or false on failure
+	 */
+	public function download_package($result, $package, $upgrader) {
+		// Only handle our plugin's downloads
+		if (!$this->is_our_package($package)) {
+			return $result;
+		}
+
+		Handy_Custom_Logger::log("Downloading plugin package from GitHub: {$package}", 'info');
+
+		// Download the file
+		$download_file = download_url($package);
+		
+		if (is_wp_error($download_file)) {
+			Handy_Custom_Logger::log('Package download failed: ' . $download_file->get_error_message(), 'error');
+			return $download_file;
+		}
+
+		Handy_Custom_Logger::log("Package downloaded successfully: {$download_file}", 'info');
+		
+		return $download_file;
+	}
+
+	/**
+	 * Fix the source folder structure from GitHub ZIP
+	 *
+	 * GitHub ZIPs come with a random folder name like "OrasesWPDev-handy-custom-abc123"
+	 * We need to rename it to "handy-custom" to match the expected plugin folder
+	 *
+	 * @param string $source Source folder path
+	 * @param string $remote_source Remote source (unused)
+	 * @param WP_Upgrader $upgrader The WP_Upgrader instance
+	 * @return string|WP_Error Fixed source folder path or error
+	 */
+	public function fix_source_folder($source, $remote_source, $upgrader) {
+		global $wp_filesystem;
+
+		// Only handle our plugin's downloads
+		if (!isset($upgrader->skin->plugin_info) || 
+			$upgrader->skin->plugin_info['plugin'] !== $this->plugin_basename) {
+			return $source;
+		}
+
+		Handy_Custom_Logger::log("Fixing source folder structure. Original source: {$source}", 'info');
+
+		// Check if the source directory exists
+		if (!$wp_filesystem->exists($source)) {
+			Handy_Custom_Logger::log("Source directory does not exist: {$source}", 'error');
+			return new WP_Error('source_not_found', 'Source directory not found.');
+		}
+
+		// Get the parent directory of the source
+		$source_parent = dirname($source);
+		
+		// Expected plugin folder name
+		$expected_folder = $this->plugin_slug;
+		$new_source = trailingslashit($source_parent) . $expected_folder;
+
+		// If the source already has the correct name, return as-is
+		if (basename($source) === $expected_folder) {
+			Handy_Custom_Logger::log("Source folder already has correct name: {$expected_folder}", 'debug');
+			return $source;
+		}
+
+		// If target directory already exists, remove it
+		if ($wp_filesystem->exists($new_source)) {
+			Handy_Custom_Logger::log("Removing existing target directory: {$new_source}", 'debug');
+			$wp_filesystem->delete($new_source, true);
+		}
+
+		// Rename the source folder to the expected name
+		if (!$wp_filesystem->move($source, $new_source)) {
+			Handy_Custom_Logger::log("Failed to rename source folder from {$source} to {$new_source}", 'error');
+			return new WP_Error('rename_failed', 'Could not rename source folder.');
+		}
+
+		Handy_Custom_Logger::log("Source folder renamed successfully to: {$new_source}", 'info');
+		
+		return $new_source;
+	}
+
+	/**
+	 * Check if the package URL is for our plugin
+	 *
+	 * @param string $package Package URL
+	 * @return bool True if this is our plugin's package
+	 */
+	private function is_our_package($package) {
+		// Check if the URL contains our GitHub repository
+		$repo_url = "github.com/{$this->github_owner}/{$this->github_repo}";
+		return strpos($package, $repo_url) !== false;
 	}
 }
