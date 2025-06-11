@@ -111,8 +111,7 @@ class Handy_Custom_Plugin_Updater {
 		add_filter('pre_set_site_transient_update_plugins', array($this, 'check_for_plugin_updates'));
 		add_filter('plugins_api', array($this, 'plugin_info'), 20, 3);
 		
-		// Hook into upgrade process
-		add_filter('upgrader_pre_download', array($this, 'download_package'), 10, 3);
+		// Hook into upgrade process - only fix folder structure, let WordPress handle download
 		add_filter('upgrader_source_selection', array($this, 'fix_source_folder'), 10, 3);
 
 		// Log initialization
@@ -377,34 +376,6 @@ class Handy_Custom_Plugin_Updater {
 		return $changelog;
 	}
 
-	/**
-	 * Download package from GitHub
-	 *
-	 * @param bool $result Whether to bail without returning the package
-	 * @param string $package The package URL
-	 * @param WP_Upgrader $upgrader The WP_Upgrader instance
-	 * @return bool|string Downloaded package file path or false on failure
-	 */
-	public function download_package($result, $package, $upgrader) {
-		// Only handle our plugin's downloads
-		if (!$this->is_our_package($package)) {
-			return $result;
-		}
-
-		Handy_Custom_Logger::log("Downloading plugin package from GitHub: {$package}", 'info');
-
-		// Download the file
-		$download_file = download_url($package);
-		
-		if (is_wp_error($download_file)) {
-			Handy_Custom_Logger::log('Package download failed: ' . $download_file->get_error_message(), 'error');
-			return $download_file;
-		}
-
-		Handy_Custom_Logger::log("Package downloaded successfully: {$download_file}", 'info');
-		
-		return $download_file;
-	}
 
 	/**
 	 * Fix the source folder structure from GitHub ZIP
@@ -420,27 +391,10 @@ class Handy_Custom_Plugin_Updater {
 	public function fix_source_folder($source, $remote_source, $upgrader) {
 		global $wp_filesystem;
 
-		// More robust detection for our plugin's downloads
-		$is_our_plugin = false;
-		
-		// Check multiple possible locations for plugin identification
-		if (isset($upgrader->skin->plugin_info) && 
-			is_array($upgrader->skin->plugin_info) &&
-			isset($upgrader->skin->plugin_info['plugin']) &&
-			$upgrader->skin->plugin_info['plugin'] === $this->plugin_basename) {
-			$is_our_plugin = true;
-		} elseif (isset($upgrader->skin->plugin) && 
-			$upgrader->skin->plugin === $this->plugin_basename) {
-			$is_our_plugin = true;
-		} elseif (isset($upgrader->skin->plugin_info) && 
-			is_array($upgrader->skin->plugin_info) &&
-			in_array($this->plugin_basename, $upgrader->skin->plugin_info)) {
-			$is_our_plugin = true;
-		} elseif (strpos($source, 'handy-custom') !== false || 
-			strpos($source, 'OrasesWPDev') !== false) {
-			// Fallback: check if source path contains our identifiers
-			$is_our_plugin = true;
-		}
+		// Detect if this is our plugin update by checking source folder name
+		// GitHub creates folders like "OrasesWPDev-handy-custom-abc123" for our repo
+		$is_our_plugin = (strpos($source, 'handy-custom') !== false || 
+						 strpos($source, 'OrasesWPDev') !== false);
 		
 		if (!$is_our_plugin) {
 			return $source;
