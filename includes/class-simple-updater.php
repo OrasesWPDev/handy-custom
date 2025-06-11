@@ -50,20 +50,17 @@ class Handy_Custom_Simple_Updater {
 		// Load the YahnisElsts Plugin Update Checker library
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
 		
-		// Check if the factory class exists
-		if (!class_exists('Puc_v4_Factory')) {
-			Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker library not loaded properly', 'error');
-			return;
-		}
-
+		// Use the correct namespace
+		use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
+		
 		// Initialize the update checker for GitHub
-		$this->update_checker = Puc_v4_Factory::buildUpdateChecker(
+		$this->update_checker = PucFactory::buildUpdateChecker(
 			'https://github.com/OrasesWPDev/handy-custom/',
 			$this->plugin_file,
 			'handy-custom'
 		);
 
-		// Set the branch that contains the stable release (optional)
+		// Enable release assets for GitHub releases
 		$this->update_checker->getVcsApi()->enableReleaseAssets();
 
 		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully', 'info');

@@ -12,7 +12,8 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **Category Logic**: Primary top-level category (parent=0) used for URL generation; falls back to first assigned category if no top-level found
 - **Version Updates**: Always update both `handy-custom.php` header AND `Handy_Custom::VERSION` constant
 - **Debug Flag**: Filter JS respects `HANDY_CUSTOM_DEBUG` constant for console logging
-- **Auto-Updater**: Plugin includes GitHub-based auto-updater in `Handy_Custom_Plugin_Updater` class, initialized only in admin context
-  - Hooks into WordPress update system via `pre_set_site_transient_update_plugins` and `plugins_api` filters
+- **Auto-Updater**: Plugin uses YahnisElsts Plugin Update Checker v5.6 library for reliable GitHub-based updates
+  - Industry-standard library that doesn't interfere with WordPress core update processes
+  - Direct GitHub integration without requiring additional servers or infrastructure
+  - Implemented in `Handy_Custom_Simple_Updater` class, initialized only in admin context
   - Shows update notifications in WordPress admin when GitHub releases are newer than current version
-  - Handles GitHub ZIP download and folder structure via `upgrader_pre_download` and `upgrader_source_selection` filters
