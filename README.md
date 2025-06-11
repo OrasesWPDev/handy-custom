@@ -45,6 +45,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 - **Template System**: Customizable templates for complete control
 - **Data Import Tools**: One-time CSV import scripts for initial product data migration
 - **Admin Filtering**: Advanced taxonomy dropdown filters in WordPress admin for efficient product management
+- **Auto-Updater**: GitHub-based automatic plugin updates through WordPress admin
 
 ## 📋 Requirements
 
@@ -456,6 +457,157 @@ See [IMPORT_README.md](IMPORT_README.md) for detailed instructions and field map
 - Ensure ACF is active before running import
 - Check CSV file format and location
 - Review generated error reports for specific issues
+
+## 🔄 Auto-Updater System
+
+The plugin includes a sophisticated GitHub-based auto-updater that eliminates the need for manual ZIP uploads. Updates are delivered seamlessly through the WordPress admin interface.
+
+### How It Works
+
+1. **GitHub Integration**: The plugin monitors this GitHub repository for new releases
+2. **Version Detection**: Automatically compares current plugin version with latest GitHub release
+3. **WordPress Integration**: Update notifications appear in the standard WordPress Updates page
+4. **One-Click Updates**: Click "Update Now" to download and install directly from GitHub
+
+### Setup Requirements
+
+**For Plugin Users:**
+- No setup required - the auto-updater is built-in and automatically active
+- WordPress 5.3+ with standard update permissions
+- Internet connectivity for GitHub API access
+
+**For Developers/Maintainers:**
+- Proper GitHub release workflow (see Development section)
+- Semantic versioning for release tags
+
+### User Experience
+
+**Update Notifications:**
+- Automatic detection within 12 hours of new GitHub releases
+- Update badges appear in WordPress admin (Plugins page, Updates page)
+- Standard WordPress update interface - no learning curve
+
+**Update Process:**
+1. **Notification**: See update available in WordPress admin
+2. **Details**: Click "View details" to see changelog and release info
+3. **Update**: Click "Update Now" for automatic installation
+4. **Completion**: Plugin updates in-place with zero downtime
+
+### Technical Features
+
+**Performance Optimized:**
+- 12-hour caching to respect GitHub API limits (60 requests/hour)
+- Only checks for updates in WordPress admin
+- Efficient API calls with proper User-Agent headers
+
+**Robust Error Handling:**
+- Graceful fallback when GitHub is unreachable
+- Clear error messages for connection issues
+- Automatic retry logic with exponential backoff
+
+**Security Features:**
+- Package verification ensures downloads come from correct repository
+- Version validation prevents downgrade attacks
+- WordPress capability checks (`update_plugins` permission required)
+
+**GitHub ZIP Handling:**
+- Automatic folder structure normalization
+- Handles GitHub's random folder naming (`OrasesWPDev-handy-custom-abc123` → `handy-custom`)
+- Preserves all plugin files and settings during update
+
+### For Developers
+
+**Creating Updates:**
+1. **Code Changes**: Make your changes and test locally
+2. **Version Bump**: Update version in both `handy-custom.php` header AND `Handy_Custom::VERSION` constant
+3. **Commit & Push**: Push changes to main branch
+4. **Create Release**: Create GitHub release with version tag (e.g., `v1.8.3`)
+5. **Automatic Distribution**: WordPress sites automatically detect the new version
+
+**Release Best Practices:**
+```bash
+# Example release workflow
+git tag v1.8.3
+git push origin v1.8.3
+
+# Create GitHub release with:
+# - Tag: v1.8.3
+# - Title: Version 1.8.3
+# - Description: Release notes/changelog
+```
+
+**Version Tag Formats:**
+- ✅ Supported: `v1.8.3`, `1.8.3`, `v2.0.0-beta.1`
+- ❌ Avoid: `release-1.8.3`, `version-1.8.3`
+
+### Testing the Updater
+
+**Manual Testing:**
+```php
+// In WordPress admin or via WP-CLI
+$updater = Handy_Custom::get_instance()->get_updater();
+
+// Force update check (bypasses 12-hour cache)
+$update_data = $updater->force_update_check();
+
+// Get detailed status information
+$status = $updater->get_status();
+
+// Clear version cache
+$updater->clear_cache();
+```
+
+**Debug Information:**
+Enable debug logging to monitor updater behavior:
+```php
+define('HANDY_CUSTOM_DEBUG', true);
+```
+
+**Expected Log Entries:**
+- Plugin updater initialization
+- GitHub API requests and responses
+- Version comparison results
+- Update notifications added to WordPress
+- Package download and installation progress
+
+### Troubleshooting Updates
+
+**Update not appearing?**
+- Check that GitHub release is newer than current version
+- Wait up to 12 hours for cache expiration, or clear cache manually
+- Verify internet connectivity and GitHub API access
+
+**Download failing?**
+- Check GitHub repository is public and accessible
+- Verify release has proper ZIP download available
+- Review error logs for specific GitHub API errors
+
+**Installation issues?**
+- Ensure WordPress has proper file system permissions
+- Check available disk space for plugin installation
+- Verify update permissions in WordPress admin
+
+**Version mismatch?**
+- Confirm version numbers match between plugin header and VERSION constant
+- Check that GitHub release tag follows supported formats
+- Verify no caching plugins are interfering with update detection
+
+### Maintenance Notes
+
+**Cache Management:**
+- Update checks are cached for 12 hours to respect GitHub's rate limits
+- Cache automatically clears when updates are successfully installed
+- Manual cache clearing available for testing and troubleshooting
+
+**API Limits:**
+- GitHub allows 60 API requests per hour for unauthenticated requests
+- Plugin makes 1 request per update check (every 12+ hours)
+- Well within limits for normal WordPress usage patterns
+
+**No External Dependencies:**
+- No third-party update services required
+- No additional hosting costs or server maintenance
+- Uses only GitHub's free public API and WordPress core functions
 
 ## 📝 Changelog
 
