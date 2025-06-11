@@ -11,7 +11,7 @@
  * Plugin Name:       Handy Custom
  * Plugin URI:        https://github.com/OrasesWPDev/handy-custom
  * Description:       Custom functionality for product and recipe archives with shortcode support.
- * Version:           1.8.7
+ * Version:           1.8.8
  * Requires at least: 5.3
  * Requires PHP:      7.2
  * Author:            Orases
@@ -29,12 +29,12 @@ if (!defined('ABSPATH')) {
 }
 
 // Plugin constants
-define('HANDY_CUSTOM_VERSION', '1.8.7');
+define('HANDY_CUSTOM_VERSION', '1.8.8');
 define('HANDY_CUSTOM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('HANDY_CUSTOM_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // LOGGING CONTROL - Set to true to enable logging
-define('HANDY_CUSTOM_DEBUG', true);
+define('HANDY_CUSTOM_DEBUG', false);
 
 // Load main plugin class
 require_once plugin_dir_path(__FILE__) . 'includes/class-handy-custom.php';

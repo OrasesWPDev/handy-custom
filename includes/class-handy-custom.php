@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.8.7';
+	const VERSION = '1.8.8';
 
 	/**
 	 * Single instance of the class
@@ -90,7 +90,7 @@ class Handy_Custom {
 		// Admin functionality (load conditionally)
 		if (is_admin()) {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-admin.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-plugin-updater.php';
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-simple-updater.php';
 		}
 		
 		// Frontend functionality (load conditionally)
@@ -807,21 +807,16 @@ class Handy_Custom {
 		// Get plugin file path from main plugin file
 		$plugin_file = HANDY_CUSTOM_PLUGIN_DIR . 'handy-custom.php';
 		
-		// Initialize updater with GitHub repository info
-		$this->updater = new Handy_Custom_Plugin_Updater(
-			$plugin_file,
-			self::VERSION,
-			'OrasesWPDev',
-			'handy-custom'
-		);
+		// Initialize simple updater using YahnisElsts library
+		$this->updater = new Handy_Custom_Simple_Updater($plugin_file);
 		
-		Handy_Custom_Logger::log('Plugin updater initialized', 'info');
+		Handy_Custom_Logger::log('Simple updater (YahnisElsts) initialized', 'info');
 	}
 
 	/**
 	 * Get updater instance (for testing/debugging)
 	 *
-	 * @return Handy_Custom_Plugin_Updater|null Updater instance
+	 * @return Handy_Custom_Simple_Updater|null Updater instance
 	 */
 	public function get_updater() {
 		return $this->updater;
