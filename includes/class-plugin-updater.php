@@ -424,9 +424,7 @@ class Handy_Custom_Plugin_Updater {
 		$is_our_plugin = false;
 		
 		// Check multiple possible locations for plugin identification
-		if (isset($upgrader->skin->plugin_info) && 
-			is_array($upgrader->skin->plugin_info) &&
-			isset($upgrader->skin->plugin_info['plugin']) &&
+		if (isset($upgrader->skin->plugin_info['plugin']) && 
 			$upgrader->skin->plugin_info['plugin'] === $this->plugin_basename) {
 			$is_our_plugin = true;
 		} elseif (isset($upgrader->skin->plugin) && 
