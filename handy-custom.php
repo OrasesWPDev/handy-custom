@@ -34,7 +34,7 @@ define('HANDY_CUSTOM_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('HANDY_CUSTOM_PLUGIN_URL', plugin_dir_url(__FILE__));
 
 // LOGGING CONTROL - Set to true to enable logging
-define('HANDY_CUSTOM_DEBUG', false);
+define('HANDY_CUSTOM_DEBUG', true);
 
 // Load main plugin class
 require_once plugin_dir_path(__FILE__) . 'includes/class-handy-custom.php';
