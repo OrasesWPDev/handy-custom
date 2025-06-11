@@ -60,7 +60,10 @@ class Handy_Custom_Simple_Updater {
 		// Enable release assets for GitHub releases
 		$this->update_checker->getVcsApi()->enableReleaseAssets();
 
-		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully', 'info');
+		// Set check period to 1 minute (60 seconds) for faster update detection
+		$this->update_checker->setCheckPeriod(1);
+
+		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully with 1-minute check period', 'info');
 	}
 
 	/**
