@@ -22,6 +22,11 @@ class Handy_Custom {
 	private static $instance = null;
 
 	/**
+	 * Plugin updater instance
+	 */
+	private $updater = null;
+
+	/**
 	 * Get instance
 	 */
 	public static function get_instance() {
@@ -803,7 +808,7 @@ class Handy_Custom {
 		$plugin_file = HANDY_CUSTOM_PLUGIN_DIR . 'handy-custom.php';
 		
 		// Initialize updater with GitHub repository info
-		new Handy_Custom_Plugin_Updater(
+		$this->updater = new Handy_Custom_Plugin_Updater(
 			$plugin_file,
 			self::VERSION,
 			'OrasesWPDev',
@@ -811,5 +816,14 @@ class Handy_Custom {
 		);
 		
 		Handy_Custom_Logger::log('Plugin updater initialized', 'info');
+	}
+
+	/**
+	 * Get updater instance (for testing/debugging)
+	 *
+	 * @return Handy_Custom_Plugin_Updater|null Updater instance
+	 */
+	public function get_updater() {
+		return $this->updater;
 	}
 }

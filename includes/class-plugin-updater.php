@@ -475,4 +475,42 @@ class Handy_Custom_Plugin_Updater {
 		$repo_url = "github.com/{$this->github_owner}/{$this->github_repo}";
 		return strpos($package, $repo_url) !== false;
 	}
+
+	/**
+	 * Force check for updates (for testing)
+	 *
+	 * @return array|false Update data or false if no update
+	 */
+	public function force_update_check() {
+		$this->clear_cache();
+		return $this->check_for_updates(true);
+	}
+
+	/**
+	 * Get updater status information (for debugging)
+	 *
+	 * @return array Status information
+	 */
+	public function get_status() {
+		$cached_data = get_transient($this->cache_key);
+		$update_data = $this->check_for_updates();
+		
+		return array(
+			'plugin_file' => $this->plugin_file,
+			'plugin_basename' => $this->plugin_basename,
+			'plugin_slug' => $this->plugin_slug,
+			'current_version' => $this->version,
+			'github_owner' => $this->github_owner,
+			'github_repo' => $this->github_repo,
+			'github_api_url' => $this->github_api_url,
+			'repository_url' => $this->get_repository_url(),
+			'cache_key' => $this->cache_key,
+			'cache_expiration' => $this->cache_expiration,
+			'cached_data' => $cached_data,
+			'update_data' => $update_data,
+			'has_cached_data' => (false !== $cached_data),
+			'update_available' => $update_data ? $update_data['update_available'] : false,
+			'remote_version' => $update_data ? $update_data['version'] : 'unknown',
+		);
+	}
 }
