@@ -50,11 +50,8 @@ class Handy_Custom_Simple_Updater {
 		// Load the YahnisElsts Plugin Update Checker library
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
 		
-		// Use the correct namespace
-		use YahnisElsts\PluginUpdateChecker\v5\PucFactory;
-		
-		// Initialize the update checker for GitHub
-		$this->update_checker = PucFactory::buildUpdateChecker(
+		// Initialize the update checker for GitHub (using full namespace)
+		$this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 			'https://github.com/OrasesWPDev/handy-custom/',
 			$this->plugin_file,
 			'handy-custom'
