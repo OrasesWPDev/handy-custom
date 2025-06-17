@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-5.3%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-7.2%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-1.8.9-green.svg)
+![Version](https://img.shields.io/badge/version-1.9.0-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe archive functionality with AJAX filtering, SEO-friendly URLs, and hierarchical category management.
@@ -615,7 +615,18 @@ define('HANDY_CUSTOM_DEBUG', true);
 
 ## 📝 Changelog
 
-### Version 1.8.9 (Latest)
+### Version 1.9.0 (Latest)
+- **Single Product Template System**: Added comprehensive single product display template with two-column layout
+- **Product Detail Tabs**: Implemented collapsible tabs for Specifications, Features & Benefits, Cooking Instructions, Nutritional Facts, and Allergens
+- **Breadcrumb Integration**: Full Yoast SEO breadcrumb support matching archive shortcode styling
+- **Social Sharing**: Integrated Flatsome native sharing with print and email functionality
+- **ACF Field Integration**: Complete ACF field support for product specifications, images, content, and allergen display
+- **Plugin-Specific CSS Classes**: All CSS classes use `handy-` prefix to prevent theme conflicts
+- **Responsive Design**: Full responsive support for desktop, tablet, and mobile viewports
+- **Template Loading System**: Automated template loading for single product pages via WordPress filter hooks
+- **Asset Management**: Conditional CSS/JS loading only on single product pages for optimal performance
+
+### Version 1.8.9
 - **YahnisElsts Auto-Updater**: Replaced custom WordPress hook implementation with industry-standard YahnisElsts Plugin Update Checker v5.6 library
 - **JavaScript Error Fix**: Eliminated `TypeError: can't access property "attr"` errors in WordPress admin during plugin updates
 - **1-Minute Update Detection**: Fast update checking for rapid deployment and testing

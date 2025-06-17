@@ -1,0 +1,435 @@
+/* Single Product Template Styles */
+
+/* Main Container */
+.handy-single-product-container {
+    width: 100%;
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 240px;
+}
+
+/* Breadcrumbs Section */
+.handy-single-product-breadcrumbs {
+    padding: 20px 0;
+    border-bottom: 1px solid #e0e0e0;
+    margin-bottom: 40px;
+}
+
+.handy-single-product-breadcrumbs .handy-breadcrumb-nav {
+    font-size: 14px;
+    color: #666;
+}
+
+.handy-single-product-breadcrumbs .handy-breadcrumb-nav a {
+    color: #007cba;
+    text-decoration: none;
+}
+
+.handy-single-product-breadcrumbs .handy-breadcrumb-nav a:hover {
+    text-decoration: underline;
+}
+
+/* Two Column Main Content */
+.handy-single-product-main {
+    margin-bottom: 60px;
+}
+
+.handy-product-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+/* Left Column */
+.handy-product-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.handy-product-title {
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+}
+
+/* Social Icons Row */
+.handy-product-social-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.handy-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background: #007cba;
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 16px;
+    transition: background-color 0.3s ease;
+}
+
+.handy-social-icon:hover {
+    background: #005a8b;
+    color: white;
+}
+
+.handy-social-separator {
+    color: #666;
+    font-size: 18px;
+    font-weight: 300;
+}
+
+.handy-social-media-icons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Product Content */
+.handy-product-content {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Where to Buy Section */
+.handy-where-to-buy-section {
+    background: #f8f9fa;
+    padding: 30px;
+    border-radius: 8px;
+    border: 1px solid #e0e0e0;
+}
+
+.handy-where-to-buy-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 20px 0;
+}
+
+.handy-buy-options {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.handy-buy-option {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 16px;
+    color: #333;
+}
+
+.handy-buy-option i {
+    color: #007cba;
+    font-size: 18px;
+    width: 20px;
+}
+
+/* Right Column */
+.handy-product-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.handy-product-thumbnail,
+.handy-product-carton {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.handy-product-main-image,
+.handy-product-carton-image {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+/* Tabbed Content Section */
+.handy-single-product-tabs {
+    width: 100%;
+    margin-top: 40px;
+    background: white;
+}
+
+.handy-tabs-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 240px;
+}
+
+/* Tab Navigation */
+.handy-tab-navigation {
+    display: flex;
+    flex-direction: column;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.handy-tab-button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 30px;
+    background: white;
+    border: none;
+    border-bottom: 1px solid #e0e0e0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+}
+
+.handy-tab-button:hover {
+    background: #f8f9fa;
+    color: #007cba;
+}
+
+.handy-tab-button.active {
+    background: #007cba;
+    color: white;
+    border-bottom-color: #007cba;
+}
+
+.handy-tab-button.active i {
+    transform: rotate(180deg);
+}
+
+.handy-tab-button i {
+    transition: transform 0.3s ease;
+}
+
+/* Tab Content */
+.handy-tab-content {
+    background: white;
+}
+
+.handy-tab-panel {
+    display: none;
+    padding: 40px 30px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.handy-tab-panel.active {
+    display: block;
+}
+
+/* Specifications Tab */
+.handy-product-specs-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.handy-product-specs-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.handy-product-specs-table td {
+    padding: 15px 20px;
+    font-size: 16px;
+}
+
+.handy-spec-label {
+    background: #333;
+    color: white;
+    font-weight: 600;
+    width: 30%;
+}
+
+.handy-spec-value {
+    background: #f8f9fa;
+    color: #333;
+}
+
+/* Special Logos Gallery */
+.handy-special-logos-gallery {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.handy-special-logo-item {
+    display: flex;
+    align-items: center;
+}
+
+.handy-special-logo-image {
+    height: 80px;
+    width: auto;
+    object-fit: contain;
+}
+
+.handy-logo-separator {
+    color: #666;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+/* Features Content */
+.handy-features-content {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+/* Cooking Content */
+.handy-cooking-content {
+    font-size: 16px;
+    line-height: 1.6;
+    color: #333;
+}
+
+.handy-cooking-instructions,
+.handy-serving-suggestions {
+    margin-bottom: 30px;
+}
+
+.handy-food-handling h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #333;
+    margin: 0 0 10px 0;
+}
+
+.handy-food-handling p {
+    font-size: 16px;
+    color: #666;
+}
+
+/* Nutritional Facts */
+.handy-nutritional-facts-image {
+    display: flex;
+    justify-content: center;
+}
+
+.handy-nutrition-image {
+    max-width: 400px;
+    height: auto;
+}
+
+/* Allergens */
+.handy-allergen-icons {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.handy-allergen-icon-item {
+    display: flex;
+    align-items: center;
+}
+
+.handy-allergen-icon {
+    height: 60px;
+    width: 60px;
+    object-fit: contain;
+}
+
+.handy-allergen-separator {
+    color: #666;
+    font-size: 24px;
+    font-weight: 300;
+}
+
+.handy-no-allergens {
+    font-size: 16px;
+    color: #666;
+    font-style: italic;
+}
+
+/* Responsive Design */
+@media (max-width: 1600px) {
+    .handy-single-product-container,
+    .handy-tabs-container {
+        padding: 0 40px;
+    }
+    
+    .handy-product-content-wrapper {
+        gap: 40px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .handy-product-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .handy-product-title {
+        font-size: 2rem;
+    }
+    
+    .handy-tab-button {
+        padding: 15px 20px;
+        font-size: 16px;
+    }
+    
+    .handy-tab-panel {
+        padding: 30px 20px;
+    }
+}
+
+@media (max-width: 549px) {
+    .handy-single-product-container,
+    .handy-tabs-container {
+        padding: 0 20px;
+    }
+    
+    .handy-product-left-column {
+        gap: 20px;
+    }
+    
+    .handy-product-title {
+        font-size: 1.8rem;
+    }
+    
+    .handy-social-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 14px;
+    }
+    
+    .handy-where-to-buy-section {
+        padding: 20px;
+    }
+    
+    .handy-tab-button {
+        padding: 12px 15px;
+        font-size: 14px;
+    }
+    
+    .handy-tab-panel {
+        padding: 20px 15px;
+    }
+    
+    .handy-special-logos-gallery,
+    .handy-allergen-icons {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 15px;
+    }
+    
+    .handy-logo-separator,
+    .handy-allergen-separator {
+        display: none;
+    }
+}

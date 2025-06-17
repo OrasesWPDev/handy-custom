@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.8.9';
+	const VERSION = '1.9.0';
 
 	/**
 	 * Single instance of the class
@@ -73,6 +73,9 @@ class Handy_Custom {
 		add_action('save_post_recipe', array($this, 'regenerate_rewrite_rules'));
 		add_action('before_delete_post', array($this, 'regenerate_rewrite_rules'));
 
+		// Template loading hooks
+		add_filter('single_template', array($this, 'load_single_product_template'));
+		
 		// Breadcrumb hooks for single products
 		add_filter('wpseo_breadcrumb_links', array($this, 'modify_yoast_breadcrumbs'));
 		add_filter('breadcrumb_trail_get_items', array($this, 'modify_breadcrumb_trail_items'));
@@ -176,6 +179,11 @@ class Handy_Custom {
 			$has_recipes_shortcode = has_shortcode($post->post_content, 'recipes');
 			$has_filter_shortcode = has_shortcode($post->post_content, 'filter-products') || 
 									has_shortcode($post->post_content, 'filter-recipes');
+		}
+		
+		// Enqueue single product assets if on single product page
+		if (is_singular('product')) {
+			$this->enqueue_single_product_assets();
 		}
 		
 		// Enqueue filter assets if filter shortcodes are present
@@ -302,6 +310,48 @@ class Handy_Custom {
 		$this->enqueue_post_type_assets('recipes', array(
 			'action' => 'filter_recipes'
 		));
+	}
+
+	/**
+	 * Enqueue single product template assets
+	 */
+	private function enqueue_single_product_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/single-product.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/single-product.js';
+
+		// Enqueue single product CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-single-product',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/single-product.css',
+				array(),
+				$css_version
+			);
+			
+			Handy_Custom_Logger::log('Single product CSS enqueued', 'debug');
+		}
+
+		// Enqueue single product JS
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-single-product',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/single-product.js',
+				array('jquery'),
+				$js_version,
+				true
+			);
+
+			// Localize script with debug flag
+			$localize_data = array(
+				'debug' => defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true
+			);
+
+			wp_localize_script('handy-custom-single-product', 'handyCustomSingleProduct', $localize_data);
+			
+			Handy_Custom_Logger::log('Single product JS enqueued with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
+		}
 	}
 	
 	/**
@@ -811,6 +861,25 @@ class Handy_Custom {
 		$this->updater = new Handy_Custom_Simple_Updater($plugin_file);
 		
 		Handy_Custom_Logger::log('Simple updater (YahnisElsts) initialized', 'info');
+	}
+
+	/**
+	 * Load single product template
+	 * 
+	 * @param string $template Current template path
+	 * @return string Modified template path
+	 */
+	public function load_single_product_template($template) {
+		if (is_singular('product')) {
+			$custom_template = HANDY_CUSTOM_PLUGIN_DIR . 'templates/product/single.php';
+			
+			if (file_exists($custom_template)) {
+				Handy_Custom_Logger::log('Loading custom single product template: ' . $custom_template, 'debug');
+				return $custom_template;
+			}
+		}
+		
+		return $template;
 	}
 
 	/**

@@ -110,7 +110,7 @@ class Handy_Product_Importer {
         ini_set('memory_limit', '512M');
         ini_set('max_execution_time', 600); // 10 minutes
         
-        $this->csv_file = $csv_file ?: __DIR__ . '/assets/csv/products_clean.csv';
+        $this->csv_file = $csv_file ?: __DIR__ . '/assets/csv/Product_CSV_6.15.25_FIXED_for_import.csv';
         $this->start_row = $start_row;
         $this->batch_size = $batch_size;
         $this->init_field_mapping();
@@ -175,6 +175,17 @@ class Handy_Product_Importer {
             'country_of_origin' => [
                 'type' => 'acf_field',
                 'acf_name' => 'country_of_origin'
+            ],
+            
+            // Missing ACF Fields from the CSV
+            'allergens' => [
+                'type' => 'acf_field_special',
+                'acf_name' => 'allergens',
+                'handler' => 'allergen_mapping'
+            ],
+            'product_sizes' => [
+                'type' => 'acf_field',
+                'acf_name' => 'product_size'
             ],
             
             // Taxonomies (comma-separated values in CSV)
@@ -443,6 +454,10 @@ class Handy_Product_Importer {
                     $this->process_acf_field($post_id, $mapping['acf_name'], $csv_value, $import_result);
                     break;
                     
+                case 'acf_field_special':
+                    $this->process_special_acf_field($post_id, $mapping, $csv_value, $import_result);
+                    break;
+                    
                 case 'taxonomy':
                     $this->process_taxonomy_field($post_id, $mapping['taxonomy'], $csv_value, $import_result);
                     break;
@@ -474,16 +489,42 @@ class Handy_Product_Importer {
             return;
         }
         
-        // Special handling for allergens field (radio button)
-        if ($field_name === 'allergens') {
-            $cleaned_value = $this->map_allergen_value($cleaned_value);
+        update_field($field_name, $cleaned_value, $post_id);
+        
+        $import_result['acf_fields'][] = [
+            'field_name' => $field_name,
+            'value' => $cleaned_value
+        ];
+    }
+    
+    /**
+     * Process special ACF fields with custom handlers
+     */
+    private function process_special_acf_field($post_id, $mapping, $csv_value, &$import_result) {
+        $cleaned_value = trim($csv_value);
+        
+        if (empty($cleaned_value)) {
+            return;
+        }
+        
+        $field_name = $mapping['acf_name'];
+        $handler = $mapping['handler'];
+        
+        switch ($handler) {
+            case 'allergen_mapping':
+                $cleaned_value = $this->map_allergen_value($cleaned_value);
+                break;
+            default:
+                // No special handling, use as-is
+                break;
         }
         
         update_field($field_name, $cleaned_value, $post_id);
         
         $import_result['acf_fields'][] = [
             'field_name' => $field_name,
-            'value' => $cleaned_value
+            'value' => $cleaned_value,
+            'handler' => $handler
         ];
     }
     
@@ -495,8 +536,12 @@ class Handy_Product_Importer {
             return;
         }
         
-        // Split comma-separated values
-        $values = array_map('trim', explode(',', $csv_value));
+        // Split pipe-separated values (primary) or comma-separated values (fallback)
+        if (strpos($csv_value, '|') !== false) {
+            $values = array_map('trim', explode('|', $csv_value));
+        } else {
+            $values = array_map('trim', explode(',', $csv_value));
+        }
         $matched_terms = [];
         $unmatched_values = [];
         
@@ -747,7 +792,14 @@ class Handy_Product_Importer {
      * Map allergen values to ACF radio options
      */
     private function map_allergen_value($csv_value) {
-        $value_lower = strtolower(trim($csv_value));
+        $csv_value = trim($csv_value);
+        
+        if (empty($csv_value)) {
+            return 'None';
+        }
+        
+        // Handle pipe-separated allergens like "Wheat|Soy"
+        $allergen_values = array_map('trim', explode('|', $csv_value));
         
         $allergen_mapping = [
             'none' => 'None',
@@ -764,7 +816,16 @@ class Handy_Product_Importer {
             'sesame' => 'Sesame'
         ];
         
-        return isset($allergen_mapping[$value_lower]) ? $allergen_mapping[$value_lower] : 'None';
+        // Find the first valid allergen match
+        foreach ($allergen_values as $allergen) {
+            $allergen_lower = strtolower(trim($allergen));
+            if (isset($allergen_mapping[$allergen_lower])) {
+                return $allergen_mapping[$allergen_lower];
+            }
+        }
+        
+        // If no match found, return 'None'
+        return 'None';
     }
     
     /**
