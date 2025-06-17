@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.0';
+	const VERSION = '1.9.1';
 
 	/**
 	 * Single instance of the class
@@ -316,15 +316,15 @@ class Handy_Custom {
 	 * Enqueue single product template assets
 	 */
 	private function enqueue_single_product_assets() {
-		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/single-product.css';
-		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/single-product.js';
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/products/single-product.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/products/single-product.js';
 
 		// Enqueue single product CSS
 		if (file_exists($css_file)) {
 			$css_version = filemtime($css_file);
 			wp_enqueue_style(
 				'handy-custom-single-product',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/single-product.css',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/products/single-product.css',
 				array(),
 				$css_version
 			);
@@ -337,7 +337,7 @@ class Handy_Custom {
 			$js_version = filemtime($js_file);
 			wp_enqueue_script(
 				'handy-custom-single-product',
-				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/single-product.js',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/products/single-product.js',
 				array('jquery'),
 				$js_version,
 				true
