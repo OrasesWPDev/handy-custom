@@ -615,7 +615,7 @@ define('HANDY_CUSTOM_DEBUG', true);
 
 ## 📝 Changelog
 
-### Version 1.9.0 (Latest)
+### Version 1.9.6 (Latest)
 - **Single Product Template System**: Added comprehensive single product display template with two-column layout
 - **Product Detail Tabs**: Implemented collapsible tabs for Specifications, Features & Benefits, Cooking Instructions, Nutritional Facts, and Allergens
 - **Breadcrumb Integration**: Full Yoast SEO breadcrumb support matching archive shortcode styling
