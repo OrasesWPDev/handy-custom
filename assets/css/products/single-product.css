@@ -3,8 +3,8 @@
 /* Main Container */
 .handy-single-product-container {
     width: 100%;
-    max-width: 1440px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 0 240px;
 }
 
@@ -166,8 +166,8 @@
 }
 
 .handy-tabs-container {
-    max-width: 1440px;
-    margin: 0 auto;
+    max-width: none;
+    margin: 0;
     padding: 0 240px;
 }
 
@@ -219,13 +219,13 @@
 }
 
 .handy-tab-panel {
-    display: none;
+    display: none !important;
     padding: 40px 30px;
     border-bottom: 1px solid #e0e0e0;
 }
 
 .handy-tab-panel.active {
-    display: block;
+    display: block !important;
 }
 
 /* Specifications Tab */

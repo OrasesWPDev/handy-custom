@@ -221,7 +221,7 @@ get_header(); ?>
                     </div>
 
                     <!-- Features and Benefits Tab -->
-                    <div class="handy-tab-panel" id="features" style="display: none;">
+                    <div class="handy-tab-panel" id="features">
                         <div class="handy-features-content">
                             <?php if (get_field('features_benefits')) : ?>
                                 <?php the_field('features_benefits'); ?>
@@ -230,7 +230,7 @@ get_header(); ?>
                     </div>
 
                     <!-- Cooking Instructions Tab -->
-                    <div class="handy-tab-panel" id="cooking" style="display: none;">
+                    <div class="handy-tab-panel" id="cooking">
                         <div class="handy-cooking-content">
                             <?php if (get_field('cooking_instructions')) : ?>
                                 <div class="handy-cooking-instructions">
@@ -256,7 +256,7 @@ get_header(); ?>
                     </div>
 
                     <!-- Nutritional Facts Tab -->
-                    <div class="handy-tab-panel" id="nutrition" style="display: none;">
+                    <div class="handy-tab-panel" id="nutrition">
                         <div class="handy-nutrition-content">
                             <?php 
                             $nutritional_facts = get_field('nutritional_facts');
@@ -271,7 +271,7 @@ get_header(); ?>
                     </div>
 
                     <!-- Allergens Tab -->
-                    <div class="handy-tab-panel" id="allergens" style="display: none;">
+                    <div class="handy-tab-panel" id="allergens">
                         <div class="handy-allergens-content">
                             <?php 
                             $allergens = get_field('allergens');
