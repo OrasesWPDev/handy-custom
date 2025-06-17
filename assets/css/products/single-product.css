@@ -158,34 +158,37 @@
     display: block;
 }
 
-/* Tabbed Content Section */
-.handy-single-product-tabs {
+/* Accordion Content Section */
+.handy-single-product-accordion {
     width: 100%;
     margin-top: 40px;
     background: white;
 }
 
-.handy-tabs-container {
+.handy-accordion-container {
     max-width: none;
     margin: 0;
-    padding: 0 240px;
+    padding: 0;
 }
 
-/* Tab Navigation */
-.handy-tab-navigation {
-    display: flex;
-    flex-direction: column;
-    border-bottom: 2px solid #e0e0e0;
+/* Accordion Sections */
+.handy-accordion-section {
+    border-bottom: 1px solid #e0e0e0;
 }
 
-.handy-tab-button {
+.handy-accordion-section:last-child {
+    border-bottom: none;
+}
+
+/* Accordion Headers */
+.handy-accordion-header {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 20px 30px;
+    width: 100%;
+    padding: 20px 0;
     background: white;
     border: none;
-    border-bottom: 1px solid #e0e0e0;
     font-size: 18px;
     font-weight: 600;
     color: #333;
@@ -194,38 +197,31 @@
     text-align: left;
 }
 
-.handy-tab-button:hover {
-    background: #f8f9fa;
+.handy-accordion-header:hover {
     color: #007cba;
 }
 
-.handy-tab-button.active {
-    background: #007cba;
-    color: white;
-    border-bottom-color: #007cba;
+.handy-accordion-header.active {
+    color: #007cba;
 }
 
-.handy-tab-button.active i {
+.handy-accordion-header.active i {
     transform: rotate(180deg);
 }
 
-.handy-tab-button i {
+.handy-accordion-header i {
     transition: transform 0.3s ease;
+    color: #007cba;
 }
 
-/* Tab Content */
-.handy-tab-content {
-    background: white;
+/* Accordion Content */
+.handy-accordion-content {
+    display: none;
+    padding: 30px 0 40px 0;
 }
 
-.handy-tab-panel {
-    display: none !important;
-    padding: 40px 30px;
-    border-bottom: 1px solid #e0e0e0;
-}
-
-.handy-tab-panel.active {
-    display: block !important;
+.handy-accordion-content.active {
+    display: block;
 }
 
 /* Specifications Tab */
@@ -358,8 +354,7 @@
 
 /* Responsive Design */
 @media (max-width: 1600px) {
-    .handy-single-product-container,
-    .handy-tabs-container {
+    .handy-single-product-container {
         padding: 0 40px;
     }
     
@@ -378,19 +373,18 @@
         font-size: 2rem;
     }
     
-    .handy-tab-button {
-        padding: 15px 20px;
+    .handy-accordion-header {
+        padding: 15px 0;
         font-size: 16px;
     }
     
-    .handy-tab-panel {
-        padding: 30px 20px;
+    .handy-accordion-content {
+        padding: 20px 0 30px 0;
     }
 }
 
 @media (max-width: 549px) {
-    .handy-single-product-container,
-    .handy-tabs-container {
+    .handy-single-product-container {
         padding: 0 20px;
     }
     
@@ -412,13 +406,13 @@
         padding: 20px;
     }
     
-    .handy-tab-button {
-        padding: 12px 15px;
+    .handy-accordion-header {
+        padding: 12px 0;
         font-size: 14px;
     }
     
-    .handy-tab-panel {
-        padding: 20px 15px;
+    .handy-accordion-content {
+        padding: 15px 0 20px 0;
     }
     
     .handy-special-logos-gallery,

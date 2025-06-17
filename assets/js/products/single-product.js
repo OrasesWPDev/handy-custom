@@ -1,72 +1,74 @@
 /**
  * Single Product Template JavaScript
  * 
- * Handles tab functionality for product detail sections.
- * Implements accordion-style tabs with smooth transitions.
+ * Handles accordion functionality for product detail sections.
+ * Implements accordion-style sections with smooth transitions per user requirement:
+ * "content for specifications shows under the word specifications" and clicking expands/collapses individual sections.
  */
 
 document.addEventListener('DOMContentLoaded', function() {
     
-    // Initialize tab functionality
-    initProductTabs();
+    // Initialize accordion functionality
+    initProductAccordion();
     
     /**
-     * Initialize product detail tabs
+     * Initialize product detail accordion
+     * Per user instructions: Each section independent, content appears directly below header
      */
-    function initProductTabs() {
-        const tabButtons = document.querySelectorAll('.handy-tab-button');
-        const tabPanels = document.querySelectorAll('.handy-tab-panel');
+    function initProductAccordion() {
+        const accordionHeaders = document.querySelectorAll('.handy-accordion-header');
+        const accordionContents = document.querySelectorAll('.handy-accordion-content');
         
-        if (tabButtons.length === 0 || tabPanels.length === 0) {
+        if (accordionHeaders.length === 0 || accordionContents.length === 0) {
             return;
         }
         
-        // Add click event listeners to tab buttons
-        tabButtons.forEach(function(button) {
-            button.addEventListener('click', function() {
-                const targetTab = this.getAttribute('data-tab');
+        // Add click event listeners to accordion headers
+        accordionHeaders.forEach(function(header) {
+            header.addEventListener('click', function() {
+                const targetSection = this.getAttribute('data-section');
                 
-                // Toggle the clicked tab
+                // Toggle the clicked section
                 if (this.classList.contains('active')) {
-                    // Close the currently active tab
-                    closeTab(this, targetTab);
+                    // Close the currently active section
+                    closeAccordionSection(this, targetSection);
                 } else {
-                    // Close all tabs first
-                    closeAllTabs();
-                    // Open the clicked tab
-                    openTab(this, targetTab);
+                    // Close all sections first
+                    closeAllAccordionSections();
+                    // Open the clicked section
+                    openAccordionSection(this, targetSection);
                 }
             });
         });
         
-        // Initialize with first tab open
-        if (tabButtons[0] && tabPanels[0]) {
-            tabButtons[0].classList.add('active');
-            tabPanels[0].classList.add('active');
+        // Initialize with first section open (specifications)
+        if (accordionHeaders[0] && accordionContents[0]) {
+            accordionHeaders[0].classList.add('active');
+            accordionContents[0].classList.add('active');
         }
     }
     
     /**
-     * Open a specific tab
-     * @param {Element} button - The tab button element
-     * @param {string} targetTab - The tab ID to open
+     * Open a specific accordion section
+     * @param {Element} header - The accordion header element
+     * @param {string} targetSection - The section ID to open
      */
-    function openTab(button, targetTab) {
-        const targetPanel = document.getElementById(targetTab);
+    function openAccordionSection(header, targetSection) {
+        const targetContent = document.getElementById(targetSection);
         
-        if (targetPanel) {
-            // Activate button
-            button.classList.add('active');
+        if (targetContent) {
+            // Activate header
+            header.classList.add('active');
             
-            // Show panel with animation
-            targetPanel.style.display = 'block';
+            // Show content with animation
+            targetContent.style.display = 'block';
             // Force reflow for animation
-            targetPanel.offsetHeight;
-            targetPanel.classList.add('active');
+            targetContent.offsetHeight;
+            targetContent.classList.add('active');
             
-            // Scroll to tab if needed (for mobile)
+            // Scroll to header if needed (for mobile)
             if (window.innerWidth <= 768) {
-                button.scrollIntoView({ 
+                header.scrollIntoView({ 
                     behavior: 'smooth', 
                     block: 'nearest' 
                 });
@@ -75,43 +77,43 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
     /**
-     * Close a specific tab
-     * @param {Element} button - The tab button element
-     * @param {string} targetTab - The tab ID to close
+     * Close a specific accordion section
+     * @param {Element} header - The accordion header element
+     * @param {string} targetSection - The section ID to close
      */
-    function closeTab(button, targetTab) {
-        const targetPanel = document.getElementById(targetTab);
+    function closeAccordionSection(header, targetSection) {
+        const targetContent = document.getElementById(targetSection);
         
-        if (targetPanel) {
-            // Deactivate button
-            button.classList.remove('active');
+        if (targetContent) {
+            // Deactivate header
+            header.classList.remove('active');
             
-            // Hide panel
-            targetPanel.classList.remove('active');
+            // Hide content
+            targetContent.classList.remove('active');
             setTimeout(function() {
-                if (!targetPanel.classList.contains('active')) {
-                    targetPanel.style.display = 'none';
+                if (!targetContent.classList.contains('active')) {
+                    targetContent.style.display = 'none';
                 }
             }, 300);
         }
     }
     
     /**
-     * Close all tabs
+     * Close all accordion sections
      */
-    function closeAllTabs() {
-        const tabButtons = document.querySelectorAll('.handy-tab-button');
-        const tabPanels = document.querySelectorAll('.handy-tab-panel');
+    function closeAllAccordionSections() {
+        const accordionHeaders = document.querySelectorAll('.handy-accordion-header');
+        const accordionContents = document.querySelectorAll('.handy-accordion-content');
         
-        tabButtons.forEach(function(button) {
-            button.classList.remove('active');
+        accordionHeaders.forEach(function(header) {
+            header.classList.remove('active');
         });
         
-        tabPanels.forEach(function(panel) {
-            panel.classList.remove('active');
+        accordionContents.forEach(function(content) {
+            content.classList.remove('active');
             setTimeout(function() {
-                if (!panel.classList.contains('active')) {
-                    panel.style.display = 'none';
+                if (!content.classList.contains('active')) {
+                    content.style.display = 'none';
                 }
             }, 300);
         });
@@ -125,11 +127,11 @@ document.addEventListener('DOMContentLoaded', function() {
         const printStyles = document.createElement('style');
         printStyles.textContent = `
             @media print {
-                .handy-single-product-tabs .handy-tab-panel {
+                .handy-single-product-accordion .handy-accordion-content {
                     display: block !important;
                     page-break-inside: avoid;
                 }
-                .handy-tab-navigation {
+                .handy-accordion-header {
                     display: none;
                 }
                 .handy-product-social-row {
@@ -161,17 +163,17 @@ document.addEventListener('DOMContentLoaded', function() {
      * Handle responsive behavior
      */
     function handleResize() {
-        const tabButtons = document.querySelectorAll('.handy-tab-button');
-        const tabPanels = document.querySelectorAll('.handy-tab-panel');
+        const accordionHeaders = document.querySelectorAll('.handy-accordion-header');
+        const accordionContents = document.querySelectorAll('.handy-accordion-content');
         
-        // On mobile, ensure only one tab is open at a time
+        // On mobile, ensure only one section is open at a time
         if (window.innerWidth <= 768) {
-            const activeTabs = document.querySelectorAll('.handy-tab-button.active');
-            if (activeTabs.length > 1) {
-                // Close all but the first active tab
-                for (let i = 1; i < activeTabs.length; i++) {
-                    const targetTab = activeTabs[i].getAttribute('data-tab');
-                    closeTab(activeTabs[i], targetTab);
+            const activeSections = document.querySelectorAll('.handy-accordion-header.active');
+            if (activeSections.length > 1) {
+                // Close all but the first active section
+                for (let i = 1; i < activeSections.length; i++) {
+                    const targetSection = activeSections[i].getAttribute('data-section');
+                    closeAccordionSection(activeSections[i], targetSection);
                 }
             }
         }
@@ -181,13 +183,13 @@ document.addEventListener('DOMContentLoaded', function() {
     window.addEventListener('resize', handleResize);
     
     /**
-     * Smooth scroll for anchor links within tabs
+     * Smooth scroll for anchor links within accordion sections
      */
     function initSmoothScroll() {
-        const tabPanels = document.querySelectorAll('.handy-tab-panel');
+        const accordionContents = document.querySelectorAll('.handy-accordion-content');
         
-        tabPanels.forEach(function(panel) {
-            const anchorLinks = panel.querySelectorAll('a[href^="#"]');
+        accordionContents.forEach(function(content) {
+            const anchorLinks = content.querySelectorAll('a[href^="#"]');
             
             anchorLinks.forEach(function(link) {
                 link.addEventListener('click', function(e) {
@@ -209,11 +211,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize smooth scroll
     initSmoothScroll();
     
-    // Debug logging (remove for production)
-    if (typeof HANDY_CUSTOM_DEBUG !== 'undefined' && HANDY_CUSTOM_DEBUG) {
-        console.log('Single Product tabs initialized');
-        console.log('Tab buttons found:', document.querySelectorAll('.handy-tab-button').length);
-        console.log('Tab panels found:', document.querySelectorAll('.handy-tab-panel').length);
+    // Debug logging for accordion functionality
+    if (typeof handyCustomSingleProduct !== 'undefined' && handyCustomSingleProduct.debug) {
+        console.log('Single Product accordion initialized');
+        console.log('Accordion headers found:', document.querySelectorAll('.handy-accordion-header').length);
+        console.log('Accordion contents found:', document.querySelectorAll('.handy-accordion-content').length);
     }
     
 });

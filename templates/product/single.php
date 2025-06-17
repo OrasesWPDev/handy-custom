@@ -125,39 +125,17 @@ get_header(); ?>
             </div>
         </div>
 
-        <!-- Tabbed Content Section -->
-        <div class="handy-single-product-tabs full-width">
-            <div class="handy-tabs-container">
+        <!-- Accordion Content Section -->
+        <div class="handy-single-product-accordion full-width">
+            <div class="handy-accordion-container">
                 
-                <!-- Tab Navigation -->
-                <div class="handy-tab-navigation">
-                    <button class="handy-tab-button active" data-tab="specifications">
+                <!-- Specifications Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header active" data-section="specifications">
                         <span>Specifications</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
-                    <button class="handy-tab-button" data-tab="features">
-                        <span>Features and Benefits</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <button class="handy-tab-button" data-tab="cooking">
-                        <span>Cooking Instructions</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <button class="handy-tab-button" data-tab="nutrition">
-                        <span>Nutritional Facts</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                    <button class="handy-tab-button" data-tab="allergens">
-                        <span>Allergen</span>
-                        <i class="fas fa-chevron-down"></i>
-                    </button>
-                </div>
-
-                <!-- Tab Content Panels -->
-                <div class="handy-tab-content">
-                    
-                    <!-- Specifications Tab -->
-                    <div class="handy-tab-panel active" id="specifications">
+                    <div class="handy-accordion-content active" id="specifications">
                         <div class="handy-specifications-content">
                             <!-- Specifications Table -->
                             <table class="handy-product-specs-table">
@@ -219,18 +197,30 @@ get_header(); ?>
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Features and Benefits Tab -->
-                    <div class="handy-tab-panel" id="features">
+                <!-- Features and Benefits Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="features">
+                        <span>Features and Benefits</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="features">
                         <div class="handy-features-content">
                             <?php if (get_field('features_benefits')) : ?>
                                 <?php the_field('features_benefits'); ?>
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Cooking Instructions Tab -->
-                    <div class="handy-tab-panel" id="cooking">
+                <!-- Cooking Instructions Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="cooking">
+                        <span>Cooking Instructions</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="cooking">
                         <div class="handy-cooking-content">
                             <?php if (get_field('cooking_instructions')) : ?>
                                 <div class="handy-cooking-instructions">
@@ -254,9 +244,15 @@ get_header(); ?>
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Nutritional Facts Tab -->
-                    <div class="handy-tab-panel" id="nutrition">
+                <!-- Nutritional Facts Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="nutrition">
+                        <span>Nutritional Facts</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="nutrition">
                         <div class="handy-nutrition-content">
                             <?php 
                             $nutritional_facts = get_field('nutritional_facts');
@@ -269,9 +265,15 @@ get_header(); ?>
                             <?php endif; ?>
                         </div>
                     </div>
+                </div>
 
-                    <!-- Allergens Tab -->
-                    <div class="handy-tab-panel" id="allergens">
+                <!-- Allergens Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="allergens">
+                        <span>Allergen</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="allergens">
                         <div class="handy-allergens-content">
                             <?php 
                             $allergens = get_field('allergens');
@@ -310,8 +312,8 @@ get_header(); ?>
                             <?php endif; ?>
                         </div>
                     </div>
-
                 </div>
+
             </div>
         </div>
 
