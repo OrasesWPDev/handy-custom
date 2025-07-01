@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.11';
+	const VERSION = '1.9.12';
 
 	/**
 	 * Single instance of the class
@@ -48,7 +48,7 @@ class Handy_Custom {
 	 * Initialize hooks
 	 */
 	private function init_hooks() {
-		add_action('plugins_loaded', array($this, 'init'));
+		add_action('init', array($this, 'init'));
 		add_action('wp_enqueue_scripts', array($this, 'enqueue_frontend_assets'));
 		add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
 		

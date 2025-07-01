@@ -354,7 +354,7 @@
 /* Responsive Design */
 @media (max-width: 1600px) {
     .handy-single-product-container {
-        padding: 0 40px;
+        padding: 15px 40px;
     }
     
     .handy-product-content-wrapper {
@@ -384,7 +384,7 @@
 
 @media (max-width: 549px) {
     .handy-single-product-container {
-        padding: 0 20px;
+        padding: 10px 20px;
     }
     
     .handy-product-left-column {
