@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.7';
+	const VERSION = '1.9.8';
 
 	/**
 	 * Single instance of the class
@@ -69,9 +69,11 @@ class Handy_Custom {
 		add_action('deleted_recipe-category', array($this, 'regenerate_rewrite_rules'));
 		
 		// Post hooks - regenerate rewrite rules when posts are created/updated/deleted
-		add_action('save_post_product', array($this, 'regenerate_rewrite_rules'));
-		add_action('save_post_recipe', array($this, 'regenerate_rewrite_rules'));
+		add_action('wp_after_insert_post', array($this, 'handle_post_insert_or_update'), 10, 4);
 		add_action('before_delete_post', array($this, 'regenerate_rewrite_rules'));
+		
+		// Deferred rewrite rules hook (for draft-to-published transitions)
+		add_action('handy_custom_deferred_rewrite_rules', array($this, 'handle_deferred_rewrite_rules'), 10, 2);
 
 		// Template loading hooks
 		add_filter('single_template', array($this, 'load_single_product_template'));
@@ -390,6 +392,79 @@ class Handy_Custom {
 	 */
 	public function enqueue_admin_assets() {
 		// Admin-specific assets if needed in the future
+	}
+
+	/**
+	 * Handle post insert or update with smart rewrite rule regeneration
+	 * Detects draft-to-published transitions and defers rewrite rule regeneration
+	 * 
+	 * @param int $post_id Post ID
+	 * @param WP_Post $post Post object
+	 * @param bool $update Whether this is an existing post being updated
+	 * @param null|WP_Post $post_before Previous post object (null for new posts)
+	 */
+	public function handle_post_insert_or_update($post_id, $post, $update, $post_before) {
+		// Only handle product and recipe post types
+		if (!in_array($post->post_type, array('product', 'recipe'))) {
+			return;
+		}
+		
+		// Check if this is a draft-to-published transition
+		$is_draft_to_published = false;
+		if ($post_before) {
+			$old_status = $post_before->post_status;
+			$new_status = $post->post_status;
+			
+			$is_draft_to_published = in_array($old_status, array('draft', 'auto-draft', 'pending')) && 
+									 $new_status === 'publish';
+		} else {
+			// New post being created as published
+			$is_draft_to_published = $post->post_status === 'publish';
+		}
+		
+		if ($is_draft_to_published) {
+			Handy_Custom_Logger::log("Draft-to-published transition detected for {$post->post_type} ID {$post_id} - deferring rewrite rules", 'info');
+			$this->schedule_deferred_rewrite_rules($post_id, $post->post_type);
+		} else {
+			// For regular updates to already-published posts, regenerate immediately
+			if ($post->post_status === 'publish') {
+				Handy_Custom_Logger::log("Regular update to published {$post->post_type} ID {$post_id} - regenerating rewrite rules", 'info');
+				$this->regenerate_rewrite_rules();
+			}
+		}
+	}
+	
+	/**
+	 * Schedule deferred rewrite rule regeneration for new publications
+	 * Uses WordPress cron to delay regeneration by a few seconds
+	 * 
+	 * @param int $post_id Post ID
+	 * @param string $post_type Post type
+	 */
+	private function schedule_deferred_rewrite_rules($post_id, $post_type) {
+		// Schedule rewrite rule regeneration in 3 seconds
+		wp_schedule_single_event(time() + 3, 'handy_custom_deferred_rewrite_rules', array($post_id, $post_type));
+		
+		Handy_Custom_Logger::log("Scheduled deferred rewrite rule regeneration for {$post_type} ID {$post_id}", 'debug');
+	}
+	
+	/**
+	 * Handle deferred rewrite rule regeneration
+	 * Called by WordPress cron after a delay
+	 * 
+	 * @param int $post_id Post ID
+	 * @param string $post_type Post type
+	 */
+	public function handle_deferred_rewrite_rules($post_id, $post_type) {
+		// Verify the post still exists and is published
+		$post = get_post($post_id);
+		if (!$post || $post->post_status !== 'publish') {
+			Handy_Custom_Logger::log("Deferred rewrite rules: Post {$post_id} no longer exists or not published - skipping", 'warning');
+			return;
+		}
+		
+		Handy_Custom_Logger::log("Executing deferred rewrite rule regeneration for {$post_type} ID {$post_id}", 'info');
+		$this->regenerate_rewrite_rules();
 	}
 
 	/**
