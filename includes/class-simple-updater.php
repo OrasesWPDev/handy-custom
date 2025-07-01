@@ -55,7 +55,7 @@ class Handy_Custom_Simple_Updater {
 			'https://github.com/OrasesWPDev/handy-custom/',
 			$this->plugin_file,
 			'handy-custom',
-			1/60  // Check every minute for fast update detection
+			1  // Check every minute for fast update detection
 		);
 
 		// Enable release assets for GitHub releases
