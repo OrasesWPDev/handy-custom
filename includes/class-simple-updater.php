@@ -47,21 +47,34 @@ class Handy_Custom_Simple_Updater {
 			return;
 		}
 
-		// Load the YahnisElsts Plugin Update Checker library
-		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
+		try {
+			// Load the YahnisElsts Plugin Update Checker library
+			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
+			
+			// Initialize the update checker for GitHub with proper parameters
+			$this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
+				'https://github.com/OrasesWPDev/handy-custom/',
+				$this->plugin_file,
+				'handy-custom',
+				12  // Default check period (12 hours)
+			);
+
+			// Enable release assets for GitHub releases
+			$this->update_checker->getVcsApi()->enableReleaseAssets();
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialization failed: ' . $e->getMessage(), 'error');
+			return;
+		}
 		
-		// Initialize the update checker for GitHub with 1-minute check period (using full namespace)
-		$this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
-			'https://github.com/OrasesWPDev/handy-custom/',
-			$this->plugin_file,
-			'handy-custom',
-			1  // Check every minute for fast update detection
+		// Add debug information
+		$debug_info = array(
+			'plugin_file' => $this->plugin_file,
+			'update_checker_class' => get_class($this->update_checker),
+			'is_admin' => is_admin(),
+			'current_hook' => current_action()
 		);
 
-		// Enable release assets for GitHub releases
-		$this->update_checker->getVcsApi()->enableReleaseAssets();
-
-		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized with 1-minute check period (v1.9.9 auto-updater test)', 'info');
+		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully. Debug: ' . wp_json_encode($debug_info), 'info');
 	}
 
 	/**
