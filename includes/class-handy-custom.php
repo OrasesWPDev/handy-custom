@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.14';
+	const VERSION = '1.9.15';
 
 	/**
 	 * Single instance of the class
@@ -42,6 +42,11 @@ class Handy_Custom {
 	private function __construct() {
 		$this->init_hooks();
 		$this->load_includes();
+		
+		// Setup logging first if debug is enabled
+		if (defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true) {
+			$this->setup_logging();
+		}
 		
 		// Initialize updater early (on plugins_loaded) for proper WordPress hook timing
 		if (is_admin()) {
@@ -128,10 +133,7 @@ class Handy_Custom {
 	 * Initialize plugin
 	 */
 	public function init() {
-		// Setup logging if enabled
-		if (defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true) {
-			$this->setup_logging();
-		}
+		// Note: Logging setup moved to constructor for earlier availability
 		
 		// Initialize logger
 		Handy_Custom_Logger::init();

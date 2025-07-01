@@ -48,21 +48,30 @@ class Handy_Custom_Simple_Updater {
 		}
 
 		try {
+			// Verify plugin file exists
+			if (!file_exists($this->plugin_file)) {
+				throw new Exception('Plugin file not found: ' . $this->plugin_file);
+			}
+			
 			// Load the YahnisElsts Plugin Update Checker library
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
 			
-			// Initialize the update checker for GitHub with proper parameters
+			// Initialize the update checker for GitHub with minimal configuration
 			$this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 				'https://github.com/OrasesWPDev/handy-custom/',
 				$this->plugin_file,
-				'handy-custom',
-				12  // Default check period (12 hours)
+				'handy-custom'  // Simplified - use defaults for other parameters
 			);
 
 			// Enable release assets for GitHub releases
 			$this->update_checker->getVcsApi()->enableReleaseAssets();
+			
+			// Add custom filter to check if WordPress recognizes this plugin
+			add_filter('plugins_api', array($this, 'debug_plugins_api'), 10, 3);
 		} catch (Exception $e) {
-			Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialization failed: ' . $e->getMessage(), 'error');
+			$error_msg = 'YahnisElsts Plugin Update Checker initialization failed: ' . $e->getMessage();
+			Handy_Custom_Logger::log($error_msg, 'error');
+			error_log('Handy Custom Plugin: ' . $error_msg);
 			return;
 		}
 		
@@ -74,7 +83,9 @@ class Handy_Custom_Simple_Updater {
 			'current_hook' => current_action()
 		);
 
-		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized successfully. Debug: ' . wp_json_encode($debug_info), 'info');
+		$success_msg = 'YahnisElsts Plugin Update Checker initialized successfully. Debug: ' . wp_json_encode($debug_info);
+		Handy_Custom_Logger::log($success_msg, 'info');
+		error_log('Handy Custom Plugin: ' . $success_msg);
 	}
 
 	/**
@@ -103,6 +114,52 @@ class Handy_Custom_Simple_Updater {
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('Forced update check failed: ' . $e->getMessage(), 'error');
 			return false;
+		}
+	}
+
+	/**
+	 * Debug filter for plugins_api to see if WordPress recognizes our plugin
+	 */
+	public function debug_plugins_api($result, $action, $args) {
+		if ($action === 'plugin_information' && isset($args->slug) && $args->slug === 'handy-custom') {
+			$debug_msg = 'WordPress plugins_api called for handy-custom: ' . wp_json_encode($args);
+			Handy_Custom_Logger::log($debug_msg, 'info');
+			error_log('Handy Custom Plugin: ' . $debug_msg);
+		}
+		return $result;
+	}
+
+	/**
+	 * Manual update check for testing
+	 *
+	 * @return array Result of update check
+	 */
+	public function manual_update_check() {
+		if (!$this->update_checker) {
+			return array('error' => 'Update checker not initialized');
+		}
+
+		try {
+			$update = $this->update_checker->checkForUpdates();
+			$result = array(
+				'success' => true,
+				'has_update' => !empty($update),
+				'current_version' => HANDY_CUSTOM_VERSION,
+				'remote_version' => $update ? $update->version : null,
+				'check_time' => current_time('mysql')
+			);
+			
+			$debug_msg = 'Manual update check completed: ' . wp_json_encode($result);
+			Handy_Custom_Logger::log($debug_msg, 'info');
+			error_log('Handy Custom Plugin: ' . $debug_msg);
+			
+			return $result;
+		} catch (Exception $e) {
+			$error_result = array('error' => $e->getMessage());
+			$error_msg = 'Manual update check failed: ' . wp_json_encode($error_result);
+			Handy_Custom_Logger::log($error_msg, 'error');
+			error_log('Handy Custom Plugin: ' . $error_msg);
+			return $error_result;
 		}
 	}
 
