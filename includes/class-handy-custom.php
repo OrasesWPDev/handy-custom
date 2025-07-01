@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.12';
+	const VERSION = '1.9.13';
 
 	/**
 	 * Single instance of the class
@@ -42,6 +42,11 @@ class Handy_Custom {
 	private function __construct() {
 		$this->init_hooks();
 		$this->load_includes();
+		
+		// Initialize updater early (on plugins_loaded) for proper WordPress hook timing
+		if (is_admin()) {
+			$this->init_updater();
+		}
 	}
 
 	/**
@@ -140,7 +145,6 @@ class Handy_Custom {
 		// Initialize admin functionality
 		if (is_admin()) {
 			Handy_Custom_Admin::init();
-			$this->init_updater();
 		}
 		
 		// Initialize frontend functionality
