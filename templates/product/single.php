@@ -25,7 +25,7 @@ get_header(); ?>
         </div>
 
         <!-- Two Column Main Content Section -->
-        <div class="handy-single-product-main content-width">
+        <div class="handy-single-product-main">
             <div class="handy-product-content-wrapper">
                 
                 <!-- Left Column -->
