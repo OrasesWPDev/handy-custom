@@ -50,18 +50,16 @@ class Handy_Custom_Simple_Updater {
 		// Load the YahnisElsts Plugin Update Checker library
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/vendor/plugin-update-checker/plugin-update-checker.php';
 		
-		// Initialize the update checker for GitHub (using full namespace)
+		// Initialize the update checker for GitHub with 1-minute check period (using full namespace)
 		$this->update_checker = \YahnisElsts\PluginUpdateChecker\v5\PucFactory::buildUpdateChecker(
 			'https://github.com/OrasesWPDev/handy-custom/',
 			$this->plugin_file,
-			'handy-custom'
+			'handy-custom',
+			1/60  // Check every minute for fast update detection
 		);
 
 		// Enable release assets for GitHub releases
 		$this->update_checker->getVcsApi()->enableReleaseAssets();
-
-		// Set check period to 1 minute for fast update detection
-		$this->update_checker->setCheckPeriod(1/60);
 
 		Handy_Custom_Logger::log('YahnisElsts Plugin Update Checker initialized with 1-minute check period', 'info');
 	}
