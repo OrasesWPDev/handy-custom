@@ -172,7 +172,7 @@ Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'in
                             
                             <!-- Action Buttons -->
                             <div class="category-actions">
-                                <a href="/product-locator/" class="btn btn-shop"><i class="fas fa-shopping-cart"></i>Shop Now</a>
+                                <a href="/product-locator/" class="btn btn-shop"><i class="fa-regular fa-cart-shopping"></i>Shop Now</a>
                                 <a href="<?php echo esc_url($shop_url); ?>" class="btn btn-learn"><i class="fa-regular fa-circle-ellipsis"></i>Find Out More</a>
                             </div>
                             
