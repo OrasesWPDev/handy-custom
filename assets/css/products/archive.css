@@ -49,15 +49,14 @@
 /* Category Cards */
 .product-category-card {
     background: white;
-    border-radius: 12px;
+    border-radius: 60px;
     overflow: hidden;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 10px 25px 0px #2329330F;
+	margin-bottom: 60px;
 }
 
 .product-category-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    
 }
 
 /* Category Image */
@@ -112,10 +111,12 @@
 }
 
 .category-title {
+	font-family: Poppins, sans-serif;
     margin: 0;
-    font-size: 20px;
-    font-weight: 600;
-    color: #212529;
+    font-size: 41px;
+    font-weight: 700;
+	letter-spacing: -0.82px;
+    color: #273749;
 }
 
 /* Category Description */
@@ -124,10 +125,12 @@
 }
 
 .description-text {
+	font-family: Poppins, sans-serif;
+	font-weight: 400;
     margin: 0;
     line-height: 1.6;
-    color: #495057;
-    font-size: 14px;
+    color: #3E434A;
+    font-size: 18px;
 }
 
 .description-toggle {
@@ -144,15 +147,19 @@
 .category-actions {
     display: flex;
     gap: 12px;
+	background: #0145AB;
+    border-radius: 0px 28px 28px 0px;
+    margin-left: -20px;
+    width: 75%;
 }
 
 .btn {
     padding: 10px 20px;
     border: none;
-    border-radius: 6px;
     text-decoration: none;
-    font-weight: 500;
-    font-size: 14px;
+	font-family: Poppins, sans-serif;
+    font-weight: 600;
+    font-size: 17px;
     cursor: pointer;
     transition: all 0.3s ease;
     display: inline-block;
@@ -161,29 +168,26 @@
 }
 
 .btn-shop {
-    background: #007cba;
-    color: white;
+    background: transparent;
+    color: #FFFFFF;
 }
 
 .btn-shop:hover {
-    background: #005a87;
-    color: white;
+    color: #FFFFFF;
 }
 
 .btn-learn {
     background: transparent;
-    color: #007cba;
-    border: 2px solid #007cba;
+    color: #FFFFFF;
 }
 
 .btn-learn:hover {
-    background: #007cba;
-    color: white;
+    color: #FFFFFF;
 }
 
 .btn-clear-filters {
     background: #6c757d;
-    color: white;
+    color: #FFFFFF;
 }
 
 .btn-clear-filters:hover {
