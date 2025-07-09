@@ -37,16 +37,21 @@ class Handy_Custom_Recipes_Utils extends Handy_Custom_Base_Utils {
 			return '';
 		}
 
-		$icon_filename = sanitize_file_name($category_slug . '-icon.png');
-		$icon_path = plugin_dir_path(dirname(__FILE__)) . 'assets/images/' . $icon_filename;
-		$icon_url = plugin_dir_url(dirname(__FILE__)) . 'assets/images/' . $icon_filename;
+		// Check for multiple file extensions in order of preference
+		$extensions = ['webp', 'png', 'jpg', 'jpeg'];
+		
+		foreach ($extensions as $ext) {
+			$icon_filename = sanitize_file_name($category_slug . '-icon.' . $ext);
+			$icon_path = plugin_dir_path(dirname(__FILE__)) . 'assets/images/' . $icon_filename;
+			$icon_url = plugin_dir_url(dirname(__FILE__)) . 'assets/images/' . $icon_filename;
 
-		// Check if icon file exists
-		if (file_exists($icon_path)) {
-			return $icon_url;
+			// Check if icon file exists
+			if (file_exists($icon_path)) {
+				return $icon_url;
+			}
 		}
 
-		Handy_Custom_Logger::log("Recipe category icon not found: {$icon_filename}", 'warning');
+		Handy_Custom_Logger::log("Recipe category icon not found for category: {$category_slug}", 'warning');
 		return '';
 	}
 
