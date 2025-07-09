@@ -5,6 +5,11 @@ on:
     branches: [ main ]
     types: [ closed ]
 
+permissions:
+  contents: write
+  issues: read
+  pull-requests: read
+
 jobs:
   create-release:
     if: github.event.pull_request.merged == true
@@ -51,7 +56,6 @@ jobs:
         gh release create "$TAG" \
           --title "$TAG: $PR_TITLE" \
           --generate-notes \
-          --notes-start-tag "$(gh release list --limit 1 --json tagName --jq '.[0].tagName')" \
           --latest
         
         echo "✅ Created release $TAG for PR #$PR_NUMBER by $PR_AUTHOR"
