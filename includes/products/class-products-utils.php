@@ -345,4 +345,30 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 
 		return false;
 	}
+
+	/**
+	 * Check if a category has child categories
+	 *
+	 * @param int $category_id Category term ID
+	 * @return bool True if category has children
+	 */
+	public static function has_child_categories($category_id) {
+		if (empty($category_id)) {
+			return false;
+		}
+
+		$child_terms = get_terms(array(
+			'taxonomy' => 'product-category',
+			'parent' => $category_id,
+			'hide_empty' => false,
+			'fields' => 'ids'
+		));
+
+		if (is_wp_error($child_terms)) {
+			Handy_Custom_Logger::log("Error checking child categories for ID {$category_id}: " . $child_terms->get_error_message(), 'error');
+			return false;
+		}
+
+		return !empty($child_terms);
+	}
 }
