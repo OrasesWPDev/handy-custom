@@ -96,19 +96,22 @@ class Handy_Custom_Products_Display {
 	 * @return string
 	 */
 	public static function get_category_icon($category_slug) {
-		// TODO: Replace with actual icon files when available
-		// Expected naming pattern: {category-slug}-icon.png
-		$icon_filename = $category_slug . '-icon.png';
-		$icon_path = HANDY_CUSTOM_PLUGIN_DIR . 'assets/images/' . $icon_filename;
-		$icon_url = HANDY_CUSTOM_PLUGIN_URL . 'assets/images/' . $icon_filename;
+		// Check for multiple file extensions in order of preference
+		$extensions = ['webp', 'png', 'jpg', 'jpeg'];
 		
-		// Check if icon file exists
-		if (file_exists($icon_path)) {
-			return $icon_url;
+		foreach ($extensions as $ext) {
+			$icon_filename = $category_slug . '-icon.' . $ext;
+			$icon_path = HANDY_CUSTOM_PLUGIN_DIR . 'assets/images/' . $icon_filename;
+			$icon_url = HANDY_CUSTOM_PLUGIN_URL . 'assets/images/' . $icon_filename;
+			
+			// Check if icon file exists
+			if (file_exists($icon_path)) {
+				return $icon_url;
+			}
 		}
 		
 		// Log missing icon for reference
-		Handy_Custom_Logger::log("Icon not found: {$icon_filename}", 'info');
+		Handy_Custom_Logger::log("Icon not found for category: {$category_slug}", 'info');
 		
 		// Return placeholder or empty for now
 		return '';
