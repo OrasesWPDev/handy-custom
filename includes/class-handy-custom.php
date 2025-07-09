@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.18';
+	const VERSION = '1.9.19';
 
 	/**
 	 * Single instance of the class
