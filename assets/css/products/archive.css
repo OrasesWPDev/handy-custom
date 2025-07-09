@@ -97,14 +97,14 @@
 }
 
 .category-icon {
-    width: 32px;
-    height: 32px;
+    width: 125px;
+    height: 125px;
     object-fit: contain;
 }
 
 .icon-placeholder {
-    width: 32px;
-    height: 32px;
+    width: 125px;
+    height: 125px;
     background: #dee2e6;
     border-radius: 4px;
     /* TODO: Remove when icons are added */
@@ -349,6 +349,13 @@
     .btn {
         flex: none;
     }
+    
+    /* Scale down icons for tablet */
+    .category-icon,
+    .icon-placeholder {
+        width: 80px;
+        height: 80px;
+    }
 }
 
 /* Mobile: 549px and below */
@@ -386,5 +393,12 @@
     
     .product-thumbnail {
         height: 120px;
+    }
+    
+    /* Scale down icons for mobile */
+    .category-icon,
+    .icon-placeholder {
+        width: 60px;
+        height: 60px;
     }
 }
