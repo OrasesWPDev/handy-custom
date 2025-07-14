@@ -261,34 +261,39 @@
     font-size: 18px;
 }
 
-/* Product Link Arrow */
-.product-link {
-    text-align: right;
+/* Product Actions Button */
+.product-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 15px;
 }
 
-.product-arrow-link {
+.btn-product-details {
+    background: #0145AB;
+    color: #FFFFFF;
+    border-radius: 0px 28px 28px 0px;
+    padding: 10px 20px;
+    margin-left: -15px;
+    border: none;
+    text-decoration: none;
+    font-family: Poppins, sans-serif;
+    font-weight: 600;
+    font-size: 17px;
+    cursor: pointer;
+    transition: all 0.3s ease;
     display: inline-flex;
     align-items: center;
-    justify-content: center;
-    width: 32px;
-    height: 32px;
-    background: #007cba;
-    color: white;
-    border-radius: 50%;
+    gap: 8px;
+}
+
+.btn-product-details:hover {
+    background: #003a8c;
+    color: #FFFFFF;
     text-decoration: none;
-    transition: all 0.3s ease;
+}
+
+.btn-product-details i {
     font-size: 16px;
-}
-
-.product-arrow-link:hover {
-    background: #005a87;
-    color: white;
-    transform: scale(1.1);
-}
-
-.arrow-placeholder {
-    line-height: 1;
-    /* TODO: Replace with actual arrow image */
 }
 
 /* No Results */
