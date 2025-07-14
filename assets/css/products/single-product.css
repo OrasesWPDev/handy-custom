@@ -7,7 +7,7 @@
     padding: 20px 30px;
 }
 
-/* Breadcrumbs Section - Full Width Component */
+/* Breadcrumbs Background Component - Full Width */
 .handy-single-product-breadcrumbs-wrapper {
     width: 100vw;
     position: relative;
@@ -21,10 +21,11 @@
     margin-bottom: 40px;
 }
 
+/* Breadcrumbs Content Component - Content Width */
 .handy-single-product-breadcrumbs {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 20px 240px;
+    padding: 20px 30px;
 }
 
 .handy-single-product-breadcrumbs .handy-breadcrumb-nav {
