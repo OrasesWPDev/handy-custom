@@ -16,12 +16,14 @@ get_header(); ?>
     <?php while (have_posts()) : the_post(); ?>
         
         <!-- Breadcrumbs Section -->
-        <div class="handy-single-product-breadcrumbs">
-            <?php
-            if (function_exists('yoast_breadcrumb')) {
-                yoast_breadcrumb('<nav class="handy-breadcrumb-nav">', '</nav>');
-            }
-            ?>
+        <div class="handy-single-product-breadcrumbs-wrapper">
+            <div class="handy-single-product-breadcrumbs">
+                <?php
+                if (function_exists('yoast_breadcrumb')) {
+                    yoast_breadcrumb('<nav class="handy-breadcrumb-nav">', '</nav>');
+                }
+                ?>
+            </div>
         </div>
 
         <!-- Two Column Main Content Section -->

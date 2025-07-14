@@ -35,7 +35,7 @@ class Handy_Custom_Products_Display {
 
 	/**
 	 * Get product thumbnail URL for list display
-	 * Returns smaller thumbnail than category images
+	 * Returns same quality as category images for consistent display
 	 *
 	 * @param int $post_id Product post ID
 	 * @return string|false
@@ -44,8 +44,8 @@ class Handy_Custom_Products_Display {
 		$thumbnail_id = get_post_thumbnail_id($post_id);
 		
 		if ($thumbnail_id) {
-			// Use 'medium' size for smaller product thumbnails (vs 'large' for categories)
-			$thumbnail_url = wp_get_attachment_image_url($thumbnail_id, 'medium');
+			// Use 'large' size to match category image quality
+			$thumbnail_url = wp_get_attachment_image_url($thumbnail_id, 'large');
 			if ($thumbnail_url) {
 				return $thumbnail_url;
 			}

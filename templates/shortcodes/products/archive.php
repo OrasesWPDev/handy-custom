@@ -89,11 +89,10 @@ Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'in
                                 </div>
                             <?php endif; ?>
                             
-                            <!-- Product Link Arrow -->
-                            <div class="product-link">
-                                <a href="<?php echo esc_url($product_url); ?>" class="product-arrow-link">
-                                    <!-- TODO: Replace with actual arrow image when uploaded to assets/images/ -->
-                                    <span class="arrow-placeholder">→</span>
+                            <!-- Product Link Button -->
+                            <div class="product-actions">
+                                <a href="<?php echo esc_url($product_url); ?>" class="btn btn-product-details">
+                                    <i class="fa-regular fa-circle-info" aria-hidden="true"></i>See Product Details
                                 </a>
                             </div>
                             
