@@ -238,7 +238,7 @@
    Dark Mode Support (if theme supports it)
    ========================================================================== */
 
-@media (prefers-color-scheme: dark) {
+/* @media (prefers-color-scheme: dark) {
     .handy-filters {
         background: #1a1a1a;
         border-color: #333;
@@ -267,7 +267,7 @@
     .filter-loading p {
         color: #e0e0e0;
     }
-}
+} */
 
 /* ==========================================================================
    Print Styles
