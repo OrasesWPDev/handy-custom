@@ -26,14 +26,10 @@ class Handy_Custom_Products_Renderer {
 		
 		// Check for category parameter and handle subcategory logic
 		if ($display_mode === 'categories' && !empty($filters['category'])) {
-			// Try to get subcategories first
-			$categories = $this->get_filtered_categories($filters);
-			
-			// If no subcategories found, fall back to list mode
-			if (empty($categories)) {
-				$display_mode = 'list';
-				Handy_Custom_Logger::log("Falling back to list mode for category: {$filters['category']}", 'info');
-			}
+			// For specific category pages, we want to show individual products, not subcategories
+			// This ensures /products/appetizers/ shows product cards, not subcategory cards
+			$display_mode = 'list';
+			Handy_Custom_Logger::log("Forcing list mode for category archive: {$filters['category']}", 'info');
 		}
 
 		// Load the main archive template with appropriate data
