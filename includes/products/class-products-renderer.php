@@ -24,25 +24,31 @@ class Handy_Custom_Products_Renderer {
 		// Get display mode (default to 'categories')
 		$display_mode = isset($filters['display']) ? $filters['display'] : 'categories';
 		
-		// Check for category parameter and handle subcategory logic
-		if ($display_mode === 'categories' && !empty($filters['category'])) {
-			// For specific category pages, we want to show individual products, not subcategories
-			// This ensures /products/appetizers/ shows product cards, not subcategory cards
-			$display_mode = 'list';
-			Handy_Custom_Logger::log("Forcing list mode for category archive: {$filters['category']}", 'info');
-		}
-
 		// Load the main archive template with appropriate data
 		$template_vars = array(
 			'filters' => $filters,
 			'display_mode' => $display_mode
 		);
 
-		// Add data based on display mode
-		if ($display_mode === 'list') {
-			$template_vars['products'] = $this->get_filtered_products($filters);
+		// Determine display mode based on filter system logic
+		if ($display_mode === 'categories') {
+			// Get categories from filter system - it will return empty array if should show products
+			$categories = $this->get_filtered_categories($filters);
+			$template_vars['categories'] = $categories;
+			
+			// If no categories returned, switch to list mode for products
+			if (empty($categories)) {
+				$display_mode = 'list';
+				$template_vars['display_mode'] = $display_mode;
+				$template_vars['products'] = $this->get_filtered_products($filters);
+				Handy_Custom_Logger::log("No categories found, switching to list mode for filter: " . wp_json_encode($filters), 'info');
+			} else {
+				Handy_Custom_Logger::log("Showing " . count($categories) . " categories for filter: " . wp_json_encode($filters), 'info');
+			}
 		} else {
-			$template_vars['categories'] = $this->get_filtered_categories($filters);
+			// Explicit list mode requested
+			$template_vars['products'] = $this->get_filtered_products($filters);
+			Handy_Custom_Logger::log("Explicit list mode requested for filter: " . wp_json_encode($filters), 'info');
 		}
 
 		$this->load_template('products/archive', $template_vars);
