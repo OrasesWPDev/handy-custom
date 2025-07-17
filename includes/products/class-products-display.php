@@ -166,16 +166,24 @@ class Handy_Custom_Products_Display {
 	 */
 	public static function get_category_page_url($category) {
 		// Use custom products URL structure instead of WordPress taxonomy archive
-		// This ensures Shop Now buttons use /products/{category}/ format
+		// This ensures Shop Now buttons use correct hierarchical URLs
 		
 		if (empty($category->slug)) {
 			Handy_Custom_Logger::log("Invalid category object - missing slug", 'error');
 			return '#';
 		}
 		
-		$category_url = Handy_Custom_Products_Utils::get_category_url($category->slug);
-		
-		Handy_Custom_Logger::log("Generated category URL for {$category->slug}: {$category_url}", 'debug');
+		// Check if this is a subcategory (has a parent)
+		$category_term = get_term($category->term_id, 'product-category');
+		if ($category_term && !is_wp_error($category_term) && $category_term->parent > 0) {
+			// This is a subcategory - use hierarchical URL structure
+			$category_url = Handy_Custom_Products_Utils::get_subcategory_url($category->slug);
+			Handy_Custom_Logger::log("Generated subcategory URL for {$category->slug}: {$category_url}", 'debug');
+		} else {
+			// This is a top-level category - use flat URL structure
+			$category_url = Handy_Custom_Products_Utils::get_category_url($category->slug);
+			Handy_Custom_Logger::log("Generated category URL for {$category->slug}: {$category_url}", 'debug');
+		}
 		
 		return $category_url;
 	}
