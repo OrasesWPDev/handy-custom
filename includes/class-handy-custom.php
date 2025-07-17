@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.26';
+	const VERSION = '1.9.27';
 
 	/**
 	 * Single instance of the class
@@ -586,20 +586,29 @@ class Handy_Custom {
 	 */
 	private function get_assigned_subcategories_under_primary($post_id, $primary_category) {
 		if (!$primary_category) {
+			Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: No primary category provided", 'debug');
 			return array();
 		}
+		
+		Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: Looking for subcategories under primary '{$primary_category->name}' (ID: {$primary_category->term_id})", 'debug');
 		
 		// Get all categories assigned to the product
 		$assigned_categories = wp_get_post_terms($post_id, 'product-category');
 		
 		if (is_wp_error($assigned_categories) || empty($assigned_categories)) {
+			Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: No assigned categories found for product {$post_id}", 'debug');
 			return array();
 		}
+		
+		Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: Found " . count($assigned_categories) . " assigned categories", 'debug');
 		
 		// Filter to find subcategories that are children of the primary category
 		$subcategories = array();
 		foreach ($assigned_categories as $category) {
+			Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: Checking category '{$category->name}' (ID: {$category->term_id}, parent: {$category->parent}) - Primary ID: {$primary_category->term_id}", 'debug');
+			
 			if ($category->parent == $primary_category->term_id) {
+				Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: Found matching subcategory '{$category->name}'", 'debug');
 				$subcategories[] = $category;
 			}
 		}
@@ -611,6 +620,7 @@ class Handy_Custom {
 			});
 		}
 		
+		Handy_Custom_Logger::log("get_assigned_subcategories_under_primary: Returning " . count($subcategories) . " subcategories", 'debug');
 		return $subcategories;
 	}
 	
@@ -623,63 +633,75 @@ class Handy_Custom {
 	private function get_primary_category_with_fallbacks($post_id) {
 		$primary_category = null;
 		
+		Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Starting primary category detection for product {$post_id}", 'debug');
+		
 		// Method 1: Try Yoast SEO function (preferred)
 		if (function_exists('yoast_get_primary_term')) {
+			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Trying yoast_get_primary_term", 'debug');
 			$primary_category = yoast_get_primary_term('product-category', $post_id);
 			if ($primary_category) {
-				Handy_Custom_Logger::log("Found primary category via yoast_get_primary_term: {$primary_category->slug}", 'debug');
+				Handy_Custom_Logger::log("Found primary category via yoast_get_primary_term: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 				return $primary_category;
 			}
 		}
 		
 		// Method 2: Try Yoast SEO term ID function
 		if (function_exists('yoast_get_primary_term_id')) {
+			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Trying yoast_get_primary_term_id", 'debug');
 			$primary_term_id = yoast_get_primary_term_id('product-category', $post_id);
 			if ($primary_term_id) {
+				Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Found primary term ID: {$primary_term_id}", 'debug');
 				$primary_category = get_term($primary_term_id, 'product-category');
 				if ($primary_category && !is_wp_error($primary_category)) {
-					Handy_Custom_Logger::log("Found primary category via yoast_get_primary_term_id: {$primary_category->slug}", 'debug');
+					Handy_Custom_Logger::log("Found primary category via yoast_get_primary_term_id: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 					return $primary_category;
 				}
 			}
 		}
 		
 		// Method 3: Try Yoast SEO post meta
+		Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Trying Yoast SEO post meta", 'debug');
 		$primary_cat_id = get_post_meta($post_id, '_yoast_wpseo_primary_category', true);
 		if ($primary_cat_id) {
+			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Found primary category ID in post meta: {$primary_cat_id}", 'debug');
 			$primary_category = get_term($primary_cat_id, 'product-category');
 			if ($primary_category && !is_wp_error($primary_category)) {
-				Handy_Custom_Logger::log("Found primary category via post meta: {$primary_category->slug}", 'debug');
+				Handy_Custom_Logger::log("Found primary category via post meta: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 				return $primary_category;
 			}
 		}
 		
 		// Method 4: Try custom primary category field
+		Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Trying custom primary category field", 'debug');
 		$custom_primary = get_post_meta($post_id, 'primary_product_category', true);
 		if ($custom_primary) {
+			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Found custom primary category: {$custom_primary}", 'debug');
 			$primary_category = get_term($custom_primary, 'product-category');
 			if ($primary_category && !is_wp_error($primary_category)) {
-				Handy_Custom_Logger::log("Found primary category via custom field: {$primary_category->slug}", 'debug');
+				Handy_Custom_Logger::log("Found primary category via custom field: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 				return $primary_category;
 			}
 		}
 		
 		// Method 5: Fallback to first top-level category
+		Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Using fallback methods", 'debug');
 		$categories = wp_get_post_terms($post_id, 'product-category');
 		if (!is_wp_error($categories) && !empty($categories)) {
+			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Found " . count($categories) . " categories for fallback", 'debug');
 			foreach ($categories as $category) {
 				if ($category->parent == 0) {
-					Handy_Custom_Logger::log("Using fallback primary category (first top-level): {$category->slug}", 'debug');
+					Handy_Custom_Logger::log("Using fallback primary category (first top-level): {$category->name} (slug: {$category->slug}, ID: {$category->term_id})", 'debug');
 					return $category;
 				}
 			}
 			
 			// If no top-level categories, use first category
 			$primary_category = $categories[0];
-			Handy_Custom_Logger::log("Using fallback primary category (first assigned): {$primary_category->slug}", 'debug');
+			Handy_Custom_Logger::log("Using fallback primary category (first assigned): {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 			return $primary_category;
 		}
 		
+		Handy_Custom_Logger::log("get_primary_category_with_fallbacks: No primary category found", 'warning');
 		return null;
 	}
 	
@@ -1043,6 +1065,8 @@ class Handy_Custom {
 			return $post_link;
 		}
 
+		Handy_Custom_Logger::log("=== URL Generation Debug for Product {$post->ID} ({$post->post_name}) ===", 'debug');
+
 		// Get primary category using Yoast SEO API with fallbacks
 		$primary_category = $this->get_primary_category_with_fallbacks($post->ID);
 		
@@ -1052,22 +1076,43 @@ class Handy_Custom {
 			return $post_link;
 		}
 
+		Handy_Custom_Logger::log("Primary category found: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
+
+		// Get all assigned categories for debugging
+		$all_categories = wp_get_post_terms($post->ID, 'product-category');
+		if (!is_wp_error($all_categories) && !empty($all_categories)) {
+			$category_debug = array();
+			foreach ($all_categories as $cat) {
+				$category_debug[] = "{$cat->name} (slug: {$cat->slug}, ID: {$cat->term_id}, parent: {$cat->parent})";
+			}
+			Handy_Custom_Logger::log("All assigned categories: " . implode(', ', $category_debug), 'debug');
+		}
+
 		// Check for assigned subcategories under the primary category
 		$subcategories = $this->get_assigned_subcategories_under_primary($post->ID, $primary_category);
 		
 		if (!empty($subcategories)) {
+			$subcategory_debug = array();
+			foreach ($subcategories as $subcat) {
+				$subcategory_debug[] = "{$subcat->name} (slug: {$subcat->slug}, ID: {$subcat->term_id}, parent: {$subcat->parent})";
+			}
+			Handy_Custom_Logger::log("Subcategories under primary: " . implode(', ', $subcategory_debug), 'debug');
+			
 			// Generate hierarchical URL: /products/{primary}/{subcategory}/{product}/
 			$subcategory = $subcategories[0]; // Use first subcategory
 			$custom_url = home_url("/products/{$primary_category->slug}/{$subcategory->slug}/{$post->post_name}/");
 			
 			Handy_Custom_Logger::log("Generated hierarchical permalink for product {$post->ID}: {$custom_url} (primary: {$primary_category->slug}, subcategory: {$subcategory->slug})", 'debug');
 		} else {
+			Handy_Custom_Logger::log("No subcategories found under primary category, using flat URL", 'debug');
+			
 			// Generate flat URL: /products/{primary}/{product}/
 			$custom_url = home_url("/products/{$primary_category->slug}/{$post->post_name}/");
 			
 			Handy_Custom_Logger::log("Generated flat permalink for product {$post->ID}: {$custom_url} (primary: {$primary_category->slug})", 'debug');
 		}
 		
+		Handy_Custom_Logger::log("=== Final URL returned: {$custom_url} ===", 'debug');
 		return $custom_url;
 	}
 
