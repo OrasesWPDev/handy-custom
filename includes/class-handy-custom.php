@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.25';
+	const VERSION = '1.9.26';
 
 	/**
 	 * Single instance of the class
@@ -81,6 +81,9 @@ class Handy_Custom {
 		// Post hooks - regenerate rewrite rules when posts are created/updated/deleted
 		add_action('wp_after_insert_post', array($this, 'handle_post_insert_or_update'), 10, 4);
 		add_action('before_delete_post', array($this, 'regenerate_rewrite_rules'));
+		
+		// Primary category validation hook
+		add_action('save_post', array($this, 'validate_primary_category'), 20, 2);
 		
 		// Deferred rewrite rules hook (for draft-to-published transitions)
 		add_action('handy_custom_deferred_rewrite_rules', array($this, 'handle_deferred_rewrite_rules'), 10, 2);
@@ -397,7 +400,52 @@ class Handy_Custom {
 	 * Enqueue admin assets
 	 */
 	public function enqueue_admin_assets() {
-		// Admin-specific assets if needed in the future
+		// Only load on product edit pages
+		$screen = get_current_screen();
+		if (!$screen || $screen->post_type !== 'product' || !in_array($screen->base, array('post', 'edit'))) {
+			return;
+		}
+		
+		// Enqueue primary category restrictions JavaScript
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/admin/primary-category-restrictions.js';
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-admin-primary-restrictions',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/admin/primary-category-restrictions.js',
+				array('jquery'),
+				$js_version,
+				true
+			);
+			
+			// Get all product categories with parent information
+			$categories = get_terms(array(
+				'taxonomy' => 'product-category',
+				'hide_empty' => false,
+				'fields' => 'all'
+			));
+			
+			$category_data = array();
+			if (!is_wp_error($categories)) {
+				foreach ($categories as $category) {
+					$category_data[$category->term_id] = array(
+						'id' => $category->term_id,
+						'name' => $category->name,
+						'slug' => $category->slug,
+						'parent' => $category->parent
+					);
+				}
+			}
+			
+			// Localize script with category data
+			wp_localize_script('handy-custom-admin-primary-restrictions', 'handyCustomAdmin', array(
+				'categoryData' => $category_data,
+				'nonce' => wp_create_nonce('handy_custom_admin_nonce'),
+				'debug' => defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG
+			));
+			
+			Handy_Custom_Logger::log('Primary category restrictions admin JS enqueued', 'debug');
+		}
 	}
 
 	/**
@@ -436,6 +484,95 @@ class Handy_Custom {
 			if ($post->post_status === 'publish') {
 				Handy_Custom_Logger::log("Regular update to published {$post->post_type} ID {$post_id} - regenerating rewrite rules", 'info');
 				$this->regenerate_rewrite_rules();
+			}
+		}
+	}
+	
+	/**
+	 * Validate primary category to prevent subcategories from being marked as primary
+	 * 
+	 * @param int $post_id Post ID
+	 * @param WP_Post $post Post object
+	 */
+	public function validate_primary_category($post_id, $post) {
+		// Only validate product post type
+		if ($post->post_type !== 'product') {
+			return;
+		}
+		
+		// Skip during autosave, revisions, and other automatic saves
+		if (defined('DOING_AUTOSAVE') && DOING_AUTOSAVE) {
+			return;
+		}
+		
+		if (wp_is_post_revision($post_id)) {
+			return;
+		}
+		
+		// Check if user has permission to edit this post
+		if (!current_user_can('edit_post', $post_id)) {
+			return;
+		}
+		
+		// Check for Yoast SEO primary category
+		$primary_cat_id = get_post_meta($post_id, '_yoast_wpseo_primary_category', true);
+		
+		if ($primary_cat_id) {
+			$primary_category = get_term($primary_cat_id, 'product-category');
+			
+			if ($primary_category && !is_wp_error($primary_category) && $primary_category->parent > 0) {
+				// This is a subcategory marked as primary - remove it
+				delete_post_meta($post_id, '_yoast_wpseo_primary_category');
+				
+				Handy_Custom_Logger::log("Removed invalid primary category (subcategory) '{$primary_category->name}' from product {$post_id}", 'warning');
+				
+				// Add admin notice if in admin context
+				if (is_admin()) {
+					add_action('admin_notices', function() use ($primary_category) {
+						echo '<div class="notice notice-warning is-dismissible">';
+						echo '<p><strong>Primary Category Validation:</strong> Subcategories cannot be marked as primary. ';
+						echo 'The subcategory "' . esc_html($primary_category->name) . '" has been removed as primary.</p>';
+						echo '</div>';
+					});
+				}
+			}
+		}
+		
+		// Also check for other primary category mechanisms (custom fields, etc.)
+		$this->validate_other_primary_category_methods($post_id);
+	}
+	
+	/**
+	 * Validate other primary category methods beyond Yoast SEO
+	 * 
+	 * @param int $post_id Post ID
+	 */
+	private function validate_other_primary_category_methods($post_id) {
+		// Check for custom primary category fields
+		$custom_primary = get_post_meta($post_id, 'primary_product_category', true);
+		
+		if ($custom_primary) {
+			$primary_category = get_term($custom_primary, 'product-category');
+			
+			if ($primary_category && !is_wp_error($primary_category) && $primary_category->parent > 0) {
+				// Remove invalid custom primary category
+				delete_post_meta($post_id, 'primary_product_category');
+				
+				Handy_Custom_Logger::log("Removed invalid custom primary category (subcategory) '{$primary_category->name}' from product {$post_id}", 'warning');
+			}
+		}
+		
+		// Check for WordPress core primary category if it exists
+		$wp_primary = get_post_meta($post_id, '_primary_category', true);
+		
+		if ($wp_primary) {
+			$primary_category = get_term($wp_primary, 'product-category');
+			
+			if ($primary_category && !is_wp_error($primary_category) && $primary_category->parent > 0) {
+				// Remove invalid WP primary category
+				delete_post_meta($post_id, '_primary_category');
+				
+				Handy_Custom_Logger::log("Removed invalid WP primary category (subcategory) '{$primary_category->name}' from product {$post_id}", 'warning');
 			}
 		}
 	}
