@@ -768,18 +768,29 @@ class Handy_Custom {
 			$post = get_post($post_id);
 			if (!$post) continue;
 
-			// Get the primary category for this post
-			$primary_category = $this->get_post_primary_category($post_id, $taxonomy);
+			// Get the primary category using Yoast SEO API with fallbacks
+			$primary_category = $this->get_primary_category_with_fallbacks($post_id);
 			if (!$primary_category) continue;
 
-			// Create specific rewrite rule for this exact post
-			$pattern = '^' . $url_prefix . '/' . preg_quote($primary_category->slug) . '/' . preg_quote($post->post_name) . '/?$';
-			$rewrite = 'index.php?post_type=' . $post_type . '&' . $post_type . '_category=' . $primary_category->slug . '&' . $post_type . '_slug=' . $post->post_name;
-
-			add_rewrite_rule($pattern, $rewrite, 'top');
-			$rules_added++;
-
-			Handy_Custom_Logger::log("Added specific rewrite rule: /{$url_prefix}/{$primary_category->slug}/{$post->post_name}/ -> {$post_type} ID {$post_id}", 'debug');
+			// Check for assigned subcategories under the primary category
+			$subcategories = $this->get_assigned_subcategories_under_primary($post_id, $primary_category);
+			
+			if (!empty($subcategories)) {
+				// Generate hierarchical URL pattern: /products/{primary}/{subcategory}/{product}/
+				$subcategory = $subcategories[0];
+				$pattern = '^' . $url_prefix . '/' . preg_quote($primary_category->slug) . '/' . preg_quote($subcategory->slug) . '/' . preg_quote($post->post_name) . '/?$';
+				$rewrite = 'index.php?post_type=' . $post_type . '&' . $post_type . '_category=' . $primary_category->slug . '&' . $post_type . '_subcategory=' . $subcategory->slug . '&' . $post_type . '_slug=' . $post->post_name;
+				add_rewrite_rule($pattern, $rewrite, 'top');
+				$rules_added++;
+				Handy_Custom_Logger::log("Added hierarchical rewrite rule: /{$url_prefix}/{$primary_category->slug}/{$subcategory->slug}/{$post->post_name}/ -> {$post_type} ID {$post_id}", 'debug');
+			} else {
+				// Generate flat URL pattern: /products/{primary}/{product}/
+				$pattern = '^' . $url_prefix . '/' . preg_quote($primary_category->slug) . '/' . preg_quote($post->post_name) . '/?$';
+				$rewrite = 'index.php?post_type=' . $post_type . '&' . $post_type . '_category=' . $primary_category->slug . '&' . $post_type . '_slug=' . $post->post_name;
+				add_rewrite_rule($pattern, $rewrite, 'top');
+				$rules_added++;
+				Handy_Custom_Logger::log("Added flat rewrite rule: /{$url_prefix}/{$primary_category->slug}/{$post->post_name}/ -> {$post_type} ID {$post_id}", 'debug');
+			}
 		}
 
 		return $rules_added;
@@ -816,10 +827,12 @@ class Handy_Custom {
 	public function add_query_vars($vars) {
 		// Product query vars
 		$vars[] = 'product_category';
+		$vars[] = 'product_subcategory';
 		$vars[] = 'product_slug';
 		
 		// Recipe query vars
 		$vars[] = 'recipe_category';
+		$vars[] = 'recipe_subcategory';
 		$vars[] = 'recipe_slug';
 		
 		return $vars;
@@ -838,19 +851,21 @@ class Handy_Custom {
 		
 		// Check for product URLs
 		$product_category = get_query_var('product_category');
+		$product_subcategory = get_query_var('product_subcategory');
 		$product_slug = get_query_var('product_slug');
 		
 		if (!empty($product_category) && !empty($product_slug)) {
-			$this->handle_single_post_url('product', $product_category, $product_slug);
+			$this->handle_single_post_url('product', $product_category, $product_slug, $product_subcategory);
 			return;
 		}
 		
 		// Check for recipe URLs
 		$recipe_category = get_query_var('recipe_category');
+		$recipe_subcategory = get_query_var('recipe_subcategory');
 		$recipe_slug = get_query_var('recipe_slug');
 		
 		if (!empty($recipe_category) && !empty($recipe_slug)) {
-			$this->handle_single_post_url('recipe', $recipe_category, $recipe_slug);
+			$this->handle_single_post_url('recipe', $recipe_category, $recipe_slug, $recipe_subcategory);
 			return;
 		}
 
@@ -866,9 +881,11 @@ class Handy_Custom {
 	 * @param string $post_type Post type (product or recipe)
 	 * @param string $category Category slug
 	 * @param string $post_slug Post slug
+	 * @param string $subcategory Optional subcategory slug for hierarchical URLs
 	 */
-	private function handle_single_post_url($post_type, $category, $post_slug) {
-		Handy_Custom_Logger::log("Single {$post_type} URL detected: category={$category}, slug={$post_slug}", 'info');
+	private function handle_single_post_url($post_type, $category, $post_slug, $subcategory = '') {
+		$subcategory_info = !empty($subcategory) ? ", subcategory={$subcategory}" : '';
+		Handy_Custom_Logger::log("Single {$post_type} URL detected: category={$category}{$subcategory_info}, slug={$post_slug}", 'info');
 		
 		// Find post by slug and type
 		$posts = get_posts(array(
@@ -887,20 +904,35 @@ class Handy_Custom {
 		$post = $posts[0];
 		$taxonomy = $post_type . '-category';
 		
-		// Verify the post belongs to the specified category
+		// Verify the post belongs to the specified category (and subcategory if provided)
 		$post_categories = wp_get_post_terms($post->ID, $taxonomy);
 		$category_match = false;
 		
 		foreach ($post_categories as $term) {
-			if ($term->slug === $category || 
-				($term->parent && get_term($term->parent)->slug === $category)) {
-				$category_match = true;
-				break;
+			// For hierarchical URLs, check if post belongs to both primary category and subcategory
+			if (!empty($subcategory)) {
+				// Check if this term matches the subcategory
+				if ($term->slug === $subcategory) {
+					// Verify the subcategory's parent matches the primary category
+					$parent_term = get_term($term->parent);
+					if ($parent_term && $parent_term->slug === $category) {
+						$category_match = true;
+						break;
+					}
+				}
+			} else {
+				// For flat URLs, check if post belongs to the primary category
+				if ($term->slug === $category || 
+					($term->parent && get_term($term->parent)->slug === $category)) {
+					$category_match = true;
+					break;
+				}
 			}
 		}
 		
 		if (!$category_match) {
-			Handy_Custom_Logger::log("{$post_type} {$post_slug} does not belong to category {$category}", 'warning');
+			$url_context = !empty($subcategory) ? "category {$category} and subcategory {$subcategory}" : "category {$category}";
+			Handy_Custom_Logger::log("{$post_type} {$post_slug} does not belong to {$url_context}", 'warning');
 			// Let WordPress handle the 404
 			return;
 		}
@@ -909,7 +941,8 @@ class Handy_Custom {
 		$this->setup_single_post_display($post, $category, $post_type);
 		
 		$url_prefix = $post_type === 'product' ? 'products' : 'recipes';
-		Handy_Custom_Logger::log("Serving {$post_type} directly on clean URL: /{$url_prefix}/{$category}/{$post_slug}/", 'info');
+		$url_structure = !empty($subcategory) ? "/{$url_prefix}/{$category}/{$subcategory}/{$post_slug}/" : "/{$url_prefix}/{$category}/{$post_slug}/";
+		Handy_Custom_Logger::log("Serving {$post_type} directly on clean URL: {$url_structure}", 'info');
 	}
 
 	/**
