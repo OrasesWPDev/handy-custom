@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.27';
+	const VERSION = '1.9.28';
 
 	/**
 	 * Single instance of the class
@@ -639,9 +639,11 @@ class Handy_Custom {
 		if (function_exists('yoast_get_primary_term')) {
 			Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Trying yoast_get_primary_term", 'debug');
 			$primary_category = yoast_get_primary_term('product-category', $post_id);
-			if ($primary_category) {
+			if ($primary_category && !empty($primary_category->slug) && !empty($primary_category->term_id)) {
 				Handy_Custom_Logger::log("Found primary category via yoast_get_primary_term: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id})", 'debug');
 				return $primary_category;
+			} else if ($primary_category) {
+				Handy_Custom_Logger::log("get_primary_category_with_fallbacks: Yoast returned invalid primary category (empty slug or ID), falling back", 'warning');
 			}
 		}
 		
