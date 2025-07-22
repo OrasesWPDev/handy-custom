@@ -22,16 +22,13 @@
     justify-content: center;
 }
 
-/* Recipe Cards - Match product styling consistency with dynamic height system */
+/* Recipe Cards - Match product styling consistency */
 .recipe-card {
     background: white;
     border-radius: 60px;
     overflow: hidden;
     box-shadow: 10px 25px 0px #2329330F;
     margin-bottom: 60px;
-    display: flex;
-    flex-direction: column;
-    height: 100%;
 }
 
 .recipe-card:hover {
@@ -77,12 +74,9 @@
 
 /* Category Icon - Removed per user feedback (not requested) */
 
-/* Recipe Content - Uses flex to push metadata to bottom */
+/* Recipe Content */
 .recipe-card-content {
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
 }
 
 .recipe-card-title {
@@ -104,7 +98,7 @@
     font-size: 18px;
 }
 
-/* Recipe Meta (Prep Time & Servings) - Always positioned at bottom */
+/* Recipe Meta (Prep Time & Servings) */
 .recipe-card-meta {
     display: flex;
     justify-content: space-between;
@@ -112,7 +106,6 @@
     padding: 12px 0;
     border-top: 1px solid #e9ecef;
     font-family: Poppins, sans-serif;
-    margin-top: auto;
 }
 
 .recipe-prep-time,

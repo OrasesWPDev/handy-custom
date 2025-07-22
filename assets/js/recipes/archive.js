@@ -82,6 +82,11 @@
                         
                         // Reinitialize events for new content
                         RecipesArchive.bindEvents();
+                        
+                        // Refresh card equalizer after content update
+                        if (window.HandyCardEqualizer) {
+                            window.HandyCardEqualizer.refresh();
+                        }
                     } else {
                         console.error('Recipe filter error:', response.data);
                         RecipesArchive.showError('Failed to filter recipes. Please try again.');
