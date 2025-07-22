@@ -2,8 +2,8 @@
 /**
  * Recipes archive template
  * 
- * Template for [recipes] shortcode with AJAX filtering
- * Displays recipe cards with prep time and servings
+ * Template for [recipes] shortcode - displays recipe cards in 4-column grid
+ * Paginated at 16 recipes per page (4 rows × 4 columns)
  *
  * @package Handy_Custom
  * 
@@ -22,26 +22,6 @@ Handy_Custom_Logger::log('Loading recipes archive template with ' . count($recip
 ?>
 
 <div class="handy-recipes-archive" data-shortcode="recipes">
-    
-    <!-- Recipe Archive Header -->
-    <div class="recipes-archive-header">
-        <h2 class="recipes-archive-title">
-            <?php if (!empty(array_filter($filters))): ?>
-                Filtered Recipes
-            <?php else: ?>
-                All Recipes
-            <?php endif; ?>
-        </h2>
-        <div class="recipes-count">
-            <span class="recipes-count-number"><?php echo esc_html($total_recipes); ?></span>
-            <span class="recipes-count-text">
-                <?php echo $total_recipes === 1 ? 'recipe' : 'recipes'; ?>
-                <?php if (!empty(array_filter($filters))): ?>
-                    found
-                <?php endif; ?>
-            </span>
-        </div>
-    </div>
     
     <!-- Filter Controls Removed: Use [filter-recipes] shortcode instead -->
 
@@ -103,14 +83,12 @@ Handy_Custom_Logger::log('Loading recipes archive template with ' . count($recip
                             <!-- Recipe Meta: Prep Time & Servings -->
                             <div class="recipe-card-meta">
                                 <div class="recipe-prep-time">
-                                    <!-- TODO: Replace with actual clock icon when provided -->
-                                    <span class="recipe-icon recipe-clock-icon">⏰</span>
+                                    <i class="fa-regular fa-clock recipe-icon recipe-clock-icon" aria-hidden="true"></i>
                                     <span class="recipe-prep-time-text"><?php echo esc_html($card_data['prep_time']); ?></span>
                                 </div>
                                 
                                 <div class="recipe-servings">
-                                    <!-- TODO: Replace with actual person icon when provided -->
-                                    <span class="recipe-icon recipe-person-icon">👤</span>
+                                    <i class="fa-regular fa-user recipe-icon recipe-person-icon" aria-hidden="true"></i>
                                     <span class="recipe-servings-text"><?php echo esc_html($card_data['servings']); ?></span>
                                 </div>
                             </div>
