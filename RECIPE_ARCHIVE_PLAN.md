@@ -107,6 +107,36 @@ Each recipe card contains:
 6. `handy-custom.php` - Version update
 7. `includes/class-handy-custom.php` - Version constant
 
+## Layout Feedback & Corrections Required
+
+### Issues Identified in Initial Implementation
+1. **Content Width Problem**: Container padding of `240px` is too restrictive, should be `20px` for better content width usage
+2. **Unwanted Category Icon**: The `<div class="recipe-category-icon recipe-category-icon-placeholder"><span>C</span></div>` was not requested and needs removal
+3. **Card Layout Consistency**: Cards need dynamic heights where all cards in a row match the height of the longest title in that row, with metadata always bottom-aligned
+
+### Additional Implementation Phase: Layout Corrections
+
+#### Phase 4: Container Padding Fix
+- [x] Change `.handy-recipes-archive` padding from `20px 240px` to `20px 20px`
+- [x] Allow 4-column grid to utilize full available content width
+
+#### Phase 5: Template Cleanup  
+- [x] Remove entire `<div class="recipe-category-icon recipe-category-icon-placeholder">` section from archive template
+- [x] Clean up any related CSS for category icon styling
+
+#### Phase 6: Dynamic Card Heights
+- [x] Ensure cards in each row adjust to match longest title height in that row
+- [x] Maintain bottom-aligned metadata across all cards using flexbox
+- [x] Keep full titles displayed without truncation (dynamic height system)
+
+### Updated Success Criteria
+- ✅ Recipe grid uses full content width with proper 20px margins  
+- ✅ No category icon placeholder visible
+- ✅ Cards in each row match height of longest title in that row
+- ✅ Metadata consistently bottom-aligned across all cards
+- ✅ Full titles always displayed without truncation
+- ✅ Responsive behavior maintained
+
 ## Notes
 - Focus only on `[recipes]` shortcode output - no filter controls
 - Next project will handle `[filter-recipes]` shortcode layout
