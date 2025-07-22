@@ -143,7 +143,7 @@ class Handy_Custom_Recipes_Filters {
 	 */
 	public static function get_filtered_recipes($filters, $args = array()) {
 		// Handle pagination parameters
-		$posts_per_page = 12; // Default pagination for recipes to prevent performance issues
+		$posts_per_page = 16; // Default pagination: 16 recipes (4 rows × 4 columns)
 		$paged = 1;
 		
 		// Set pagination based on parameters

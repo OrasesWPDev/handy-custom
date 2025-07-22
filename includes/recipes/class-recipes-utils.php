@@ -109,13 +109,13 @@ class Handy_Custom_Recipes_Utils extends Handy_Custom_Base_Utils {
 	}
 
 	/**
-	 * Truncate recipe description to match product character limit
+	 * Truncate recipe description to match design requirements
 	 *
 	 * @param string $content Recipe content or excerpt
-	 * @param int $length Character limit (default matches products)
+	 * @param int $length Character limit (120 as per design spec)
 	 * @return string Truncated content
 	 */
-	public static function truncate_description($content, $length = 150) {
+	public static function truncate_description($content, $length = 120) {
 		if (empty($content)) {
 			return '';
 		}

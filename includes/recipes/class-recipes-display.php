@@ -150,14 +150,12 @@ class Handy_Custom_Recipes_Display {
 					
 					<div class="recipe-card-meta">
 						<div class="recipe-prep-time">
-							<!-- TODO: Replace with actual clock icon when available -->
-							<span class="recipe-icon recipe-clock-icon">⏰</span>
+							<i class="fa-regular fa-clock recipe-icon recipe-clock-icon" aria-hidden="true"></i>
 							<span class="recipe-prep-time-text"><?php echo esc_html($card_data['prep_time']); ?></span>
 						</div>
 						
 						<div class="recipe-servings">
-							<!-- TODO: Replace with actual person icon when available -->
-							<span class="recipe-icon recipe-person-icon">👤</span>
+							<i class="fa-regular fa-user recipe-icon recipe-person-icon" aria-hidden="true"></i>
 							<span class="recipe-servings-text"><?php echo esc_html($card_data['servings']); ?></span>
 						</div>
 					</div>
