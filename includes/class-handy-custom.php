@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.31';
+	const VERSION = '1.9.32';
 
 	/**
 	 * Single instance of the class
@@ -224,6 +224,19 @@ class Handy_Custom {
 	private function enqueue_post_type_assets($type, $localize_data = array()) {
 		$css_file = HANDY_CUSTOM_PLUGIN_DIR . "assets/css/{$type}/archive.css";
 		$js_file = HANDY_CUSTOM_PLUGIN_DIR . "assets/js/{$type}/archive.js";
+		$shared_equalizer_file = HANDY_CUSTOM_PLUGIN_DIR . "assets/js/shared/card-equalizer.js";
+
+		// Enqueue shared card equalizer first (dependency for archive scripts)
+		if (file_exists($shared_equalizer_file)) {
+			$equalizer_version = filemtime($shared_equalizer_file);
+			wp_enqueue_script(
+				'handy-custom-card-equalizer',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/shared/card-equalizer.js',
+				array('jquery'),
+				$equalizer_version,
+				true
+			);
+		}
 
 		// Enqueue CSS
 		if (file_exists($css_file)) {
@@ -236,13 +249,20 @@ class Handy_Custom {
 			);
 		}
 
-		// Enqueue JS
+		// Enqueue JS (with card equalizer as dependency)
 		if (file_exists($js_file)) {
 			$js_version = filemtime($js_file);
+			$dependencies = array('jquery');
+			
+			// Add card equalizer as dependency if it was enqueued
+			if (file_exists($shared_equalizer_file)) {
+				$dependencies[] = 'handy-custom-card-equalizer';
+			}
+			
 			wp_enqueue_script(
 				"handy-custom-{$type}",
 				HANDY_CUSTOM_PLUGIN_URL . "assets/js/{$type}/archive.js",
-				array('jquery'),
+				$dependencies,
 				$js_version,
 				true
 			);

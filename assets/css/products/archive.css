@@ -231,9 +231,6 @@
 /* Product Info */
 .product-info {
     padding: 15px;
-    display: flex;
-    flex-direction: column;
-    flex: 1;
 }
 
 .product-title {
@@ -248,7 +245,6 @@
 
 /* Product Excerpt */
 .product-excerpt {
-    flex: 1;
     margin-bottom: 15px;
 }
 

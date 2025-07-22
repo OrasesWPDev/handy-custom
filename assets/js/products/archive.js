@@ -109,6 +109,11 @@
                     if (response.success) {
                         $('#products-results').html($(response.data.html).find('#products-results').html());
                         console.log('Products filtered successfully for', displayMode, 'mode');
+                        
+                        // Refresh card equalizer after content update
+                        if (window.HandyCardEqualizer) {
+                            window.HandyCardEqualizer.refresh();
+                        }
                     } else {
                         console.error('Filter error:', response.data);
                         ProductsArchive.showError('Failed to filter products');
