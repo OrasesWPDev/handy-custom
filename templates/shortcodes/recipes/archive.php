@@ -56,17 +56,7 @@ Handy_Custom_Logger::log('Loading recipes archive template with ' . count($recip
                                 </div>
                             <?php endif; ?>
                             
-                            <?php if ($card_data['category'] && $card_data['category_icon']): ?>
-                                <div class="recipe-category-icon">
-                                    <img src="<?php echo esc_url($card_data['category_icon']); ?>" 
-                                         alt="<?php echo esc_attr($card_data['category']->name); ?> icon" />
-                                </div>
-                            <?php elseif ($card_data['category']): ?>
-                                <!-- Placeholder icon when actual icon not available -->
-                                <div class="recipe-category-icon recipe-category-icon-placeholder">
-                                    <span><?php echo esc_html(substr($card_data['category']->name, 0, 1)); ?></span>
-                                </div>
-                            <?php endif; ?>
+                            <?php // Category icon removed per user feedback - not requested ?>
                         </div>
                         
                         <!-- Recipe Card Content -->

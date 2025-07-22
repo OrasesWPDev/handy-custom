@@ -4,11 +4,11 @@
  * Consistent styling with products archive for brand cohesion
  */
 
-/* Main Container - Uniform 1440px content width with standardized padding */
+/* Main Container - Uniform 1440px content width with minimal padding for better content width usage */
 .handy-recipes-archive {
     max-width: 1440px;
     margin: 0 auto;
-    padding: 20px 240px;
+    padding: 20px 20px;
 }
 
 /* Filter Controls Removed: Now handled by unified filter system via [filter-recipes] shortcode */
@@ -22,13 +22,16 @@
     justify-content: center;
 }
 
-/* Recipe Cards - Match product styling consistency */
+/* Recipe Cards - Match product styling consistency with dynamic height system */
 .recipe-card {
     background: white;
     border-radius: 60px;
     overflow: hidden;
     box-shadow: 10px 25px 0px #2329330F;
     margin-bottom: 60px;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
 }
 
 .recipe-card:hover {
@@ -72,36 +75,14 @@
     font-weight: 500;
 }
 
-/* Category Icon */
-.recipe-category-icon {
-    position: absolute;
-    bottom: 10px;
-    left: 10px;
-    width: 40px;
-    height: 40px;
-    background: white;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
+/* Category Icon - Removed per user feedback (not requested) */
 
-.recipe-category-icon img {
-    width: 24px;
-    height: 24px;
-    object-fit: contain;
-}
-
-.recipe-category-icon-placeholder {
-    font-size: 18px;
-    font-weight: 700;
-    color: #0145AB;
-}
-
-/* Recipe Content */
+/* Recipe Content - Uses flex to push metadata to bottom */
 .recipe-card-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .recipe-card-title {
@@ -123,7 +104,7 @@
     font-size: 18px;
 }
 
-/* Recipe Meta (Prep Time & Servings) */
+/* Recipe Meta (Prep Time & Servings) - Always positioned at bottom */
 .recipe-card-meta {
     display: flex;
     justify-content: space-between;
@@ -131,6 +112,7 @@
     padding: 12px 0;
     border-top: 1px solid #e9ecef;
     font-family: Poppins, sans-serif;
+    margin-top: auto;
 }
 
 .recipe-prep-time,
