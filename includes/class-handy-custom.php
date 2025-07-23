@@ -197,6 +197,11 @@ class Handy_Custom {
 			$this->enqueue_single_product_assets();
 		}
 		
+		// Enqueue single recipe assets if on single recipe page
+		if (is_singular('recipe')) {
+			$this->enqueue_single_recipe_assets();
+		}
+		
 		// Enqueue filter assets if filter shortcodes are present
 		if ($has_filter_shortcode) {
 			$this->enqueue_filter_assets();
@@ -382,6 +387,48 @@ class Handy_Custom {
 			wp_localize_script('handy-custom-single-product', 'handyCustomSingleProduct', $localize_data);
 			
 			Handy_Custom_Logger::log('Single product JS enqueued with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
+		}
+	}
+	
+	/**
+	 * Enqueue single recipe assets
+	 */
+	private function enqueue_single_recipe_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/recipes/single-recipe.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/recipes/single-recipe.js';
+
+		// Enqueue single recipe CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-single-recipe',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/recipes/single-recipe.css',
+				array(),
+				$css_version
+			);
+			
+			Handy_Custom_Logger::log('Single recipe CSS enqueued', 'debug');
+		}
+
+		// Enqueue single recipe JS if it exists
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-single-recipe',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/recipes/single-recipe.js',
+				array('jquery'),
+				$js_version,
+				true
+			);
+
+			// Localize script with debug flag
+			$localize_data = array(
+				'debug' => defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true
+			);
+
+			wp_localize_script('handy-custom-single-recipe', 'handyCustomSingleRecipe', $localize_data);
+			
+			Handy_Custom_Logger::log('Single recipe JS enqueued with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
 		}
 	}
 	
