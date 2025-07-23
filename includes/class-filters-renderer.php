@@ -207,7 +207,7 @@ class Handy_Custom_Filters_Renderer {
 		$query_args = array(
 			'post_type' => $content_type === 'products' ? 'product' : 'recipe',
 			'post_status' => 'publish',
-			'posts_per_page' => -1,
+			'posts_per_page' => 1000,  // High limit for contextual filtering
 			'fields' => 'ids'  // Only get IDs for performance
 		);
 		
@@ -277,6 +277,12 @@ class Handy_Custom_Filters_Renderer {
 			
 			// Cache the query results
 			Handy_Custom_Base_Utils::cache_query_results($cache_key, $wp_query);
+			
+			// Log if we hit the limit (may need to increase)
+			if (count($posts_in_context) >= 1000) {
+				Handy_Custom_Logger::log("Contextual query for {$content_type} hit limit of 1000 posts - consider increasing if taxonomy filtering seems incomplete", 'warning');
+			}
+			
 			Handy_Custom_Logger::log("Executed and cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
 		}
 		
