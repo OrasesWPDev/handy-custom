@@ -90,6 +90,7 @@ class Handy_Custom {
 
 		// Template loading hooks
 		add_filter('single_template', array($this, 'load_single_product_template'));
+		add_filter('single_template', array($this, 'load_single_recipe_template'));
 		
 		// Breadcrumb hooks for single products
 		add_filter('wpseo_breadcrumb_links', array($this, 'modify_yoast_breadcrumbs'));
@@ -1364,6 +1365,25 @@ class Handy_Custom {
 			
 			if (file_exists($custom_template)) {
 				Handy_Custom_Logger::log('Loading custom single product template: ' . $custom_template, 'debug');
+				return $custom_template;
+			}
+		}
+		
+		return $template;
+	}
+
+	/**
+	 * Load custom single recipe template
+	 *
+	 * @param string $template Current template path
+	 * @return string Modified template path
+	 */
+	public function load_single_recipe_template($template) {
+		if (is_singular('recipe')) {
+			$custom_template = HANDY_CUSTOM_PLUGIN_DIR . 'templates/recipe/single.php';
+			
+			if (file_exists($custom_template)) {
+				Handy_Custom_Logger::log('Loading custom single recipe template: ' . $custom_template, 'debug');
 				return $custom_template;
 			}
 		}
