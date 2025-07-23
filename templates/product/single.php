@@ -57,31 +57,37 @@ get_header(); ?>
                         
                         <span class="handy-social-separator">|</span>
                         
-                        <!-- Social Media Icons (Flatsome native sharing) -->
+                        <!-- Text Share Icon -->
+                        <a href="#" class="handy-social-icon handy-text-icon" 
+                           onclick="if(navigator.share){navigator.share({title:document.title,url:window.location.href})}else{navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied to clipboard!'))}; return false;" 
+                           title="Share via Text">
+                            <i class="fas fa-sms"></i>
+                        </a>
+                        
+                        <span class="handy-social-separator">|</span>
+                        
+                        <!-- Social Media Icons -->
                         <div class="handy-social-media-icons">
-                            <?php if (function_exists('flatsome_share_links')) : ?>
-                                <?php flatsome_share_links(); ?>
-                            <?php else : ?>
-                                <!-- Fallback social icons if Flatsome function not available -->
-                                <a href="https://www.facebook.com/sharer/sharer.php?u=<?php echo urlencode(get_permalink()); ?>" 
-                                   target="_blank" class="handy-social-icon handy-facebook-icon" title="Facebook">
-                                    <i class="fab fa-facebook"></i>
-                                </a>
-                                <a href="https://www.linkedin.com/sharing/share-offsite/?url=<?php echo urlencode(get_permalink()); ?>" 
-                                   target="_blank" class="handy-social-icon handy-linkedin-icon" title="LinkedIn">
-                                    <i class="fab fa-linkedin"></i>
-                                </a>
-                                <a href="https://pinterest.com/pin/create/button/?url=<?php echo urlencode(get_permalink()); ?>&description=<?php echo urlencode(get_the_title()); ?>" 
-                                   target="_blank" class="handy-social-icon handy-pinterest-icon" title="Pinterest">
-                                    <i class="fab fa-pinterest"></i>
-                                </a>
-                                <a href="https://www.instagram.com/" target="_blank" class="handy-social-icon handy-instagram-icon" title="Instagram">
-                                    <i class="fab fa-instagram"></i>
-                                </a>
-                                <a href="https://www.youtube.com/" target="_blank" class="handy-social-icon handy-youtube-icon" title="YouTube">
-                                    <i class="fab fa-youtube"></i>
-                                </a>
-                            <?php endif; ?>
+                            <!-- Facebook Share -->
+                            <a href="#" class="handy-social-icon handy-facebook-icon" 
+                               onclick="window.open('https://www.facebook.com/sharer/sharer.php?u=' + encodeURIComponent(window.location.href), 'facebook-share', 'width=580,height=296'); return false;" 
+                               title="Share on Facebook">
+                                <i class="fab fa-facebook-f"></i>
+                            </a>
+                            
+                            <!-- X (formerly Twitter) Share -->
+                            <a href="#" class="handy-social-icon handy-x-icon" 
+                               onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), 'x-share', 'width=550,height=235'); return false;" 
+                               title="Share on X">
+                                <i class="fab fa-x-twitter"></i>
+                            </a>
+                            
+                            <!-- LinkedIn Share -->
+                            <a href="#" class="handy-social-icon handy-linkedin-icon" 
+                               onclick="window.open('https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(window.location.href), 'linkedin-share', 'width=550,height=550'); return false;" 
+                               title="Share on LinkedIn">
+                                <i class="fab fa-linkedin-in"></i>
+                            </a>
                         </div>
                     </div>
                     

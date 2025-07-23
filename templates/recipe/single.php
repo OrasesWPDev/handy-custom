@@ -43,6 +43,23 @@ get_header(); ?>
                         
                         <span class="handy-social-separator">|</span>
                         
+                        <!-- Email Icon -->
+                        <a href="mailto:?subject=<?php echo urlencode(get_the_title()); ?>&body=<?php echo urlencode(get_permalink()); ?>" 
+                           class="handy-social-icon handy-email-icon" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        
+                        <span class="handy-social-separator">|</span>
+                        
+                        <!-- Text Share Icon -->
+                        <a href="#" class="handy-social-icon handy-text-icon" 
+                           onclick="if(navigator.share){navigator.share({title:document.title,url:window.location.href})}else{navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied to clipboard!'))}; return false;" 
+                           title="Share via Text">
+                            <i class="fas fa-sms"></i>
+                        </a>
+                        
+                        <span class="handy-social-separator">|</span>
+                        
                         <!-- Social Media Icons -->
                         <div class="handy-social-media-icons">
                             <!-- Facebook Share -->
@@ -52,11 +69,11 @@ get_header(); ?>
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                             
-                            <!-- Twitter Share -->
-                            <a href="#" class="handy-social-icon handy-twitter-icon" 
-                               onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), 'twitter-share', 'width=550,height=235'); return false;" 
-                               title="Share on Twitter">
-                                <i class="fab fa-twitter"></i>
+                            <!-- X (formerly Twitter) Share -->
+                            <a href="#" class="handy-social-icon handy-x-icon" 
+                               onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), 'x-share', 'width=550,height=235'); return false;" 
+                               title="Share on X">
+                                <i class="fab fa-x-twitter"></i>
                             </a>
                             
                             <!-- LinkedIn Share -->
@@ -110,6 +127,19 @@ get_header(); ?>
                             <td class="handy-detail-value"><?php echo esc_html(Handy_Custom_Recipes_Utils::format_servings($servings)); ?></td>
                         </tr>
                         <?php endif; ?>
+                        
+                        <?php 
+                        $where_to_buy = get_field('where_to_buy');
+                        if ($where_to_buy) : ?>
+                        <tr>
+                            <td class="handy-detail-label">Where to Buy</td>
+                            <td class="handy-detail-value">
+                                <a href="<?php echo esc_url($where_to_buy); ?>" target="_blank" rel="noopener">
+                                    <?php echo esc_html($where_to_buy); ?>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
@@ -123,7 +153,6 @@ get_header(); ?>
                 <?php if (get_field('ingredients')) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header active" data-section="ingredients">
-                        <i class="fas fa-list handy-accordion-icon"></i>
                         <span>Ingredients</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -135,11 +164,25 @@ get_header(); ?>
                 </div>
                 <?php endif; ?>
 
+                <!-- Prep Instructions Section -->
+                <?php if (get_field('prep_instructions')) : ?>
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="prep-instructions">
+                        <span>Prep Instructions</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="prep-instructions">
+                        <div class="handy-prep-content">
+                            <?php the_field('prep_instructions'); ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Cooking Instructions Section -->
                 <?php if (get_field('cooking_instructions')) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header" data-section="cooking">
-                        <i class="fas fa-utensils handy-accordion-icon"></i>
                         <span>Cooking Instructions</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
