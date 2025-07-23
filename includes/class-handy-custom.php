@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '1.9.35';
+	const VERSION = '1.9.36';
 
 	/**
 	 * Single instance of the class
@@ -1195,25 +1195,52 @@ class Handy_Custom {
 				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Primary category has no parent (top-level category)", 'debug');
 			}
 			
-			// Add the primary category with proper URL structure
-			if ($primary_category->parent > 0) {
-				// This is a child category - use hierarchical URL
-				$primary_url = Handy_Custom_Products_Utils::get_subcategory_url($primary_category->slug);
-				$primary_crumb = array(
-					'text' => $primary_category->name,
-					'url'  => $primary_url,
-				);
-				$custom_breadcrumbs[] = $primary_crumb;
-				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added child category breadcrumb (hierarchical): " . json_encode($primary_crumb), 'debug');
-			} else {
-				// This is a top-level category - use flat URL
+			// Always check for assigned subcategories under the primary category (same logic as URL generation)
+			$subcategories = $this->get_assigned_subcategories_under_primary($post->ID, $primary_category);
+			
+			if (!empty($subcategories)) {
+				// Product has subcategories - use hierarchical breadcrumb structure
+				$subcategory = $subcategories[0];
+				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Found assigned subcategory: {$subcategory->name} (slug: {$subcategory->slug}, ID: {$subcategory->term_id})", 'debug');
+				
+				// Add primary category breadcrumb
 				$primary_url = Handy_Custom_Products_Utils::get_category_url($primary_category->slug);
 				$primary_crumb = array(
 					'text' => $primary_category->name,
 					'url'  => $primary_url,
 				);
 				$custom_breadcrumbs[] = $primary_crumb;
-				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added top-level category breadcrumb (flat): " . json_encode($primary_crumb), 'debug');
+				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added primary category breadcrumb: " . json_encode($primary_crumb), 'debug');
+				
+				// Add subcategory breadcrumb with hierarchical URL
+				$subcategory_url = Handy_Custom_Products_Utils::get_subcategory_url($subcategory->slug);
+				$subcategory_crumb = array(
+					'text' => $subcategory->name,
+					'url'  => $subcategory_url,
+				);
+				$custom_breadcrumbs[] = $subcategory_crumb;
+				Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added subcategory breadcrumb (hierarchical): " . json_encode($subcategory_crumb), 'debug');
+			} else {
+				// No subcategories - determine URL structure based on primary category parent status
+				if ($primary_category->parent > 0) {
+					// This is a child category - use hierarchical URL
+					$primary_url = Handy_Custom_Products_Utils::get_subcategory_url($primary_category->slug);
+					$primary_crumb = array(
+						'text' => $primary_category->name,
+						'url'  => $primary_url,
+					);
+					$custom_breadcrumbs[] = $primary_crumb;
+					Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added child category breadcrumb (hierarchical): " . json_encode($primary_crumb), 'debug');
+				} else {
+					// This is a top-level category - use flat URL
+					$primary_url = Handy_Custom_Products_Utils::get_category_url($primary_category->slug);
+					$primary_crumb = array(
+						'text' => $primary_category->name,
+						'url'  => $primary_url,
+					);
+					$custom_breadcrumbs[] = $primary_crumb;
+					Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added top-level category breadcrumb (flat): " . json_encode($primary_crumb), 'debug');
+				}
 			}
 		} else {
 			Handy_Custom_Logger::log("modify_yoast_breadcrumbs: No primary category detected for product {$post->ID}", 'warning');
