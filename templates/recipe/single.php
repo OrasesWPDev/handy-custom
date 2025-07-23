@@ -140,7 +140,6 @@ get_header(); ?>
                 <?php if (get_field('ingredients')) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header active" data-section="ingredients">
-                        <i class="fas fa-list handy-accordion-icon"></i>
                         <span>Ingredients</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
@@ -156,7 +155,6 @@ get_header(); ?>
                 <?php if (get_field('cooking_instructions')) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header" data-section="cooking">
-                        <i class="fas fa-utensils handy-accordion-icon"></i>
                         <span>Cooking Instructions</span>
                         <i class="fas fa-chevron-down"></i>
                     </button>
