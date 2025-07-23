@@ -43,6 +43,23 @@ get_header(); ?>
                         
                         <span class="handy-social-separator">|</span>
                         
+                        <!-- Email Icon -->
+                        <a href="mailto:?subject=<?php echo urlencode(get_the_title()); ?>&body=<?php echo urlencode(get_permalink()); ?>" 
+                           class="handy-social-icon handy-email-icon" title="Email">
+                            <i class="fas fa-envelope"></i>
+                        </a>
+                        
+                        <span class="handy-social-separator">|</span>
+                        
+                        <!-- Text Share Icon -->
+                        <a href="#" class="handy-social-icon handy-text-icon" 
+                           onclick="if(navigator.share){navigator.share({title:document.title,url:window.location.href})}else{navigator.clipboard.writeText(window.location.href).then(()=>alert('Link copied to clipboard!'))}; return false;" 
+                           title="Share via Text">
+                            <i class="fas fa-sms"></i>
+                        </a>
+                        
+                        <span class="handy-social-separator">|</span>
+                        
                         <!-- Social Media Icons -->
                         <div class="handy-social-media-icons">
                             <!-- Facebook Share -->
@@ -52,11 +69,11 @@ get_header(); ?>
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                             
-                            <!-- Twitter Share -->
-                            <a href="#" class="handy-social-icon handy-twitter-icon" 
-                               onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), 'twitter-share', 'width=550,height=235'); return false;" 
-                               title="Share on Twitter">
-                                <i class="fab fa-twitter"></i>
+                            <!-- X (formerly Twitter) Share -->
+                            <a href="#" class="handy-social-icon handy-x-icon" 
+                               onclick="window.open('https://twitter.com/intent/tweet?url=' + encodeURIComponent(window.location.href) + '&text=' + encodeURIComponent(document.title), 'x-share', 'width=550,height=235'); return false;" 
+                               title="Share on X">
+                                <i class="fab fa-x-twitter"></i>
                             </a>
                             
                             <!-- LinkedIn Share -->
