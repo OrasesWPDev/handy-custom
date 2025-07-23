@@ -127,6 +127,19 @@ get_header(); ?>
                             <td class="handy-detail-value"><?php echo esc_html(Handy_Custom_Recipes_Utils::format_servings($servings)); ?></td>
                         </tr>
                         <?php endif; ?>
+                        
+                        <?php 
+                        $where_to_buy = get_field('where_to_buy');
+                        if ($where_to_buy) : ?>
+                        <tr>
+                            <td class="handy-detail-label">Where to Buy</td>
+                            <td class="handy-detail-value">
+                                <a href="<?php echo esc_url($where_to_buy); ?>" target="_blank" rel="noopener">
+                                    <?php echo esc_html($where_to_buy); ?>
+                                </a>
+                            </td>
+                        </tr>
+                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
