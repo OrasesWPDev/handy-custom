@@ -35,6 +35,11 @@ get_header(); ?>
                     <!-- Product Title -->
                     <h1 class="handy-product-title"><?php the_title(); ?></h1>
                     
+                    <!-- Sub Header -->
+                    <?php if (get_field('sub_header')) : ?>
+                        <h3 class="handy-product-sub-header" style="color: #0145AB;"><?php the_field('sub_header'); ?></h3>
+                    <?php endif; ?>
+                    
                     <!-- Social Icons Row -->
                     <div class="handy-product-social-row">
                         <!-- Print Icon -->
@@ -156,6 +161,13 @@ get_header(); ?>
                                     </tr>
                                     <?php endif; ?>
                                     
+                                    <?php if (get_field('case_pack_size')) : ?>
+                                    <tr>
+                                        <td class="handy-spec-label">Case Pack Size</td>
+                                        <td class="handy-spec-value"><?php the_field('case_pack_size'); ?></td>
+                                    </tr>
+                                    <?php endif; ?>
+                                    
                                     <?php if (get_field('item_number')) : ?>
                                     <tr>
                                         <td class="handy-spec-label">Item Number</td>
@@ -211,6 +223,21 @@ get_header(); ?>
                         <div class="handy-features-content">
                             <?php if (get_field('features_benefits')) : ?>
                                 <?php the_field('features_benefits'); ?>
+                            <?php endif; ?>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ingredients Section -->
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="ingredients">
+                        <span>Ingredients</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="ingredients">
+                        <div class="handy-ingredients-content">
+                            <?php if (get_field('ingredients')) : ?>
+                                <?php the_field('ingredients'); ?>
                             <?php endif; ?>
                         </div>
                     </div>
