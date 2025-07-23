@@ -258,6 +258,7 @@
 
 /* Recipe-specific Content Areas */
 .handy-ingredients-content,
+.handy-prep-content,
 .handy-cooking-content {
     font-size: 1rem;
     line-height: 1.6;
@@ -265,6 +266,10 @@
 }
 
 .handy-ingredients-content {
+    margin-bottom: 20px;
+}
+
+.handy-prep-content {
     margin-bottom: 20px;
 }
 

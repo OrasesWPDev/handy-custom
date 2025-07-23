@@ -151,6 +151,21 @@ get_header(); ?>
                 </div>
                 <?php endif; ?>
 
+                <!-- Prep Instructions Section -->
+                <?php if (get_field('prep_instructions')) : ?>
+                <div class="handy-accordion-section">
+                    <button class="handy-accordion-header" data-section="prep-instructions">
+                        <span>Prep Instructions</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="handy-accordion-content" id="prep-instructions">
+                        <div class="handy-prep-content">
+                            <?php the_field('prep_instructions'); ?>
+                        </div>
+                    </div>
+                </div>
+                <?php endif; ?>
+
                 <!-- Cooking Instructions Section -->
                 <?php if (get_field('cooking_instructions')) : ?>
                 <div class="handy-accordion-section">
