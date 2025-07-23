@@ -139,12 +139,20 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 			$parent_slug = self::get_parent_category_from_subcategory($subcategory_slug);
 		}
 
-		// Fallback to category-only URL if no parent found
-		if (empty($parent_slug) || $parent_slug === $subcategory_slug) {
+		// Check if this is actually a child category by verifying the term has a parent
+		$term = self::get_term_by_slug($subcategory_slug, 'product-category');
+		if (!$term || empty($term->parent)) {
+			// This is a top-level category, use flat URL
 			return home_url("/products/{$subcategory_slug}/");
 		}
 
-		return home_url("/products/{$parent_slug}/{$subcategory_slug}/");
+		// This is a child category, use hierarchical URL
+		if (!empty($parent_slug) && $parent_slug !== $subcategory_slug) {
+			return home_url("/products/{$parent_slug}/{$subcategory_slug}/");
+		}
+
+		// Fallback to category-only URL if parent detection failed
+		return home_url("/products/{$subcategory_slug}/");
 	}
 
 	/**
