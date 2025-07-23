@@ -262,8 +262,23 @@ class Handy_Custom_Filters_Renderer {
 			$query_args['tax_query'] = $tax_query;
 		}
 		
-		// Get product/recipe IDs in the specified context
-		$posts_in_context = get_posts($query_args);
+		// Get product/recipe IDs in the specified context with caching
+		$cache_key = Handy_Custom_Base_Utils::generate_query_cache_key($query_args, $content_type . '_context');
+		$cached_query = Handy_Custom_Base_Utils::get_cached_query($cache_key);
+		
+		if (false !== $cached_query) {
+			// Return cached post IDs
+			$posts_in_context = wp_list_pluck($cached_query->posts, 'ID');
+			Handy_Custom_Logger::log("Using cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
+		} else {
+			// Execute query and cache results
+			$wp_query = new WP_Query($query_args);
+			$posts_in_context = wp_list_pluck($wp_query->posts, 'ID');
+			
+			// Cache the query results
+			Handy_Custom_Base_Utils::cache_query_results($cache_key, $wp_query);
+			Handy_Custom_Logger::log("Executed and cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
+		}
 		
 		if (empty($posts_in_context)) {
 			Handy_Custom_Logger::log("No {$content_type} found in context: " . wp_json_encode($context_filters), 'info');
