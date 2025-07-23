@@ -180,3 +180,68 @@ This fix completes the breadcrumb system integration with the primary category a
 3. **Primary Category Detection**: `get_primary_category_with_fallbacks()` function
 
 All systems now consistently respect Yoast SEO primary category settings and handle the edge cases properly.
+
+---
+
+## Debugging Enhancement - July 23, 2025
+
+**Issue**: After implementing the URL generation fix in PR #67, breadcrumb issues persisted on the live site.  
+**Solution**: Added comprehensive debugging to identify the root cause of continued missing breadcrumb segments.
+
+### Files Enhanced with Debugging
+
+#### 1. Enhanced `modify_yoast_breadcrumbs()` Function
+**File**: `/includes/class-handy-custom.php`  
+**Added comprehensive logging for**:
+- Product identification and breadcrumb generation start
+- Home and Products breadcrumb addition  
+- Primary category detection results (name, slug, ID, parent)
+- Parent category processing and URL generation
+- Child vs top-level category logic and URL generation
+- Final breadcrumb structure output
+
+**Key Debug Points**:
+```php
+Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Primary category detected: {$primary_category->name} (slug: {$primary_category->slug}, ID: {$primary_category->term_id}, parent: {$primary_category->parent})", 'debug');
+Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Added child category breadcrumb (hierarchical): " . json_encode($primary_crumb), 'debug');
+Handy_Custom_Logger::log("modify_yoast_breadcrumbs: Final breadcrumb structure: " . json_encode($custom_breadcrumbs), 'debug');
+```
+
+#### 2. Enhanced `get_subcategory_url()` Function  
+**File**: `/includes/products/class-products-utils.php`  
+**Added detailed logging for**:
+- Function entry with parameters
+- Parent category auto-detection results
+- Term lookup and validation
+- Top-level vs child category determination
+- URL generation logic (hierarchical vs flat)
+- Fallback scenarios and warnings
+
+**Key Debug Points**:
+```php
+Handy_Custom_Logger::log("get_subcategory_url: Called with subcategory_slug='{$subcategory_slug}', parent_slug='{$parent_slug}'", 'debug');
+Handy_Custom_Logger::log("get_subcategory_url: Term found - name: '{$term->name}', parent: {$term->parent}", 'debug');
+Handy_Custom_Logger::log("get_subcategory_url: Child category detected, returning hierarchical URL: {$hierarchical_url}", 'debug');
+```
+
+### Debugging Workflow
+
+1. **Enable Debug Mode**: User sets `HANDY_CUSTOM_DEBUG = true` in `handy-custom.php`
+2. **Navigate to Problem URL**: Visit the problematic product page (e.g., `/products/appetizers/crab-cake-minis/coconut-breaded-shrimp/`)
+3. **Check Debug Logs**: Review WordPress debug log for detailed breadcrumb generation flow
+4. **Analyze Results**: Compare primary category detection between URL system and breadcrumb system
+
+### Expected Debug Output
+
+For a product with missing "Crab Cake Minis" segment, logs will show:
+- Which primary category is detected for breadcrumbs
+- How parent categories are processed
+- What URLs are generated for each breadcrumb segment  
+- Whether the issue is in category detection or URL generation
+
+### Version Update
+- **Plugin Version**: Updated to 1.9.35
+- **PR**: #68 - Add comprehensive breadcrumb debugging
+- **Purpose**: Provide visibility into persistent breadcrumb generation issues
+
+This debugging enhancement enables precise diagnosis of why breadcrumb segments are missing despite the URL generation fix.
