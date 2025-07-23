@@ -131,28 +131,45 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 	 */
 	public static function get_subcategory_url($subcategory_slug, $parent_slug = '') {
 		if (empty($subcategory_slug)) {
+			Handy_Custom_Logger::log("get_subcategory_url: Empty subcategory slug provided", 'warning');
 			return home_url('/products/');
 		}
+
+		Handy_Custom_Logger::log("get_subcategory_url: Called with subcategory_slug='{$subcategory_slug}', parent_slug='{$parent_slug}'", 'debug');
 
 		// Auto-detect parent if not provided
 		if (empty($parent_slug)) {
 			$parent_slug = self::get_parent_category_from_subcategory($subcategory_slug);
+			Handy_Custom_Logger::log("get_subcategory_url: Auto-detected parent slug: '{$parent_slug}'", 'debug');
 		}
 
 		// Check if this is actually a child category by verifying the term has a parent
 		$term = self::get_term_by_slug($subcategory_slug, 'product-category');
-		if (!$term || empty($term->parent)) {
-			// This is a top-level category, use flat URL
+		if (!$term) {
+			Handy_Custom_Logger::log("get_subcategory_url: Term not found for slug '{$subcategory_slug}'", 'warning');
 			return home_url("/products/{$subcategory_slug}/");
+		}
+
+		Handy_Custom_Logger::log("get_subcategory_url: Term found - name: '{$term->name}', parent: {$term->parent}", 'debug');
+
+		if (empty($term->parent)) {
+			// This is a top-level category, use flat URL
+			$flat_url = home_url("/products/{$subcategory_slug}/");
+			Handy_Custom_Logger::log("get_subcategory_url: Top-level category detected, returning flat URL: {$flat_url}", 'debug');
+			return $flat_url;
 		}
 
 		// This is a child category, use hierarchical URL
 		if (!empty($parent_slug) && $parent_slug !== $subcategory_slug) {
-			return home_url("/products/{$parent_slug}/{$subcategory_slug}/");
+			$hierarchical_url = home_url("/products/{$parent_slug}/{$subcategory_slug}/");
+			Handy_Custom_Logger::log("get_subcategory_url: Child category detected, returning hierarchical URL: {$hierarchical_url}", 'debug');
+			return $hierarchical_url;
 		}
 
 		// Fallback to category-only URL if parent detection failed
-		return home_url("/products/{$subcategory_slug}/");
+		$fallback_url = home_url("/products/{$subcategory_slug}/");
+		Handy_Custom_Logger::log("get_subcategory_url: Parent detection failed (parent_slug='{$parent_slug}'), falling back to flat URL: {$fallback_url}", 'warning');
+		return $fallback_url;
 	}
 
 	/**
