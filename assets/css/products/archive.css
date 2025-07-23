@@ -231,16 +231,35 @@
 /* Product Info */
 .product-info {
     padding: 15px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .product-title {
     font-family: Poppins, sans-serif;
-    margin: 0;
+    margin: 0 0 10px 0;
     font-size: 41px;
     font-weight: 700;
     letter-spacing: -0.82px;
     color: #273749;
+    line-height: 1.2;
 }
+
+/* Content truncation classes for JavaScript equalizer */
+.product-title.title-truncated {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.product-excerpt p.content-truncated {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
 }
 
 /* Product Excerpt */

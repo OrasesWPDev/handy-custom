@@ -77,6 +77,9 @@
 /* Recipe Content */
 .recipe-card-content {
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .recipe-card-title {
@@ -126,6 +129,22 @@
 .recipe-servings-text {
     font-weight: 500;
     color: #3E434A;
+}
+
+/* Content truncation classes for JavaScript equalizer */
+.recipe-card-title.title-truncated {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.recipe-card-description.content-truncated {
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    line-height: 1.4;
 }
 
 /* No Results - Match products styling */

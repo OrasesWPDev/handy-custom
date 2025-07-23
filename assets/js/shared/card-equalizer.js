@@ -1,11 +1,14 @@
 /**
- * Handy Custom Card Height Equalizer
+ * Handy Custom Card Height Equalizer v2.0
  * 
- * Unified solution for equalizing card heights within rows for both products and recipes.
- * Ensures proper bottom alignment of action elements (metadata, buttons) across cards.
+ * Structure-based card equalization system for products and recipes.
+ * Handles title heights per row, content truncation, and bottom element alignment.
+ * 
+ * Products: 2-line titles, 2-line content, aligned buttons
+ * Recipes: 4-line titles per row, content truncation, aligned metadata
  * 
  * @package Handy_Custom
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 class HandyCardEqualizer {
@@ -13,7 +16,20 @@ class HandyCardEqualizer {
         this.debounceTimeout = null;
         this.resizeDelay = 250;
         
-        // Responsive breakpoints matching CSS
+        // Content limits for consistent display
+        this.contentLimits = {
+            products: {
+                titleLines: 2,
+                contentLines: 2,
+                contentChars: 140
+            },
+            recipes: {
+                titleLines: 4,
+                contentChars: 160
+            }
+        };
+        
+        // Responsive breakpoints matching CSS exactly
         this.breakpoints = {
             recipes: {
                 fourColumn: 1601,    // 4 columns above 1600px
@@ -21,7 +37,7 @@ class HandyCardEqualizer {
                 twoColumn: 550       // 2 columns: 550-1200px, 1 column below 549px
             },
             products: {
-                twoColumn: 768       // 2 columns above 768px, 1 column below
+                twoColumn: 549       // 2 columns above 549px, 1 column below (matches CSS)
             }
         };
         
@@ -48,23 +64,49 @@ class HandyCardEqualizer {
     debouncedResize() {
         clearTimeout(this.debounceTimeout);
         this.debounceTimeout = setTimeout(() => {
-            this.resetAllHeights();
+            this.resetAllStructure();
             this.setupEqualizers();
         }, this.resizeDelay);
     }
     
-    resetAllHeights() {
-        // Reset product card heights
+    resetAllStructure() {
+        // Reset product card structure
         const productCards = document.querySelectorAll('.product-list-card');
         productCards.forEach(card => {
+            const title = card.querySelector('.product-title');
+            const excerpt = card.querySelector('.product-excerpt p');
             const info = card.querySelector('.product-info');
-            if (info) info.style.height = 'auto';
+            
+            if (title) {
+                title.style.height = 'auto';
+                title.classList.remove('title-truncated');
+            }
+            if (excerpt) {
+                excerpt.classList.remove('content-truncated');
+                excerpt.style.height = 'auto';
+            }
+            if (info) {
+                info.style.minHeight = 'auto';
+            }
         });
         
-        // Reset recipe card heights  
+        // Reset recipe card structure
         const recipeCards = document.querySelectorAll('.recipe-card');
         recipeCards.forEach(card => {
-            card.style.height = 'auto';
+            const title = card.querySelector('.recipe-card-title');
+            const description = card.querySelector('.recipe-card-description');
+            const content = card.querySelector('.recipe-card-content');
+            
+            if (title) {
+                title.style.height = 'auto';
+                title.classList.remove('title-truncated');
+            }
+            if (description) {
+                description.classList.remove('content-truncated');
+            }
+            if (content) {
+                content.style.minHeight = 'auto';
+            }
         });
     }
     
@@ -76,33 +118,24 @@ class HandyCardEqualizer {
         const columnsPerRow = windowWidth > this.breakpoints.products.twoColumn ? 2 : 1;
         
         if (columnsPerRow === 1) {
-            // Single column - no equalization needed
+            // Single column - apply content limits but no row equalization
+            productCards.forEach(card => this.applyProductContentLimits(card));
             return;
         }
         
         // Group cards into rows
         const rows = this.groupCardsIntoRows(productCards, columnsPerRow);
         
-        // Equalize height for each row
+        // Process each row for structure-based equalization
         rows.forEach(row => {
-            let maxHeight = 0;
-            const cardInfos = [];
+            // First apply content limits to all cards in row
+            row.forEach(card => this.applyProductContentLimits(card));
             
-            // Find tallest card info area in this row
-            row.forEach(card => {
-                const info = card.querySelector('.product-info');
-                if (info) {
-                    info.style.height = 'auto'; // Reset first
-                    const height = info.offsetHeight;
-                    maxHeight = Math.max(maxHeight, height);
-                    cardInfos.push(info);
-                }
-            });
+            // Then equalize title heights within the row
+            this.equalizeRowTitleHeights(row, '.product-title');
             
-            // Apply max height to all cards in row
-            cardInfos.forEach(info => {
-                info.style.height = maxHeight + 'px';
-            });
+            // Finally, ensure consistent overall card info heights for button alignment
+            this.equalizeRowCardInfoHeights(row, '.product-info');
         });
     }
     
@@ -125,28 +158,119 @@ class HandyCardEqualizer {
         }
         
         if (columnsPerRow === 1) {
-            // Single column - no equalization needed
+            // Single column - apply content limits but no row equalization
+            recipeCards.forEach(card => this.applyRecipeContentLimits(card));
             return;
         }
         
         // Group cards into rows
         const rows = this.groupCardsIntoRows(recipeCards, columnsPerRow);
         
-        // Equalize height for each row
+        // Process each row for structure-based equalization
         rows.forEach(row => {
-            let maxHeight = 0;
+            // First apply content limits to all cards in row
+            row.forEach(card => this.applyRecipeContentLimits(card));
             
-            // Find tallest card in this row
-            row.forEach(card => {
-                card.style.height = 'auto'; // Reset first
-                const height = card.offsetHeight;
-                maxHeight = Math.max(maxHeight, height);
-            });
+            // Then equalize title heights within the row (4 lines max per title)
+            this.equalizeRowTitleHeights(row, '.recipe-card-title');
             
-            // Apply max height to all cards in row
-            row.forEach(card => {
-                card.style.height = maxHeight + 'px';
-            });
+            // Finally, ensure consistent card content heights for metadata alignment
+            this.equalizeRowCardInfoHeights(row, '.recipe-card-content');
+        });
+    }
+    
+    applyProductContentLimits(card) {
+        const title = card.querySelector('.product-title');
+        const excerpt = card.querySelector('.product-excerpt p');
+        
+        // Apply title truncation (2 lines max)
+        if (title) {
+            this.applyLineClamp(title, this.contentLimits.products.titleLines);
+        }
+        
+        // Apply content truncation (2 lines max, ~140 chars)
+        if (excerpt) {
+            this.truncateContent(excerpt, this.contentLimits.products.contentChars);
+            this.applyLineClamp(excerpt, this.contentLimits.products.contentLines);
+        }
+    }
+    
+    applyRecipeContentLimits(card) {
+        const title = card.querySelector('.recipe-card-title');
+        const description = card.querySelector('.recipe-card-description');
+        
+        // Apply title truncation (4 lines max)
+        if (title) {
+            this.applyLineClamp(title, this.contentLimits.recipes.titleLines);
+        }
+        
+        // Apply content truncation (~160 chars to match reference image)
+        if (description) {
+            this.truncateContent(description, this.contentLimits.recipes.contentChars);
+        }
+    }
+    
+    applyLineClamp(element, lines) {
+        element.style.display = '-webkit-box';
+        element.style.webkitLineClamp = lines.toString();
+        element.style.webkitBoxOrient = 'vertical';
+        element.style.overflow = 'hidden';
+        element.classList.add('title-truncated');
+    }
+    
+    truncateContent(element, maxChars) {
+        const originalText = element.textContent || element.innerText;
+        if (originalText.length > maxChars) {
+            const truncated = originalText.substring(0, maxChars).trim();
+            const lastSpace = truncated.lastIndexOf(' ');
+            const finalText = lastSpace > 0 ? truncated.substring(0, lastSpace) + '...' : truncated + '...';
+            element.textContent = finalText;
+            element.classList.add('content-truncated');
+        }
+    }
+    
+    equalizeRowTitleHeights(row, titleSelector) {
+        let maxTitleHeight = 0;
+        const titles = [];
+        
+        // Find tallest title in this row
+        row.forEach(card => {
+            const title = card.querySelector(titleSelector);
+            if (title) {
+                title.style.height = 'auto'; // Reset first
+                const height = title.offsetHeight;
+                maxTitleHeight = Math.max(maxTitleHeight, height);
+                titles.push(title);
+            }
+        });
+        
+        // Apply max height to all titles in row
+        titles.forEach(title => {
+            title.style.height = maxTitleHeight + 'px';
+        });
+    }
+    
+    equalizeRowCardInfoHeights(row, infoSelector) {
+        let maxInfoHeight = 0;
+        const infos = [];
+        
+        // Find tallest info area in this row
+        row.forEach(card => {
+            const info = card.querySelector(infoSelector);
+            if (info) {
+                info.style.minHeight = 'auto'; // Reset first
+                const height = info.offsetHeight;
+                maxInfoHeight = Math.max(maxInfoHeight, height);
+                infos.push(info);
+            }
+        });
+        
+        // Apply min height to ensure bottom elements align
+        infos.forEach(info => {
+            info.style.minHeight = maxInfoHeight + 'px';
+            info.style.display = 'flex';
+            info.style.flexDirection = 'column';
+            info.style.justifyContent = 'space-between';
         });
     }
     
@@ -160,7 +284,7 @@ class HandyCardEqualizer {
     
     // Public method for triggering equalization after dynamic content changes
     refresh() {
-        this.resetAllHeights();
+        this.resetAllStructure();
         this.setupEqualizers();
     }
 }
