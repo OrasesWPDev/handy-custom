@@ -1,0 +1,347 @@
+/* Single Recipe Template Styles */
+
+/* Main Container - Match archive page width */
+.handy-single-recipe-container {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px 30px;
+}
+
+/* Breadcrumbs Background Component - Full Width */
+.handy-single-recipe-breadcrumbs-wrapper {
+    width: 100vw;
+    position: relative;
+    left: 50%;
+    right: 50%;
+    margin-left: -50vw;
+    margin-right: -50vw;
+    background-color: #E7EDF0;
+    border-top: 10px solid #DBE1E4;
+    border-bottom: 1px solid #DBE1E4;
+    margin-bottom: 40px;
+}
+
+/* Breadcrumbs Content Component - Content Width */
+.handy-single-recipe-breadcrumbs {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 20px 30px;
+}
+
+.handy-single-recipe-breadcrumbs .handy-breadcrumb-nav {
+	font-family: Poppins, san-serif;
+	font-weight: 600;
+    font-size: 1.063rem;
+    color: #969CA3;
+}
+
+.handy-single-recipe-breadcrumbs .handy-breadcrumb-nav a {
+    color: #00A7CF;
+    text-decoration: none;
+}
+
+.handy-single-recipe-breadcrumbs .handy-breadcrumb-nav a:hover {
+    text-decoration: none;
+}
+
+/* Two Column Main Content */
+.handy-single-recipe-main {
+    margin-bottom: 60px;
+}
+
+.handy-recipe-content-wrapper {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 60px;
+    align-items: start;
+}
+
+/* Left Column */
+.handy-recipe-left-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.handy-recipe-title {
+    font-size: 4.047rem;
+    font-weight: 700;
+    color: #0C243E;
+    margin: 0 0 20px 0;
+    line-height: 1.2;
+}
+
+/* Social Icons Row */
+.handy-recipe-social-row {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 30px;
+}
+
+.handy-social-icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 30px;
+    height: 30px;
+    background: #00A7CF;
+    color: white;
+    border-radius: 50%;
+    text-decoration: none;
+    font-size: 0.875rem;
+    transition: background-color 0.3s ease;
+}
+
+.handy-social-icon:hover {
+    background: #005a8b;
+    color: white;
+}
+
+.handy-social-separator {
+    color: #666;
+    font-size: 1.125rem;
+    font-weight: 300;
+}
+
+.handy-social-media-icons {
+    display: flex;
+    gap: 10px;
+}
+
+/* Recipe Content */
+.handy-recipe-content {
+    font-size: 1.125rem;
+	font-weight: 500;
+    line-height: 1.6;
+    color: #3E434A;
+}
+
+/* Right Column */
+.handy-recipe-right-column {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.handy-recipe-image {
+    background: white;
+    overflow: hidden;
+	width: 75%;
+	height: 75%;
+	border: 10px solid #E7EDF0;
+	border-radius: 50%;
+	box-shadow: -10px 25px 0px #2329330F;
+}
+
+.handy-recipe-main-image {
+    width: 100%;
+    height: auto;
+    display: block;
+	border-radius: 90px 0px 90px 0px;
+}
+
+/* Recipe Details Section (Similar to Product Specifications) */
+.handy-single-recipe-details {
+    width: 100%;
+    margin-bottom: 40px;
+    background: white;
+}
+
+.handy-recipe-details-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+.handy-recipe-details-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 30px;
+}
+
+.handy-recipe-details-table tr {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.handy-recipe-details-table td {
+    padding: 15px 20px !important;
+}
+
+.handy-detail-label {
+    background: #273749;
+    color: white;
+	font-family: Poppins, sans-serif;
+	font-size: 1.125rem;
+    font-weight: 800;
+    width: 30%;
+	border: 1px solid #B5016E;
+}
+
+.handy-detail-value {
+	font-family:Poppins, sans-serif;
+	font-size: 1.125rem;
+	font-weight: 400;
+    background: #FFFFFF;
+    color: #3E434A;
+	border: 1px solid #B5016E;
+}
+
+/* Accordion Content Section */
+.handy-single-recipe-accordion {
+    width: 100%;
+    margin-top: 0px;
+    background: white;
+}
+
+.handy-accordion-container {
+    max-width: none;
+    margin: 0;
+    padding: 0;
+}
+
+/* Accordion Sections */
+.handy-accordion-section {
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.handy-accordion-section:last-child {
+    border-bottom: none;
+}
+
+/* Accordion Headers */
+.handy-accordion-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 20px 0px 0px 0px;
+    background: white;
+    border: none;
+	font-family: Poppins, sans-serif;
+    font-size: 1.625rem;
+    font-weight: 800;
+    color: #0145AB;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-align: left;
+	letter-spacing: var(--unnamed-character-spacing-0);
+}
+
+.handy-accordion-header:hover {
+    color: #007cba;
+}
+
+.handy-accordion-header.active {
+    color: #273749;
+}
+
+.handy-accordion-header.active i {
+    transform: rotate(180deg);
+}
+
+.handy-accordion-header i {
+    transition: transform 0.3s ease;
+    color: #007cba;
+}
+
+/* Accordion Icon Styling */
+.handy-accordion-icon {
+    margin-right: 10px;
+    color: #B5016E !important;
+    font-size: 1.25rem;
+}
+
+/* Accordion Content */
+.handy-accordion-content {
+    display: none;
+    padding: 10px 0 10px 0;
+}
+
+.handy-accordion-content.active {
+    display: block;
+}
+
+/* Recipe-specific Content Areas */
+.handy-ingredients-content,
+.handy-cooking-content {
+    font-size: 1rem;
+    line-height: 1.6;
+    color: #333;
+}
+
+.handy-ingredients-content {
+    margin-bottom: 20px;
+}
+
+.handy-cooking-content {
+    margin-bottom: 20px;
+}
+
+/* Responsive Design */
+@media (max-width: 1600px) {
+    .handy-single-recipe-container {
+        padding: 15px 40px;
+    }
+    
+    .handy-single-recipe-breadcrumbs {
+        padding: 20px 40px;
+    }
+    
+    .handy-recipe-content-wrapper {
+        gap: 40px;
+    }
+}
+
+@media (max-width: 1024px) {
+    .handy-recipe-content-wrapper {
+        grid-template-columns: 1fr;
+        gap: 40px;
+    }
+    
+    .handy-recipe-title {
+        font-size: 2rem;
+    }
+    
+    .handy-accordion-header {
+        padding: 15px 0;
+        font-size: 1rem;
+    }
+    
+    .handy-accordion-content {
+        padding: 20px 0 30px 0;
+    }
+}
+
+@media (max-width: 549px) {
+    .handy-single-recipe-container {
+        padding: 10px 20px;
+    }
+    
+    .handy-single-recipe-breadcrumbs {
+        padding: 20px 20px;
+    }
+    
+    .handy-recipe-left-column {
+        gap: 20px;
+    }
+    
+    .handy-recipe-title {
+        font-size: 1.8rem;
+    }
+    
+    .handy-social-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 0.875rem;
+    }
+    
+    .handy-accordion-header {
+        padding: 12px 0;
+        font-size: 0.875rem;
+    }
+    
+    .handy-accordion-content {
+        padding: 15px 0 20px 0;
+    }
+}
