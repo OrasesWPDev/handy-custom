@@ -32,9 +32,9 @@ class HandyCardEqualizer {
         // Responsive breakpoints matching CSS exactly
         this.breakpoints = {
             recipes: {
-                fourColumn: 1601,    // 4 columns above 1600px
-                threeColumn: 1201,   // 3 columns: 1201-1600px
-                twoColumn: 550       // 2 columns: 550-1200px, 1 column below 549px
+                threeColumn: 1601,   // 3 columns above 1600px (updated from 4)
+                twoColumn: 1201,     // 2 columns: 1201-1600px  
+                oneColumn: 550       // 1 column below 549px
             },
             products: {
                 twoColumn: 549       // 2 columns above 549px, 1 column below (matches CSS)
@@ -146,10 +146,8 @@ class HandyCardEqualizer {
         const windowWidth = window.innerWidth;
         let columnsPerRow;
         
-        // Determine columns per row based on breakpoints
-        if (windowWidth > this.breakpoints.recipes.fourColumn) {
-            columnsPerRow = 4;
-        } else if (windowWidth > this.breakpoints.recipes.threeColumn) {
+        // Determine columns per row based on breakpoints (3 columns maximum)
+        if (windowWidth > this.breakpoints.recipes.threeColumn) {
             columnsPerRow = 3;
         } else if (windowWidth > this.breakpoints.recipes.twoColumn) {
             columnsPerRow = 2;
@@ -171,7 +169,7 @@ class HandyCardEqualizer {
             // First apply content limits to all cards in row
             row.forEach(card => this.applyRecipeContentLimits(card));
             
-            // Then equalize title heights within the row (4 lines max per title)
+            // Then equalize title heights within the row (4 lines max per title for 3-column layout)
             this.equalizeRowTitleHeights(row, '.recipe-card-title');
             
             // Finally, ensure consistent card content heights for metadata alignment
