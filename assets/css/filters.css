@@ -55,7 +55,7 @@
     font-weight: 600;
     margin-bottom: 8px;
     color: #1d2327;
-    font-size: 14px;
+    font-size: 0.875rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
 }
@@ -65,7 +65,7 @@
     border: 2px solid #ddd;
     border-radius: 6px;
     background: white;
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #1d2327;
     transition: all 0.3s ease;
     cursor: pointer;
@@ -105,7 +105,7 @@
     border: none;
     padding: 10px 20px;
     border-radius: 6px;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
@@ -142,7 +142,7 @@
 
 .filter-loading p {
     margin: 0;
-    font-size: 16px;
+    font-size: 1rem;
     color: #6c757d;
     font-weight: 500;
 }
@@ -178,7 +178,7 @@
 .filter-error p,
 .no-filters p {
     margin: 0;
-    font-size: 16px;
+    font-size: 1rem;
 }
 
 .filter-error {
@@ -225,12 +225,12 @@
     }
     
     .filter-group label {
-        font-size: 13px;
+        font-size: 0.813rem;
     }
     
     .filter-group .filter-select {
         padding: 12px;
-        font-size: 16px; /* Prevent zoom on iOS */
+        font-size: 1rem; /* Prevent zoom on iOS */
     }
 }
 
