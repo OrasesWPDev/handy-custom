@@ -118,8 +118,10 @@ class Handy_Custom_Recipes_Renderer {
 	 * @return int Recipe count
 	 */
 	private function get_recipe_count($filters) {
+		// Use a small page size for count queries - we only need found_posts
+		// This allows the existing caching system in get_filtered_recipes to work
 		$query = Handy_Custom_Recipes_Filters::get_filtered_recipes($filters, array(
-			'posts_per_page' => -1,
+			'posts_per_page' => 1,  // Minimal query for count only
 			'fields' => 'ids'
 		));
 		
