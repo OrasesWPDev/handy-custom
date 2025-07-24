@@ -48,7 +48,7 @@ jobs:
       run: |
         TAG="${{ steps.get_version.outputs.tag }}"
         VERSION="${{ steps.get_version.outputs.version }}"
-        PR_TITLE="${{ github.event.pull_request.title }}"
+        PR_TITLE='${{ github.event.pull_request.title }}'
         PR_NUMBER="${{ github.event.pull_request.number }}"
         PR_AUTHOR="${{ github.event.pull_request.user.login }}"
         
