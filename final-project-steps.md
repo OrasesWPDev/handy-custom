@@ -81,6 +81,18 @@ After each PR is merged:
 - **Incremental Deployment**: Low-risk approach with immediate feedback
 - **Documentation**: Comprehensive change documentation for troubleshooting
 
+#### Version Management & Release Process
+Following the documented workflow in CLAUDE.local.md:
+
+1. **Feature Development**: Complete all feature work on dedicated feature branch
+2. **Version Update**: Include version updates in the SAME PR as the feature (or separate version-only PR)
+3. **PR Creation**: Submit PR with both features and version updates for review
+4. **Review & Merge**: Follow standard PR review and merge process to main branch
+5. **GitHub Release**: Create GitHub release/tag ONLY after PR is merged to main
+6. **Auto-Updater**: Matching version number and tag triggers automatic plugin updates
+
+**Critical**: Never push version updates or tags directly to main. Always use PR workflow for ALL changes including version updates. The auto-updater requires matching version numbers between the plugin files and GitHub release tags.
+
 ---
 
 ## Remaining Steps
