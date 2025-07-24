@@ -148,7 +148,7 @@
 .category-actions {
     display: flex;
     gap: 12px;
-	background: #0145AB;
+	/* background: #0145AB; */
     border-radius: 0px 28px 28px 0px;
     margin-left: -20px;
     width: 75%;
@@ -279,7 +279,7 @@
 /* Product Actions Button */
 .product-actions {
     display: flex;
-    justify-content: flex-end;
+    justify-content: flex-start;
     margin-top: 15px;
 }
 
@@ -361,6 +361,22 @@
     
     .category-actions {
         flex-direction: column;
+        width: calc(100% + 20px);
+    }
+    
+    .category-action-item {
+        width: 100%;
+        background: #0145AB;
+        border-radius: 0px 28px 28px 0px;
+        margin-left: -20px;
+    }
+    
+    .category-action-item:not(:last-child) {
+        margin-bottom: 8px;
+    }
+    
+    .category-actions .btn {
+        width: 100%;
     }
     
     .btn {
