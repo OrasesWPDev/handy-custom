@@ -4,7 +4,8 @@ const fs = require('fs-extra');
 const path = require('path');
 const { exec } = require('child_process');
 const { promisify } = require('util');
-const yargs = require('yargs');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
 const execAsync = promisify(exec);
 
@@ -218,33 +219,34 @@ async function testConnection(options = {}) {
 }
 
 // CLI setup
-const argv = yargs
-  .command('$0 [action]', 'Manage test database', {
-    action: {
-      type: 'string',
-      choices: ['restore', 'backup', 'reset', 'list', 'test'],
-      default: 'restore',
-      description: 'Action to perform'
-    },
-    source: {
-      alias: 's',
-      type: 'string',
-      description: 'Backup name or SQL file path to restore from'
-    },
-    name: {
-      alias: 'n',
-      type: 'string',
-      description: 'Name for the backup'
-    },
-    'no-backup': {
-      type: 'boolean',
-      description: 'Skip creating backup before restore'
-    },
-    verbose: {
-      alias: 'v',
-      type: 'boolean',
-      description: 'Show verbose output'
-    }
+const argv = yargs(hideBin(process.argv))
+  .command('$0 [action]', 'Manage test database', (yargs) => {
+    return yargs
+      .positional('action', {
+        type: 'string',
+        choices: ['restore', 'backup', 'reset', 'list', 'test'],
+        default: 'restore',
+        description: 'Action to perform'
+      })
+      .option('source', {
+        alias: 's',
+        type: 'string',
+        description: 'Backup name or SQL file path to restore from'
+      })
+      .option('name', {
+        alias: 'n',
+        type: 'string',
+        description: 'Name for the backup'
+      })
+      .option('no-backup', {
+        type: 'boolean',
+        description: 'Skip creating backup before restore'
+      })
+      .option('verbose', {
+        alias: 'v',
+        type: 'boolean',
+        description: 'Show verbose output'
+      });
   })
   .example('$0 restore', 'Restore from original Local SQL file')
   .example('$0 backup --name clean-state', 'Create a named backup')

@@ -2,7 +2,8 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const yargs = require('yargs');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
 // Configuration
 const CONFIG = {
@@ -148,18 +149,19 @@ async function getCurrentVersion() {
 }
 
 // CLI setup
-const argv = yargs
-  .command('$0', 'Deploy plugin to Local by WP Engine site', {
-    verbose: {
-      alias: 'v',
-      type: 'boolean',
-      description: 'Show verbose output'
-    },
-    'dry-run': {
-      alias: 'd',
-      type: 'boolean',
-      description: 'Show what would be copied without actually copying'
-    }
+const argv = yargs(hideBin(process.argv))
+  .command('$0', 'Deploy plugin to Local by WP Engine site', (yargs) => {
+    return yargs
+      .option('verbose', {
+        alias: 'v',
+        type: 'boolean',
+        description: 'Show verbose output'
+      })
+      .option('dry-run', {
+        alias: 'd',
+        type: 'boolean',
+        description: 'Show what would be copied without actually copying'
+      });
   })
   .help()
   .argv;

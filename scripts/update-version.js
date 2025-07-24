@@ -2,7 +2,8 @@
 
 const fs = require('fs-extra');
 const path = require('path');
-const yargs = require('yargs');
+const yargs = require('yargs/yargs');
+const { hideBin } = require('yargs/helpers');
 
 // Configuration - paths to files that need version updates
 const VERSION_FILES = [
@@ -186,28 +187,29 @@ function incrementVersion(currentVersion, type = 'patch') {
 }
 
 // CLI setup
-const argv = yargs
-  .command('$0 [version]', 'Update plugin version in all relevant files', {
-    version: {
-      type: 'string',
-      description: 'New version number (e.g., 2.0.4)'
-    },
-    increment: {
-      alias: 'i',
-      type: 'string',
-      choices: ['major', 'minor', 'patch'],
-      description: 'Increment current version automatically'
-    },
-    'dry-run': {
-      alias: 'd',
-      type: 'boolean',
-      description: 'Show what would be updated without actually updating'
-    },
-    verbose: {
-      alias: 'v',
-      type: 'boolean',
-      description: 'Show verbose output'
-    }
+const argv = yargs(hideBin(process.argv))
+  .command('$0 [version]', 'Update plugin version in all relevant files', (yargs) => {
+    return yargs
+      .positional('version', {
+        type: 'string',
+        description: 'New version number (e.g., 2.0.4)'
+      })
+      .option('increment', {
+        alias: 'i',
+        type: 'string',
+        choices: ['major', 'minor', 'patch'],
+        description: 'Increment current version automatically'
+      })
+      .option('dry-run', {
+        alias: 'd',
+        type: 'boolean',
+        description: 'Show what would be updated without actually updating'
+      })
+      .option('verbose', {
+        alias: 'v',
+        type: 'boolean',
+        description: 'Show verbose output'
+      });
   })
   .example('$0 2.0.4', 'Update to version 2.0.4')
   .example('$0 --increment patch', 'Increment patch version (2.0.3 → 2.0.4)')
