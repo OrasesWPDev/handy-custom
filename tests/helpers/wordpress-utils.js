@@ -14,7 +14,7 @@ class WordPressUtils {
    * @param {string} username - WordPress username (default: admin)
    * @param {string} password - WordPress password (default: password)
    */
-  async loginToAdmin(username = 'admin', password = 'password') {
+  async loginToAdmin(username = 'cdiaz', password = 'Or@sesRocks2025!') {
     await this.page.goto('/wp-admin');
     
     // Check if already logged in
