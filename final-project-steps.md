@@ -8,7 +8,7 @@ This document outlines the remaining housekeeping and final tasks to complete th
 
 ## Current Project Status
 
-- **Current Version**: 2.0.2
+- **Current Version**: 2.0.5.1
 - **Recipe Module**: ✅ Complete (all feedback implemented)
 - **Product Module**: ✅ Complete with single post templates
 - **Auto-Updater**: ✅ Implemented and functional
@@ -98,7 +98,9 @@ Following the documented workflow in CLAUDE.local.md:
 ## Remaining Steps
 
 ### Step 1: Fix Product Archive Button Alignment Issues
-**Status**: Analysis Complete
+**Status**: ✅ **COMPLETED - v2.0.5.1**
+
+**Completion Note**: Successfully resolved button visibility issues at screen sizes over 1600px through CSS inheritance fixes. Hotfix version 2.0.5.1 deployed with GitHub Actions workflow improvements for 4-part version number support.
 
 #### Problem Identified:
 Two CSS alignment issues in the products archive shortcode layout:
@@ -145,7 +147,7 @@ Two CSS alignment issues in the products archive shortcode layout:
 ---
 
 ### Step 2: Update "Where to Buy" Sections to Match Design Example
-**Status**: Analysis Complete
+**Status**: **Implementation Complete - Awaiting Testing & Feedback**
 
 #### Problem Identified:
 Both product and recipe single page templates have "Where to Buy" sections that need to be updated to match the provided design example image.

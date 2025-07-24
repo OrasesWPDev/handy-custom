@@ -103,14 +103,26 @@ get_header(); ?>
                         <h3 class="handy-where-to-buy-title">Where to buy?</h3>
                         
                         <div class="handy-buy-options">
-                            <div class="handy-buy-option handy-retailer">
-                                <i class="fas fa-comment"></i>
-                                <span>Retailer: Contact a sales rep</span>
+                            <!-- Retailer Row -->
+                            <div class="handy-buy-row">
+                                <div class="handy-buy-label">Retailer</div>
+                                <div class="handy-buy-button-wrapper">
+                                    <a href="/contact" class="handy-buy-button">
+                                        <i class="fas fa-comment"></i>
+                                        <span>Contact a sales rep</span>
+                                    </a>
+                                </div>
                             </div>
                             
-                            <div class="handy-buy-option handy-individual">
-                                <i class="fas fa-shopping-cart"></i>
-                                <span>Individual: Instacart</span>
+                            <!-- Individual Row -->
+                            <div class="handy-buy-row">
+                                <div class="handy-buy-label">Individual</div>
+                                <div class="handy-buy-button-wrapper">
+                                    <a href="https://www.instacart.com/store" target="_blank" rel="noopener" class="handy-buy-button">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <span>Instacart</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     </div>
