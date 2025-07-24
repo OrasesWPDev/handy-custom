@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.5%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-2.0.2-green.svg)
+![Version](https://img.shields.io/badge/version-2.0.3-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe management with AJAX filtering, SEO-friendly URLs, custom single post templates, and hierarchical category management.
@@ -229,6 +229,54 @@ Handy_Custom (Main Controller)
     ├── Display (Card generation)
     └── Renderer (Template rendering)
 ```
+
+### Browser Testing & Development Workflow
+
+The plugin includes a comprehensive browser testing system using **Playwright** and **Local by WP Engine** for local-first development and testing.
+
+#### Prerequisites
+- [Local by WP Engine](https://localwp.com/) installed and running
+- Node.js (v16+) for testing framework
+- handy-crab site running at `http://localhost:10008`
+
+#### Quick Start
+```bash
+# Install testing dependencies
+npm install
+
+# Start development with auto-deployment
+npm run watch:deploy
+
+# Run quick validation tests
+npm run test:smoke
+
+# Run comprehensive test suite
+npm run test:full
+```
+
+#### Development Commands
+```bash
+# Development workflow
+npm run deploy:local          # Deploy plugin to Local test site
+npm run watch:deploy          # Auto-deploy on file changes
+npm run version:update -- --increment patch  # Update version numbers
+
+# Testing workflow
+npm run test:smoke           # Quick smoke tests
+npm run test:full            # Comprehensive testing
+npm run test:headed          # Debug with visible browser
+
+# Database management
+npm run db:reset backup --name "clean-state"  # Create backup
+npm run db:reset restore --source "clean-state"  # Restore backup
+```
+
+#### Testing Features
+- **Cross-browser testing** (Chrome, Firefox, Safari)
+- **WordPress integration** (login, plugin management, admin functions)
+- **Plugin-specific testing** (shortcodes, filters, single pages, URL rewriting)
+- **Responsive design testing** (mobile, tablet, desktop viewports)
+- **Database state management** (backup/restore for consistent testing)
 
 ### Extending the Plugin
 

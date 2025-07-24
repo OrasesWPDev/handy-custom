@@ -360,14 +360,21 @@ class Handy_Custom_Products_Utils extends Handy_Custom_Base_Utils {
 			return false;
 		}
 
-		// Get ACF field value
+		// Get ACF field value with null check
 		$shop_url = get_field('internal_url_for_this_product_category_or_subcategory', 'product-category_' . $term_id);
+		
+		// Check if ACF field returned valid data
+		if (empty($shop_url) || !is_string($shop_url)) {
+			Handy_Custom_Logger::log("Shop now URL is empty or invalid for term ID: {$term_id}", 'info');
+			return false;
+		}
 		
 		// Validate the URL
 		if (self::validate_shop_now_url($shop_url)) {
 			return esc_url($shop_url);
 		}
 
+		Handy_Custom_Logger::log("Shop now URL validation failed for term ID: {$term_id}, URL: {$shop_url}", 'warning');
 		return false;
 	}
 

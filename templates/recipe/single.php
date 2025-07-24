@@ -111,8 +111,8 @@ get_header(); ?>
                 <table class="handy-recipe-details-table">
                     <tbody>
                         <?php 
-                        $prep_time = get_field('prep_time');
-                        if ($prep_time) : ?>
+                        $prep_time = function_exists('get_field') ? get_field('prep_time') : '';
+                        if (!empty($prep_time)) : ?>
                         <tr>
                             <td class="handy-detail-label">Prep Time</td>
                             <td class="handy-detail-value"><?php echo esc_html(Handy_Custom_Recipes_Utils::format_prep_time($prep_time)); ?></td>
@@ -120,8 +120,8 @@ get_header(); ?>
                         <?php endif; ?>
                         
                         <?php 
-                        $servings = get_field('servings');
-                        if ($servings) : ?>
+                        $servings = function_exists('get_field') ? get_field('servings') : '';
+                        if (!empty($servings)) : ?>
                         <tr>
                             <td class="handy-detail-label">Servings</td>
                             <td class="handy-detail-value"><?php echo esc_html(Handy_Custom_Recipes_Utils::format_servings($servings)); ?></td>
@@ -129,8 +129,8 @@ get_header(); ?>
                         <?php endif; ?>
                         
                         <?php 
-                        $where_to_buy = get_field('where_to_buy');
-                        if ($where_to_buy) : ?>
+                        $where_to_buy = function_exists('get_field') ? get_field('where_to_buy') : '';
+                        if (!empty($where_to_buy) && filter_var($where_to_buy, FILTER_VALIDATE_URL)) : ?>
                         <tr>
                             <td class="handy-detail-label">Where to Buy</td>
                             <td class="handy-detail-value">
@@ -150,7 +150,9 @@ get_header(); ?>
             <div class="handy-accordion-container">
 
                 <!-- Ingredients Section -->
-                <?php if (get_field('ingredients')) : ?>
+                <?php 
+                $ingredients = function_exists('get_field') ? get_field('ingredients') : '';
+                if (!empty($ingredients)) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header active" data-section="ingredients">
                         <span>Ingredients</span>
@@ -158,14 +160,16 @@ get_header(); ?>
                     </button>
                     <div class="handy-accordion-content active" id="ingredients">
                         <div class="handy-ingredients-content">
-                            <?php the_field('ingredients'); ?>
+                            <?php echo wp_kses_post($ingredients); ?>
                         </div>
                     </div>
                 </div>
                 <?php endif; ?>
 
                 <!-- Prep Instructions Section -->
-                <?php if (get_field('prep_instructions')) : ?>
+                <?php 
+                $prep_instructions = function_exists('get_field') ? get_field('prep_instructions') : '';
+                if (!empty($prep_instructions)) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header" data-section="prep-instructions">
                         <span>Prep Instructions</span>
@@ -180,7 +184,9 @@ get_header(); ?>
                 <?php endif; ?>
 
                 <!-- Cooking Instructions Section -->
-                <?php if (get_field('cooking_instructions')) : ?>
+                <?php 
+                $cooking_instructions = function_exists('get_field') ? get_field('cooking_instructions') : '';
+                if (!empty($cooking_instructions)) : ?>
                 <div class="handy-accordion-section">
                     <button class="handy-accordion-header" data-section="cooking">
                         <span>Cooking Instructions</span>

@@ -97,13 +97,17 @@ class Handy_Custom_Filters_Renderer {
 			$display_list = array_map('trim', explode(',', $attributes['display']));
 			$filtered = array();
 			
-			foreach ($display_list as $key) {
-				if (isset($taxonomies[$key])) {
-					$filtered[$key] = $taxonomies[$key];
-					Handy_Custom_Logger::log("Including taxonomy in display: {$key}", 'debug');
-				} else {
-					Handy_Custom_Logger::log("Requested taxonomy not found: {$key}", 'warning');
+			if (!empty($display_list) && is_array($display_list)) {
+				foreach ($display_list as $key) {
+					if (is_string($key) && !empty($key) && isset($taxonomies[$key])) {
+						$filtered[$key] = $taxonomies[$key];
+						Handy_Custom_Logger::log("Including taxonomy in display: {$key}", 'debug');
+					} else {
+						Handy_Custom_Logger::log("Requested taxonomy not found or invalid: {$key}", 'warning');
+					}
 				}
+			} else {
+				Handy_Custom_Logger::log('Display list is empty or invalid', 'warning');
 			}
 			
 			return $filtered;
@@ -114,11 +118,15 @@ class Handy_Custom_Filters_Renderer {
 			$exclude_list = array_map('trim', explode(',', $attributes['exclude']));
 			$filtered = $taxonomies;
 			
-			foreach ($exclude_list as $key) {
-				if (isset($filtered[$key])) {
-					unset($filtered[$key]);
-					Handy_Custom_Logger::log("Excluding taxonomy from display: {$key}", 'debug');
+			if (!empty($exclude_list) && is_array($exclude_list)) {
+				foreach ($exclude_list as $key) {
+					if (is_string($key) && !empty($key) && isset($filtered[$key])) {
+						unset($filtered[$key]);
+						Handy_Custom_Logger::log("Excluding taxonomy from display: {$key}", 'debug');
+					}
 				}
+			} else {
+				Handy_Custom_Logger::log('Exclude list is empty or invalid', 'warning');
 			}
 			
 			return $filtered;
@@ -142,7 +150,16 @@ class Handy_Custom_Filters_Renderer {
 	private function generate_filter_options($taxonomies, $content_type, $context_filters = array()) {
 		$options = array();
 		
+		if (empty($taxonomies) || !is_array($taxonomies)) {
+			Handy_Custom_Logger::log('Generate filter options: taxonomies array is empty or invalid', 'warning');
+			return $options;
+		}
+		
 		foreach ($taxonomies as $key => $taxonomy_slug) {
+			if (!is_string($key) || empty($key) || !is_string($taxonomy_slug) || empty($taxonomy_slug)) {
+				Handy_Custom_Logger::log("Invalid taxonomy mapping: key='{$key}', taxonomy='{$taxonomy_slug}'", 'warning');
+				continue;
+			}
 			// Skip certain taxonomies that shouldn't appear in filters
 			if ($this->should_skip_taxonomy($key, $content_type)) {
 				Handy_Custom_Logger::log("Skipping taxonomy for filters: {$key}", 'debug');
@@ -207,7 +224,7 @@ class Handy_Custom_Filters_Renderer {
 		$query_args = array(
 			'post_type' => $content_type === 'products' ? 'product' : 'recipe',
 			'post_status' => 'publish',
-			'posts_per_page' => -1,
+			'posts_per_page' => 1000,  // High limit for contextual filtering
 			'fields' => 'ids'  // Only get IDs for performance
 		);
 		
@@ -262,8 +279,29 @@ class Handy_Custom_Filters_Renderer {
 			$query_args['tax_query'] = $tax_query;
 		}
 		
-		// Get product/recipe IDs in the specified context
-		$posts_in_context = get_posts($query_args);
+		// Get product/recipe IDs in the specified context with caching
+		$cache_key = Handy_Custom_Base_Utils::generate_query_cache_key($query_args, $content_type . '_context');
+		$cached_query = Handy_Custom_Base_Utils::get_cached_query($cache_key);
+		
+		if (false !== $cached_query) {
+			// Return cached post IDs
+			$posts_in_context = wp_list_pluck($cached_query->posts, 'ID');
+			Handy_Custom_Logger::log("Using cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
+		} else {
+			// Execute query and cache results
+			$wp_query = new WP_Query($query_args);
+			$posts_in_context = wp_list_pluck($wp_query->posts, 'ID');
+			
+			// Cache the query results
+			Handy_Custom_Base_Utils::cache_query_results($cache_key, $wp_query);
+			
+			// Log if we hit the limit (may need to increase)
+			if (count($posts_in_context) >= 1000) {
+				Handy_Custom_Logger::log("Contextual query for {$content_type} hit limit of 1000 posts - consider increasing if taxonomy filtering seems incomplete", 'warning');
+			}
+			
+			Handy_Custom_Logger::log("Executed and cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
+		}
 		
 		if (empty($posts_in_context)) {
 			Handy_Custom_Logger::log("No {$content_type} found in context: " . wp_json_encode($context_filters), 'info');

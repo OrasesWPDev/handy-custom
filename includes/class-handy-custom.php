@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '2.0.2';
+	const VERSION = '2.0.4';
 
 	/**
 	 * Single instance of the class
@@ -563,6 +563,13 @@ class Handy_Custom {
 	 * @param WP_Post $post Post object
 	 */
 	public function validate_primary_category($post_id, $post) {
+		// Clear rewrite cache for any product or recipe post updates
+		if (in_array($post->post_type, array('product', 'recipe'))) {
+			$cache_key = 'handy_custom_rewrite_posts_' . $post->post_type;
+			wp_cache_delete($cache_key, 'handy_custom_rewrite');
+			Handy_Custom_Logger::log("Cleared rewrite cache for {$post->post_type} after post {$post_id} update", 'info');
+		}
+		
 		// Only validate product post type
 		if ($post->post_type !== 'product') {
 			return;
@@ -840,13 +847,24 @@ class Handy_Custom {
 	 * @return int Number of rules added
 	 */
 	private function add_specific_post_rewrite_rules($post_type, $url_prefix) {
-		// Get all published posts of this type
-		$posts = get_posts(array(
-			'post_type' => $post_type,
-			'post_status' => 'publish',
-			'posts_per_page' => -1,
-			'fields' => 'ids'
-		));
+		// Get all published posts of this type with caching
+		$cache_key = 'handy_custom_rewrite_posts_' . $post_type;
+		$posts = wp_cache_get($cache_key, 'handy_custom_rewrite');
+		
+		if (false === $posts) {
+			$posts = get_posts(array(
+				'post_type' => $post_type,
+				'post_status' => 'publish',
+				'posts_per_page' => -1,  // Needed for complete rewrite rule generation
+				'fields' => 'ids'
+			));
+			
+			// Cache for 1 hour - rewrite rules don't change frequently
+			wp_cache_set($cache_key, $posts, 'handy_custom_rewrite', HOUR_IN_SECONDS);
+			Handy_Custom_Logger::log("Fetched and cached {$post_type} posts for rewrite rules: " . count($posts) . " posts", 'info');
+		} else {
+			Handy_Custom_Logger::log("Using cached {$post_type} posts for rewrite rules: " . count($posts) . " posts", 'info');
+		}
 
 		if (empty($posts)) {
 			Handy_Custom_Logger::log("No published {$post_type} posts found - no rewrite rules added", 'info');
