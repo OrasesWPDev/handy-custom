@@ -154,6 +154,13 @@
     width: 75%;
 }
 
+/* Base styling for category action items - ensures visibility at all screen sizes */
+.category-action-item {
+    background: #0145AB;
+    border-radius: 0px 28px 28px 0px;
+    margin-left: -20px;
+}
+
 .btn {
     padding: 10px 20px;
     border: none;
@@ -366,9 +373,7 @@
     
     .category-action-item {
         width: 100%;
-        background: #0145AB;
-        border-radius: 0px 28px 28px 0px;
-        margin-left: -20px;
+        /* Background and border-radius inherited from base styles */
     }
     
     .category-action-item:not(:last-child) {
