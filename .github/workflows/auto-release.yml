@@ -24,7 +24,7 @@ jobs:
     - name: Extract version from plugin header
       id: get_version
       run: |
-        VERSION=$(grep -E "^\s*\*\s*Version:" handy-custom.php | sed -E 's/^\s*\*\s*Version:\s*([0-9]+\.[0-9]+\.[0-9]+).*/\1/')
+        VERSION=$(grep -E "^\s*\*\s*Version:" handy-custom.php | sed -E 's/^\s*\*\s*Version:\s*([0-9]+\.[0-9]+\.[0-9]+(\.[0-9]+)?).*/\1/')
         echo "version=$VERSION" >> $GITHUB_OUTPUT
         echo "tag=v$VERSION" >> $GITHUB_OUTPUT
         echo "Extracted version: $VERSION"

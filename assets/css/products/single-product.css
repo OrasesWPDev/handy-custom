@@ -123,33 +123,75 @@
     padding: 30px;
     border-radius: 8px;
     border: 1px solid #e0e0e0;
+    margin-bottom: 30px;
 }
 
 .handy-where-to-buy-title {
+    font-family: Poppins, sans-serif;
     font-size: 2.563rem;
     font-weight: 700;
     color: #B5016E;
-    margin: 0 0 20px 0;
+    margin: 0 0 30px 0;
 }
 
 .handy-buy-options {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 20px;
 }
 
-.handy-buy-option {
+/* Buy Row Layout - Label on left, button on right */
+.handy-buy-row {
     display: flex;
     align-items: center;
-    gap: 10px;
-    font-size: 1rem;
-    color: #333;
+    gap: 20px;
 }
 
-.handy-buy-option i {
-    color: #007cba;
+.handy-buy-label {
+    font-family: Poppins, sans-serif;
     font-size: 1.125rem;
-    width: 20px;
+    font-weight: 600;
+    color: #B5016E;
+    min-width: 100px;
+    flex-shrink: 0;
+}
+
+.handy-buy-button-wrapper {
+    flex: 1;
+}
+
+/* Buy Button Styling - Gray buttons matching design */
+.handy-buy-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    background: #E5E5E5;
+    color: #273749;
+    padding: 12px 20px;
+    border-radius: 25px;
+    text-decoration: none;
+    font-family: Poppins, sans-serif;
+    font-size: 1rem;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    border: 1px solid #D0D0D0;
+}
+
+.handy-buy-button:hover {
+    background: #D8D8D8;
+    color: #273749;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.handy-buy-button i {
+    font-size: 1rem;
+    color: #666;
+}
+
+.handy-buy-button:hover i {
+    color: #333;
 }
 
 /* Right Column */
@@ -440,6 +482,24 @@
     
     .handy-where-to-buy-section {
         padding: 20px;
+    }
+    
+    /* Mobile responsive for new where to buy design */
+    .handy-buy-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+    }
+    
+    .handy-buy-label {
+        min-width: auto;
+        margin-bottom: 5px;
+    }
+    
+    .handy-buy-button {
+        width: 100%;
+        justify-content: center;
+        padding: 15px 20px;
     }
     
     .handy-accordion-header {

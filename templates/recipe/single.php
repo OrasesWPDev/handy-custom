@@ -128,18 +128,6 @@ get_header(); ?>
                         </tr>
                         <?php endif; ?>
                         
-                        <?php 
-                        $where_to_buy = function_exists('get_field') ? get_field('where_to_buy') : '';
-                        if (!empty($where_to_buy) && filter_var($where_to_buy, FILTER_VALIDATE_URL)) : ?>
-                        <tr>
-                            <td class="handy-detail-label">Where to Buy</td>
-                            <td class="handy-detail-value">
-                                <a href="<?php echo esc_url($where_to_buy); ?>" target="_blank" rel="noopener">
-                                    <?php echo esc_html($where_to_buy); ?>
-                                </a>
-                            </td>
-                        </tr>
-                        <?php endif; ?>
                     </tbody>
                 </table>
             </div>
