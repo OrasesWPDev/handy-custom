@@ -69,9 +69,19 @@ class Handy_Custom_Recipes_Display {
 		$categories = get_the_terms($recipe_id, 'recipe-category');
 		$primary_category = is_array($categories) && !empty($categories) ? $categories[0] : null;
 		
-		// Get ACF fields
-		$prep_time = get_field('prep_time', $recipe_id);
-		$servings = get_field('servings', $recipe_id);
+		// Get ACF fields with null checks
+		$prep_time = '';
+		$servings = '';
+		
+		if (function_exists('get_field')) {
+			$prep_time_raw = get_field('prep_time', $recipe_id);
+			$prep_time = !empty($prep_time_raw) ? $prep_time_raw : '';
+			
+			$servings_raw = get_field('servings', $recipe_id);
+			$servings = !empty($servings_raw) ? $servings_raw : '';
+		} else {
+			Handy_Custom_Logger::log('ACF get_field function not available for recipe ACF fields', 'warning');
+		}
 		
 		// Get recipe excerpt or content for description
 		$description = !empty($recipe->post_excerpt) ? $recipe->post_excerpt : $recipe->post_content;
@@ -176,7 +186,8 @@ class Handy_Custom_Recipes_Display {
 	 * @return string HTML for filter dropdown
 	 */
 	public static function render_filter_dropdown($filter_key, $terms, $selected_value = '') {
-		if (empty($terms)) {
+		if (empty($terms) || !is_array($terms)) {
+			Handy_Custom_Logger::log("Filter dropdown terms empty or invalid for: {$filter_key}", 'info');
 			return '';
 		}
 
@@ -195,10 +206,12 @@ class Handy_Custom_Recipes_Display {
 					data-filter="<?php echo esc_attr($filter_key); ?>">
 				<option value="">All <?php echo esc_html($label); ?></option>
 				<?php foreach ($terms as $term): ?>
-					<option value="<?php echo esc_attr($term->slug); ?>" 
-							<?php selected($selected_value, $term->slug); ?>>
-						<?php echo esc_html($term->name); ?>
-					</option>
+					<?php if (is_object($term) && isset($term->slug, $term->name)): ?>
+						<option value="<?php echo esc_attr($term->slug); ?>" 
+								<?php selected($selected_value, $term->slug); ?>>
+							<?php echo esc_html($term->name); ?>
+						</option>
+					<?php endif; ?>
 				<?php endforeach; ?>
 			</select>
 		</div>

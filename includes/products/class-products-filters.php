@@ -23,7 +23,16 @@ class Handy_Custom_Products_Filters {
 		$mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
 		$options = array();
 
+		if (empty($mapping) || !is_array($mapping)) {
+			Handy_Custom_Logger::log('Products filter: taxonomy mapping is empty or invalid', 'error');
+			return $options;
+		}
+
 		foreach ($mapping as $key => $taxonomy) {
+			if (!is_string($key) || empty($key) || !is_string($taxonomy) || empty($taxonomy)) {
+				Handy_Custom_Logger::log("Products filter: Invalid mapping key='{$key}', taxonomy='{$taxonomy}'", 'warning');
+				continue;
+			}
 			// Skip subcategory in dropdown options - it's handled separately
 			if ($key === 'subcategory') {
 				continue;

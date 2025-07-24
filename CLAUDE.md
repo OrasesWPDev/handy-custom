@@ -111,9 +111,54 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **New Taxonomies**: Add to taxonomy mapping in utils classes
 - **Cache Clearing**: Use `Handy_Custom_Base_Utils::clear_all_caches()` for nuclear option
 
-### Testing Considerations
-- **Permalink Flushing**: Always flush permalinks after URL structure changes
-- **Cache Testing**: Test with caching enabled and disabled
-- **Template Testing**: Verify both single post and archive functionality
-- **Cross-Browser**: Test AJAX filtering across different browsers
-- **Mobile Responsive**: All templates include responsive design considerations
+### Browser Testing System (Playwright + Local by WP Engine)
+- **Local-First Testing**: Complete testing setup using Local by WP Engine at localhost:10008
+- **Automated Deployment**: `npm run deploy:local` copies plugin from dev to Local test site
+- **File Watcher**: `npm run watch:deploy` auto-deploys on changes during development
+- **Version Management**: `npm run version:update -- --increment patch` updates all 3 version locations
+- **Database Management**: `npm run db:reset` for backup/restore of test database states
+- **Test Categories**: Smoke tests (`@smoke`) for basic validation, Full tests (`@full`) for comprehensive coverage
+- **Cross-Browser**: Playwright tests on Chrome, Firefox, Safari
+- **WordPress Utils**: `WordPressUtils` class for login, plugin management, common WordPress tasks
+- **Plugin Utils**: `PluginUtils` class for testing shortcodes, filters, single pages, URL rewriting
+
+### Development Workflow with Testing
+1. **Development Phase**: Use `npm run watch:deploy` for auto-deployment on file changes
+2. **Testing Phase**: Run `npm run test:smoke` for quick validation, `npm run test:full` for comprehensive tests
+3. **Pre-Release**: `npm run version:update`, `npm run test:full`, manual validation on localhost:10008
+4. **Release**: Create GitHub PR only after all local tests pass
+
+### Testing File Structure
+```
+/tests/
+├── e2e/                     # End-to-end test files
+│   ├── smoke.spec.js        # Basic smoke tests (@smoke)
+│   ├── products.spec.js     # Product functionality tests (@full)
+│   └── recipes.spec.js      # Recipe functionality tests (@full)
+├── helpers/                 # Testing utilities
+│   ├── wordpress-utils.js   # WordPress-specific helpers
+│   └── plugin-utils.js      # Plugin-specific helpers
+└── data/                    # Test data and database backups
+/scripts/                    # Automation scripts
+├── deploy-to-local.js       # Deploy plugin to Local site
+├── watch-and-deploy.js      # Auto-deploy on file changes
+├── update-version.js        # Update plugin version
+└── reset-test-db.js         # Database management
+```
+
+### Testing Commands for Development
+- `npm run test:smoke` - Quick smoke tests for basic validation
+- `npm run test:full` - Comprehensive test suite
+- `npm run test:headed` - Run tests with visible browser for debugging
+- `npm run deploy:local` - Manual deployment to Local test site
+- `npm run watch:deploy` - Auto-deploy on file changes
+- `npm run version:update -- --increment patch` - Auto-increment version
+- `npm run db:reset backup --name "clean-state"` - Create database backup
+- `npm run db:reset restore --source "clean-state"` - Restore from backup
+
+### Critical Testing Notes
+- **Always test locally first** before creating GitHub PRs
+- **Version updates MUST be tested** with full test suite before release
+- **Database backups** should be created before major changes
+- **Local by WP Engine** must be running with handy-crab site at localhost:10008
+- **No GitHub integration** - all testing happens locally until manual PR creation

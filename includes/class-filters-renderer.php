@@ -97,13 +97,17 @@ class Handy_Custom_Filters_Renderer {
 			$display_list = array_map('trim', explode(',', $attributes['display']));
 			$filtered = array();
 			
-			foreach ($display_list as $key) {
-				if (isset($taxonomies[$key])) {
-					$filtered[$key] = $taxonomies[$key];
-					Handy_Custom_Logger::log("Including taxonomy in display: {$key}", 'debug');
-				} else {
-					Handy_Custom_Logger::log("Requested taxonomy not found: {$key}", 'warning');
+			if (!empty($display_list) && is_array($display_list)) {
+				foreach ($display_list as $key) {
+					if (is_string($key) && !empty($key) && isset($taxonomies[$key])) {
+						$filtered[$key] = $taxonomies[$key];
+						Handy_Custom_Logger::log("Including taxonomy in display: {$key}", 'debug');
+					} else {
+						Handy_Custom_Logger::log("Requested taxonomy not found or invalid: {$key}", 'warning');
+					}
 				}
+			} else {
+				Handy_Custom_Logger::log('Display list is empty or invalid', 'warning');
 			}
 			
 			return $filtered;
@@ -114,11 +118,15 @@ class Handy_Custom_Filters_Renderer {
 			$exclude_list = array_map('trim', explode(',', $attributes['exclude']));
 			$filtered = $taxonomies;
 			
-			foreach ($exclude_list as $key) {
-				if (isset($filtered[$key])) {
-					unset($filtered[$key]);
-					Handy_Custom_Logger::log("Excluding taxonomy from display: {$key}", 'debug');
+			if (!empty($exclude_list) && is_array($exclude_list)) {
+				foreach ($exclude_list as $key) {
+					if (is_string($key) && !empty($key) && isset($filtered[$key])) {
+						unset($filtered[$key]);
+						Handy_Custom_Logger::log("Excluding taxonomy from display: {$key}", 'debug');
+					}
 				}
+			} else {
+				Handy_Custom_Logger::log('Exclude list is empty or invalid', 'warning');
 			}
 			
 			return $filtered;
@@ -142,7 +150,16 @@ class Handy_Custom_Filters_Renderer {
 	private function generate_filter_options($taxonomies, $content_type, $context_filters = array()) {
 		$options = array();
 		
+		if (empty($taxonomies) || !is_array($taxonomies)) {
+			Handy_Custom_Logger::log('Generate filter options: taxonomies array is empty or invalid', 'warning');
+			return $options;
+		}
+		
 		foreach ($taxonomies as $key => $taxonomy_slug) {
+			if (!is_string($key) || empty($key) || !is_string($taxonomy_slug) || empty($taxonomy_slug)) {
+				Handy_Custom_Logger::log("Invalid taxonomy mapping: key='{$key}', taxonomy='{$taxonomy_slug}'", 'warning');
+				continue;
+			}
 			// Skip certain taxonomies that shouldn't appear in filters
 			if ($this->should_skip_taxonomy($key, $content_type)) {
 				Handy_Custom_Logger::log("Skipping taxonomy for filters: {$key}", 'debug');

@@ -39,9 +39,22 @@ class Handy_Custom_Shortcodes {
 	 * @return string
 	 */
 	public static function products_shortcode($atts) {
+		// Validate input attributes
+		if (!is_array($atts)) {
+			$atts = array();
+			Handy_Custom_Logger::log('Products shortcode: Invalid attributes provided, using defaults', 'warning');
+		}
+
+		// Get taxonomy mapping safely
+		$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
+		if (empty($taxonomy_mapping) || !is_array($taxonomy_mapping)) {
+			Handy_Custom_Logger::log('Products shortcode: Taxonomy mapping is empty or invalid', 'error');
+			return '<div class="product-error"><p>Error: Product taxonomy configuration is missing.</p></div>';
+		}
+
 		// Include display and pagination parameters in defaults
 		$defaults = array_merge(
-			array_fill_keys(array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()), ''),
+			array_fill_keys(array_keys($taxonomy_mapping), ''),
 			array(
 				'display' => 'categories',
 				'per_page' => '',
@@ -49,6 +62,26 @@ class Handy_Custom_Shortcodes {
 			)
 		);
 		$atts = shortcode_atts($defaults, $atts, 'products');
+
+		// Validate and sanitize pagination parameters
+		if (!empty($atts['per_page'])) {
+			$atts['per_page'] = absint($atts['per_page']);
+			if ($atts['per_page'] < 1 || $atts['per_page'] > 100) {
+				Handy_Custom_Logger::log('Products shortcode: Invalid per_page value, using default: ' . $atts['per_page'], 'warning');
+				$atts['per_page'] = '';
+			}
+		}
+
+		$atts['page'] = absint($atts['page']);
+		if ($atts['page'] < 1) {
+			$atts['page'] = 1;
+		}
+
+		// Validate display parameter
+		if (!in_array($atts['display'], array('categories', 'list'), true)) {
+			Handy_Custom_Logger::log('Products shortcode: Invalid display mode, defaulting to categories: ' . $atts['display'], 'warning');
+			$atts['display'] = 'categories';
+		}
 
 		// Merge URL parameters with shortcode attributes (URL takes precedence)
 		$url_params = Handy_Custom_Products_Utils::get_current_url_parameters();
@@ -93,15 +126,42 @@ class Handy_Custom_Shortcodes {
 	 * @return string HTML for recipe archive
 	 */
 	public static function recipes_shortcode($atts) {
+		// Validate input attributes
+		if (!is_array($atts)) {
+			$atts = array();
+			Handy_Custom_Logger::log('Recipes shortcode: Invalid attributes provided, using defaults', 'warning');
+		}
+
+		// Get taxonomy mapping safely
+		$taxonomy_mapping = Handy_Custom_Recipes_Utils::get_taxonomy_mapping();
+		if (empty($taxonomy_mapping) || !is_array($taxonomy_mapping)) {
+			Handy_Custom_Logger::log('Recipes shortcode: Taxonomy mapping is empty or invalid', 'error');
+			return '<div class="recipe-error"><p>Error: Recipe taxonomy configuration is missing.</p></div>';
+		}
+
 		// Define defaults based on recipe taxonomy mapping with pagination
 		$defaults = array_merge(
-			array_fill_keys(array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()), ''),
+			array_fill_keys(array_keys($taxonomy_mapping), ''),
 			array(
 				'per_page' => '',
 				'page' => '1'
 			)
 		);
 		$atts = shortcode_atts($defaults, $atts, 'recipes');
+
+		// Validate and sanitize pagination parameters
+		if (!empty($atts['per_page'])) {
+			$atts['per_page'] = absint($atts['per_page']);
+			if ($atts['per_page'] < 1 || $atts['per_page'] > 100) {
+				Handy_Custom_Logger::log('Recipes shortcode: Invalid per_page value, using default: ' . $atts['per_page'], 'warning');
+				$atts['per_page'] = '';
+			}
+		}
+
+		$atts['page'] = absint($atts['page']);
+		if ($atts['page'] < 1) {
+			$atts['page'] = 1;
+		}
 
 		// Sanitize attributes
 		$atts = Handy_Custom_Recipes_Utils::sanitize_filters($atts);
@@ -129,14 +189,40 @@ class Handy_Custom_Shortcodes {
 
 		// Get filter parameters using utility function
 		$raw_filters = array();
-		foreach (array_keys(Handy_Custom_Products_Utils::get_taxonomy_mapping()) as $key) {
-			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
+		$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
+		
+		if (!empty($taxonomy_mapping) && is_array($taxonomy_mapping)) {
+			foreach (array_keys($taxonomy_mapping) as $key) {
+				if (is_string($key) && !empty($key)) {
+					$raw_filters[$key] = isset($_POST[$key]) ? sanitize_text_field($_POST[$key]) : '';
+				}
+			}
+		} else {
+			Handy_Custom_Logger::log('AJAX products filter: Taxonomy mapping is empty or invalid', 'error');
+			wp_send_json_error('Invalid taxonomy configuration');
+			return;
 		}
 		
-		// Add display and pagination parameters
-		$raw_filters['display'] = isset($_POST['display']) ? sanitize_text_field($_POST['display']) : 'categories';
-		$raw_filters['per_page'] = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
-		$raw_filters['page'] = isset($_POST['page']) ? absint($_POST['page']) : 1;
+		// Add display and pagination parameters with validation
+		$display = isset($_POST['display']) ? sanitize_text_field($_POST['display']) : 'categories';
+		if (!in_array($display, array('categories', 'list'), true)) {
+			Handy_Custom_Logger::log('AJAX products filter: Invalid display mode, defaulting to categories: ' . $display, 'warning');
+			$display = 'categories';
+		}
+		$raw_filters['display'] = $display;
+
+		$per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
+		if (!empty($per_page) && ($per_page < 1 || $per_page > 100)) {
+			Handy_Custom_Logger::log('AJAX products filter: Invalid per_page value, using default: ' . $per_page, 'warning');
+			$per_page = '';
+		}
+		$raw_filters['per_page'] = $per_page;
+
+		$page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+		if ($page < 1) {
+			$page = 1;
+		}
+		$raw_filters['page'] = $page;
 		
 		$filters = Handy_Custom_Products_Utils::sanitize_filters($raw_filters);
 
@@ -166,13 +252,33 @@ class Handy_Custom_Shortcodes {
 
 		// Get filter parameters using recipe utility function
 		$raw_filters = array();
-		foreach (array_keys(Handy_Custom_Recipes_Utils::get_taxonomy_mapping()) as $key) {
-			$raw_filters[$key] = isset($_POST[$key]) ? $_POST[$key] : '';
+		$taxonomy_mapping = Handy_Custom_Recipes_Utils::get_taxonomy_mapping();
+		
+		if (!empty($taxonomy_mapping) && is_array($taxonomy_mapping)) {
+			foreach (array_keys($taxonomy_mapping) as $key) {
+				if (is_string($key) && !empty($key)) {
+					$raw_filters[$key] = isset($_POST[$key]) ? sanitize_text_field($_POST[$key]) : '';
+				}
+			}
+		} else {
+			Handy_Custom_Logger::log('AJAX recipes filter: Taxonomy mapping is empty or invalid', 'error');
+			wp_send_json_error('Invalid taxonomy configuration');
+			return;
 		}
 		
-		// Add pagination parameters
-		$raw_filters['per_page'] = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
-		$raw_filters['page'] = isset($_POST['page']) ? absint($_POST['page']) : 1;
+		// Add pagination parameters with validation
+		$per_page = isset($_POST['per_page']) ? absint($_POST['per_page']) : '';
+		if (!empty($per_page) && ($per_page < 1 || $per_page > 100)) {
+			Handy_Custom_Logger::log('AJAX recipes filter: Invalid per_page value, using default: ' . $per_page, 'warning');
+			$per_page = '';
+		}
+		$raw_filters['per_page'] = $per_page;
+
+		$page = isset($_POST['page']) ? absint($_POST['page']) : 1;
+		if ($page < 1) {
+			$page = 1;
+		}
+		$raw_filters['page'] = $page;
 		
 		$filters = Handy_Custom_Recipes_Utils::sanitize_filters($raw_filters);
 

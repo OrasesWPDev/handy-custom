@@ -36,8 +36,10 @@ get_header(); ?>
                     <h1 class="handy-product-title"><?php the_title(); ?></h1>
                     
                     <!-- Sub Header -->
-                    <?php if (get_field('sub_header')) : ?>
-                        <h3 class="handy-product-sub-header" style="color: #0145AB;"><?php the_field('sub_header'); ?></h3>
+                    <?php 
+                    $sub_header = function_exists('get_field') ? get_field('sub_header') : '';
+                    if (!empty($sub_header)) : ?>
+                        <h3 class="handy-product-sub-header" style="color: #0145AB;"><?php echo esc_html($sub_header); ?></h3>
                     <?php endif; ?>
                     
                     <!-- Social Icons Row -->
@@ -126,10 +128,10 @@ get_header(); ?>
                     <!-- Carton Image -->
                     <div class="handy-product-carton">
                         <?php 
-                        $carton_image = get_field('carton_image');
-                        if ($carton_image) : ?>
+                        $carton_image = function_exists('get_field') ? get_field('carton_image') : null;
+                        if (!empty($carton_image) && is_array($carton_image) && !empty($carton_image['url'])) : ?>
                             <img src="<?php echo esc_url($carton_image['url']); ?>" 
-                                 alt="<?php echo esc_attr($carton_image['alt']); ?>" 
+                                 alt="<?php echo esc_attr(!empty($carton_image['alt']) ? $carton_image['alt'] : get_the_title()); ?>" 
                                  class="handy-product-carton-image">
                         <?php endif; ?>
                     </div>
@@ -153,64 +155,52 @@ get_header(); ?>
                             <!-- Specifications Table -->
                             <table class="handy-product-specs-table">
                                 <tbody>
-                                    <?php if (get_field('product_size')) : ?>
+                                    <?php 
+                                    // Safely get ACF field values with null checks
+                                    if (function_exists('get_field')) {
+                                        $spec_fields = array(
+                                            'product_size' => 'Product Size',
+                                            'carton_size' => 'Carton Size', 
+                                            'case_pack_size' => 'Case Pack Size',
+                                            'item_number' => 'Item Number',
+                                            'upc_number' => 'UPC',
+                                            'gtin_code' => 'GTIN Code'
+                                        );
+                                        
+                                        foreach ($spec_fields as $field_key => $field_label) {
+                                            $field_value = get_field($field_key);
+                                            if (!empty($field_value)) :
+                                    ?>
                                     <tr>
-                                        <td class="handy-spec-label">Product Size</td>
-                                        <td class="handy-spec-value"><?php the_field('product_size'); ?></td>
+                                        <td class="handy-spec-label"><?php echo esc_html($field_label); ?></td>
+                                        <td class="handy-spec-value"><?php echo esc_html($field_value); ?></td>
                                     </tr>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (get_field('carton_size')) : ?>
-                                    <tr>
-                                        <td class="handy-spec-label">Carton Size</td>
-                                        <td class="handy-spec-value"><?php the_field('carton_size'); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (get_field('case_pack_size')) : ?>
-                                    <tr>
-                                        <td class="handy-spec-label">Case Pack Size</td>
-                                        <td class="handy-spec-value"><?php the_field('case_pack_size'); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (get_field('item_number')) : ?>
-                                    <tr>
-                                        <td class="handy-spec-label">Item Number</td>
-                                        <td class="handy-spec-value"><?php the_field('item_number'); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (get_field('upc_number')) : ?>
-                                    <tr>
-                                        <td class="handy-spec-label">UPC</td>
-                                        <td class="handy-spec-value"><?php the_field('upc_number'); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
-                                    
-                                    <?php if (get_field('gtin_code')) : ?>
-                                    <tr>
-                                        <td class="handy-spec-label">GTIN Code</td>
-                                        <td class="handy-spec-value"><?php the_field('gtin_code'); ?></td>
-                                    </tr>
-                                    <?php endif; ?>
+                                    <?php 
+                                            endif;
+                                        }
+                                    } else {
+                                        echo '<tr><td colspan="2">Specifications not available (ACF not loaded)</td></tr>';
+                                    }
+                                    ?>
                                 </tbody>
                             </table>
                             
                             <!-- Special Logos Gallery -->
                             <?php 
-                            $special_logos = get_field('special_logos');
-                            if ($special_logos) : ?>
+                            $special_logos = function_exists('get_field') ? get_field('special_logos') : null;
+                            if (!empty($special_logos) && is_array($special_logos)) : ?>
                                 <div class="handy-special-logos-gallery">
                                     <?php $logo_count = count($special_logos); ?>
                                     <?php foreach ($special_logos as $index => $logo) : ?>
-                                        <div class="handy-special-logo-item">
-                                            <img src="<?php echo esc_url($logo['sizes']['medium']); ?>" 
-                                                 alt="<?php echo esc_attr($logo['alt']); ?>" 
-                                                 class="handy-special-logo-image">
-                                        </div>
-                                        <?php if ($index < $logo_count - 1) : ?>
-                                            <span class="handy-logo-separator">|</span>
+                                        <?php if (is_array($logo) && !empty($logo['sizes']['medium'])) : ?>
+                                            <div class="handy-special-logo-item">
+                                                <img src="<?php echo esc_url($logo['sizes']['medium']); ?>" 
+                                                     alt="<?php echo esc_attr(!empty($logo['alt']) ? $logo['alt'] : 'Special Logo'); ?>" 
+                                                     class="handy-special-logo-image">
+                                            </div>
+                                            <?php if ($index < $logo_count - 1) : ?>
+                                                <span class="handy-logo-separator">|</span>
+                                            <?php endif; ?>
                                         <?php endif; ?>
                                     <?php endforeach; ?>
                                 </div>
@@ -242,8 +232,12 @@ get_header(); ?>
                     </button>
                     <div class="handy-accordion-content" id="ingredients">
                         <div class="handy-ingredients-content">
-                            <?php if (get_field('ingredients')) : ?>
-                                <?php the_field('ingredients'); ?>
+                            <?php 
+                            $ingredients = function_exists('get_field') ? get_field('ingredients') : '';
+                            if (!empty($ingredients)) : ?>
+                                <?php echo wp_kses_post($ingredients); ?>
+                            <?php else : ?>
+                                <p>Ingredient information not available.</p>
                             <?php endif; ?>
                         </div>
                     </div>
