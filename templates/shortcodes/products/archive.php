@@ -176,8 +176,12 @@ Handy_Custom_Logger::log($context_info . " (CSS class: {$container_class})", 'in
                                 $has_children = Handy_Custom_Products_Utils::has_child_categories($category->term_id);
                                 $button_text = $has_children ? 'See Options' : 'See Products';
                                 ?>
-                                <a href="<?php echo esc_url($shop_url); ?>" class="btn btn-learn"><i class="fa-regular fa-circle-ellipsis"></i><?php echo esc_html($button_text); ?></a>
-                                <a href="/product-locator/" class="btn btn-shop"><i class="fa-regular fa-cart-shopping"></i>Shop Now</a>
+                                <div class="category-action-item">
+                                    <a href="<?php echo esc_url($shop_url); ?>" class="btn btn-learn"><i class="fa-regular fa-circle-ellipsis"></i><?php echo esc_html($button_text); ?></a>
+                                </div>
+                                <div class="category-action-item">
+                                    <a href="/product-locator/" class="btn btn-shop"><i class="fa-regular fa-cart-shopping"></i>Shop Now</a>
+                                </div>
                             </div>
                             
                         </div>

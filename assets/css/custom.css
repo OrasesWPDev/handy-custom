@@ -1,0 +1,35 @@
+/* Custom CSS for plugin-wide styles */
+
+/* Global Cursor Pointer Styles - Consistent finger cursor for all clickable elements */
+a,
+a[href],
+button,
+[role="button"],
+input[type="button"],
+input[type="submit"],
+input[type="reset"],
+.btn,
+.button,
+.clickable,
+.card,
+.product-card,
+.recipe-card,
+.product-category-card,
+.product-list-card,
+.recipe-list-card,
+.filter-item,
+.filter-option,
+.toggle,
+.dropdown-toggle,
+.tab,
+.nav-link,
+.pagination a,
+.page-numbers,
+select,
+[onclick],
+[data-toggle],
+[data-dismiss],
+.wp-block-button__link,
+.more-link {
+    cursor: pointer !important;
+}
