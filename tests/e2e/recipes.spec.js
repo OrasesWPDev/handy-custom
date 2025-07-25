@@ -42,6 +42,112 @@ test.describe('Recipes Functionality @full', () => {
     await expect(recipeCards.first()).toBeVisible();
   });
 
+  test('Recipe filter shortcode displays with corrected design - Step 3 Implementation @full', async ({ page }) => {
+    await page.goto('/recipes/');
+    
+    // Check if filter shortcode container is present
+    const filtersContainer = page.locator('.handy-filters[data-content-type="recipes"]');
+    await expect(filtersContainer).toBeVisible();
+    
+    // Check for "FILTER" header
+    const filterHeader = filtersContainer.locator('.handy-filter-header');
+    await expect(filterHeader).toBeVisible();
+    
+    // Check header elements
+    const tagIcon = filterHeader.locator('.handy-filter-tag-icon');
+    const filterTitle = filterHeader.locator('.handy-filter-title');
+    
+    await expect(tagIcon).toBeVisible();
+    await expect(filterTitle).toBeVisible();
+    await expect(filterTitle).toHaveText('FILTER');
+    
+    // Check for original filter group structure (not rounded containers)
+    const filterGroups = filtersContainer.locator('.filter-group');
+    await expect(filterGroups.first()).toBeVisible();
+    
+    // Verify filter group has label and select (original structure)
+    const firstGroup = filterGroups.first();
+    const filterLabel = firstGroup.locator('label');
+    const filterSelect = firstGroup.locator('.filter-select');
+    
+    await expect(filterLabel).toBeVisible();
+    await expect(filterSelect).toBeVisible();
+    
+    // Check universal clear button is in separate container below filters
+    const clearContainer = page.locator('.handy-filter-clear-container[data-content-type="recipes"]');
+    await expect(clearContainer).toBeVisible();
+    
+    const clearButton = clearContainer.locator('.btn-clear-filters-universal');
+    await expect(clearButton).toBeVisible();
+    await expect(clearButton).toHaveText(/Clear \(view all\)/);
+    
+    // Check clear button has arrow icon
+    const clearButtonIcon = clearButton.locator('.fa-arrow-right');
+    await expect(clearButtonIcon).toBeVisible();
+  });
+
+  test('Recipe filter selects show active state when selected @full', async ({ page }) => {
+    await page.goto('/recipes/');
+    
+    const filtersContainer = page.locator('.handy-filters[data-content-type="recipes"]');
+    const filterGroups = filtersContainer.locator('.filter-group');
+    
+    if (await filterGroups.count() > 0) {
+      const firstGroup = filterGroups.first();
+      const filterSelect = firstGroup.locator('.filter-select');
+      
+      // Select a filter option
+      const optionCount = await filterSelect.locator('option').count();
+      if (optionCount > 1) {
+        await filterSelect.selectOption({ index: 1 });
+        
+        // Wait for JavaScript to update the active state
+        await page.waitForTimeout(500);
+        
+        // Check that select has data-has-value attribute
+        await expect(filterSelect).toHaveAttribute('data-has-value', 'true');
+      }
+    }
+  });
+
+  test('Recipe filter universal clear button works correctly @full', async ({ page }) => {
+    await page.goto('/recipes/');
+    
+    const filtersContainer = page.locator('.handy-filters[data-content-type="recipes"]');
+    const filterGroups = filtersContainer.locator('.filter-group');
+    const clearContainer = page.locator('.handy-filter-clear-container[data-content-type="recipes"]');
+    const clearButton = clearContainer.locator('.btn-clear-filters-universal');
+    
+    if (await filterGroups.count() > 0) {
+      const firstGroup = filterGroups.first();
+      const filterSelect = firstGroup.locator('.filter-select');
+      
+      // Select a filter option
+      const optionCount = await filterSelect.locator('option').count();
+      if (optionCount > 1) {
+        await filterSelect.selectOption({ index: 1 });
+        await page.waitForTimeout(500);
+        
+        // Verify active state
+        await expect(filterSelect).toHaveAttribute('data-has-value', 'true');
+        
+        // Click clear button
+        await clearButton.click();
+        
+        // Wait for clear action to complete
+        await page.waitForTimeout(500);
+        
+        // Check that filter is cleared
+        const selectedValue = await filterSelect.inputValue();
+        expect(selectedValue).toBe('');
+        
+        // Check that active state is removed
+        await expect(filterSelect).not.toHaveAttribute('data-has-value');
+      }
+    }
+  });
+
+
   test('Recipe pagination works', async ({ page }) => {
     await page.goto('/recipes/');
     

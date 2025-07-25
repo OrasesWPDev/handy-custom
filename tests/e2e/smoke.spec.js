@@ -54,6 +54,37 @@ test.describe('Smoke Tests @smoke', () => {
     await expect(recipeCards.first()).toBeVisible();
   });
 
+  test('Recipe filter shortcode renders correctly - Step 3 @smoke', async ({ page }) => {
+    await page.goto('/recipes/');
+    
+    // Check if recipe filter shortcode is present
+    const filtersContainer = page.locator('.handy-filters[data-content-type="recipes"]');
+    await expect(filtersContainer).toBeVisible();
+    
+    // Check for "FILTER" header
+    const filterTitle = filtersContainer.locator('.handy-filter-title');
+    await expect(filterTitle).toBeVisible();
+    await expect(filterTitle).toHaveText('FILTER');
+    
+    // Check that filter groups are present (original structure)
+    const filterGroups = filtersContainer.locator('.filter-group');
+    await expect(filterGroups.first()).toBeVisible();
+    
+    // Check filter labels and selects exist
+    const filterLabels = filtersContainer.locator('.filter-group label');
+    const filterSelects = filtersContainer.locator('.filter-select');
+    await expect(filterLabels.first()).toBeVisible();
+    await expect(filterSelects.first()).toBeVisible();
+    
+    // Check universal clear button is visible in separate container below filters
+    const clearContainer = page.locator('.handy-filter-clear-container[data-content-type="recipes"]');
+    await expect(clearContainer).toBeVisible();
+    
+    const clearButton = clearContainer.locator('.btn-clear-filters-universal');
+    await expect(clearButton).toBeVisible();
+    await expect(clearButton).toHaveText(/Clear \(view all\)/);
+  });
+
   test('Plugin assets are loading correctly', async ({ page }) => {
     await page.goto('/products/');
     
