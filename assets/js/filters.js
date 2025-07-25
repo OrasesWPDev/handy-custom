@@ -40,8 +40,8 @@
                 this.handleFilterChange(event);
             });
             
-            // Handle clear filters button (both old and new classes)
-            $(document).on('click', '.btn-clear-filters, .btn-clear-filters-main', (event) => {
+            // Handle clear filters button (all variations)
+            $(document).on('click', '.btn-clear-filters, .btn-clear-filters-main, .btn-clear-filters-universal', (event) => {
                 this.handleClearFilters(event);
             });
             
@@ -103,7 +103,8 @@
             });
             
             // Clear all filter selects in this filter group
-            const $filterContainer = $button.closest('.handy-filters');
+            // Since button may be outside filter container, find by content type
+            const $filterContainer = $(`.handy-filters[data-content-type="${contentType}"]`);
             $filterContainer.find('.filter-select').each((index, select) => {
                 const $select = $(select);
                 $select.val('');
@@ -116,8 +117,7 @@
             // Trigger content update
             this.triggerContentUpdate(contentType);
             
-            // Hide clear button
-            $button.closest('.filter-actions').hide();
+            // Note: Universal clear button remains visible (no need to hide)
         }
 
         /**
@@ -146,19 +146,24 @@
 
         /**
          * Update clear button visibility based on active filters
+         * Note: Universal clear button is always visible, but we keep this method for legacy support
          * 
          * @param {jQuery} $filterContainer Filter container
          */
         updateClearButtonVisibility($filterContainer) {
+            // Universal clear button is always visible, so we don't need to hide/show it
+            // Keep this method for legacy clear button support
             const hasActiveFilters = $filterContainer.find('.filter-select[data-has-value="true"]').length > 0;
-            const $clearButton = $filterContainer.find('.filter-actions');
+            const $legacyClearButton = $filterContainer.find('.btn-clear-filters, .btn-clear-filters-main').parent();
             
-            if (hasActiveFilters) {
-                $clearButton.show();
-                this.log('Clear button shown - active filters detected', 'debug');
-            } else {
-                $clearButton.hide();
-                this.log('Clear button hidden - no active filters', 'debug');
+            if ($legacyClearButton.length > 0) {
+                if (hasActiveFilters) {
+                    $legacyClearButton.show();
+                    this.log('Legacy clear button shown - active filters detected', 'debug');
+                } else {
+                    $legacyClearButton.hide();
+                    this.log('Legacy clear button hidden - no active filters', 'debug');
+                }
             }
         }
 
@@ -316,13 +321,20 @@
                 return;
             }
             
-            this.log('Updating products content via AJAX', 'info', filterParams);
+            // Get display mode with better debugging
+            const displayMode = $productsContainer.data('display-mode') || 'categories';
+            this.log('Updating products content via AJAX', 'info', {
+                filterParams: filterParams,
+                displayMode: displayMode,
+                containerFound: true,
+                containerClass: $productsContainer.attr('class')
+            });
             
             // Add display mode and other required parameters
             const ajaxParams = Object.assign({
                 action: 'filter_products',
                 nonce: this.nonce,
-                display: $productsContainer.data('display-mode') || 'categories'
+                display: displayMode
             }, filterParams);
             
             $.ajax({
@@ -383,6 +395,14 @@
         handleAjaxSuccess(response, $container, contentType) {
             this.hideLoadingState();
             
+            this.log('AJAX response received', 'info', {
+                contentType: contentType,
+                success: response.success,
+                hasData: !!response.data,
+                hasHtml: !!(response.data && response.data.html),
+                responseKeys: Object.keys(response)
+            });
+            
             if (response.success && response.data && response.data.html) {
                 $container.replaceWith(response.data.html);
                 
@@ -398,7 +418,11 @@
                 });
                 
             } else {
-                this.log('Invalid AJAX response received', 'error', response);
+                this.log('Invalid AJAX response received', 'error', {
+                    response: response,
+                    responseSuccess: response.success,
+                    responseData: response.data
+                });
                 this.showErrorMessage('Invalid response received from server.');
             }
         }

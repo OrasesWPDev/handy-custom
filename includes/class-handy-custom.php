@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '2.0.6';
+	const VERSION = '2.0.7';
 
 	/**
 	 * Single instance of the class
@@ -112,25 +112,23 @@ class Handy_Custom {
 			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-simple-updater.php';
 		}
 		
-		// Frontend functionality (load conditionally)
-		if (!is_admin()) {
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
-			
-			// Unified filter system
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-filters-renderer.php';
-			
-			// Product-specific functionality
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-utils.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-filters.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-display.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-renderer.php';
-			
-			// Recipe-specific functionality
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-utils.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-filters.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-display.php';
-			require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
-		}
+		// Shortcodes and AJAX functionality (load for both frontend and admin for AJAX)
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-shortcodes.php';
+		
+		// Unified filter system (needed for AJAX)
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/class-filters-renderer.php';
+		
+		// Product-specific functionality (needed for AJAX)
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-utils.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-filters.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-display.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/products/class-products-renderer.php';
+		
+		// Recipe-specific functionality (needed for AJAX)
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-utils.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-filters.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-display.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
 	}
 
 	/**
@@ -153,10 +151,8 @@ class Handy_Custom {
 			Handy_Custom_Admin::init();
 		}
 		
-		// Initialize frontend functionality
-		if (!is_admin()) {
-			Handy_Custom_Shortcodes::init();
-		}
+		// Initialize shortcodes and AJAX handlers (needed for both frontend and admin)
+		Handy_Custom_Shortcodes::init();
 
 		Handy_Custom_Logger::log('Plugin initialized');
 	}

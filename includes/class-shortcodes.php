@@ -312,6 +312,9 @@ class Handy_Custom_Shortcodes {
 	 * @return string HTML for product filters
 	 */
 	public static function filter_products_shortcode($atts) {
+		// VERY EARLY DEBUG - Log raw input before any processing
+		Handy_Custom_Logger::log('🔥 [filter-products] SHORTCODE ENTRY POINT - Raw $atts: ' . wp_json_encode($atts), 'info');
+		
 		$defaults = array(
 			'display' => '',      // Comma-separated list of taxonomies to show
 			'exclude' => '',      // Comma-separated list of taxonomies to exclude
@@ -320,13 +323,30 @@ class Handy_Custom_Shortcodes {
 		);
 		$atts = shortcode_atts($defaults, $atts, 'filter-products');
 
-		Handy_Custom_Logger::log('[filter-products] shortcode called with attributes: ' . wp_json_encode($atts), 'info');
+		Handy_Custom_Logger::log('🔥 [filter-products] After shortcode_atts processing: ' . wp_json_encode($atts), 'info');
+		
+		// Enhanced debug logging for contextual filtering
+		if (!empty($atts['subcategory'])) {
+			Handy_Custom_Logger::log('🔥 [filter-products] SUBCATEGORY CONTEXT DETECTED: ' . $atts['subcategory'], 'info');
+		}
+		if (!empty($atts['category'])) {
+			Handy_Custom_Logger::log('🔥 [filter-products] CATEGORY CONTEXT DETECTED: ' . $atts['category'], 'info');
+		}
+		
+		Handy_Custom_Logger::log('🔥 [filter-products] About to create renderer...', 'info');
 
 		try {
+			Handy_Custom_Logger::log('🔥 [filter-products] Creating renderer instance...', 'info');
 			$renderer = new Handy_Custom_Filters_Renderer();
-			return $renderer->render('products', $atts);
+			
+			Handy_Custom_Logger::log('🔥 [filter-products] Calling renderer->render() with attributes: ' . wp_json_encode($atts), 'info');
+			$result = $renderer->render('products', $atts);
+			
+			Handy_Custom_Logger::log('🔥 [filter-products] Renderer completed successfully, result length: ' . strlen($result), 'info');
+			return $result;
 		} catch (Exception $e) {
-			Handy_Custom_Logger::log('Filter-products shortcode error: ' . $e->getMessage(), 'error');
+			Handy_Custom_Logger::log('🔥 [filter-products] EXCEPTION CAUGHT: ' . $e->getMessage(), 'error');
+			Handy_Custom_Logger::log('🔥 [filter-products] EXCEPTION STACK: ' . $e->getTraceAsString(), 'error');
 			return '<div class="filter-error"><p>Error loading product filters. Please try again later.</p></div>';
 		}
 	}

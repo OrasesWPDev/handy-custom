@@ -22,9 +22,10 @@ class Handy_Custom_Filters_Renderer {
 	 * @return string Rendered filter HTML
 	 */
 	public function render($content_type, $attributes = array()) {
-		Handy_Custom_Logger::log("Rendering {$content_type} filters with attributes: " . wp_json_encode($attributes), 'info');
+		Handy_Custom_Logger::log("🚀 RENDERER ENTRY POINT - Content type: {$content_type}, Attributes: " . wp_json_encode($attributes), 'info');
 		
 		// Get taxonomies based on content type
+		Handy_Custom_Logger::log("🚀 RENDERER: Getting taxonomies for content type: {$content_type}", 'info');
 		$taxonomies = $this->get_taxonomies_for_content_type($content_type);
 		Handy_Custom_Logger::log("Available taxonomies for {$content_type}: " . wp_json_encode(array_keys($taxonomies)), 'info');
 		
@@ -36,9 +37,24 @@ class Handy_Custom_Filters_Renderer {
 		$context_filters = array();
 		if (!empty($attributes['category'])) {
 			$context_filters['category'] = $attributes['category'];
+			Handy_Custom_Logger::log("RENDERER: Category context set to: " . $attributes['category'], 'info');
 		}
 		if (!empty($attributes['subcategory'])) {
 			$context_filters['subcategory'] = $attributes['subcategory'];
+			Handy_Custom_Logger::log("RENDERER: Subcategory context set to: " . $attributes['subcategory'], 'info');
+		}
+		
+		Handy_Custom_Logger::log("RENDERER: Final context filters: " . wp_json_encode($context_filters), 'info');
+		
+		// If no explicit context provided, try to auto-detect from current URL
+		if (empty($context_filters)) {
+			$auto_detected_context = $this->detect_current_category_context($content_type);
+			if (!empty($auto_detected_context)) {
+				$context_filters = $auto_detected_context;
+				Handy_Custom_Logger::log("Using auto-detected context for {$content_type} filters: " . wp_json_encode($context_filters), 'info');
+			}
+		} else {
+			Handy_Custom_Logger::log("Using explicit context for {$content_type} filters: " . wp_json_encode($context_filters), 'info');
 		}
 		
 		// Generate filter options for each taxonomy with context filtering
@@ -193,11 +209,6 @@ class Handy_Custom_Filters_Renderer {
 			return true;
 		}
 		
-		// For products: skip subcategory (it's handled differently)
-		if ($content_type === 'products' && $key === 'subcategory') {
-			return true;
-		}
-		
 		return false;
 	}
 
@@ -215,10 +226,17 @@ class Handy_Custom_Filters_Renderer {
 	 * @return array Array of term objects that are actually used in context
 	 */
 	private function get_contextual_taxonomy_terms($taxonomy_slug, $content_type, $context_filters = array()) {
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: Starting for taxonomy '{$taxonomy_slug}' with context: " . wp_json_encode($context_filters), 'info');
+		
 		// If no context filters, return all terms
 		if (empty($context_filters)) {
+			Handy_Custom_Logger::log("CONTEXTUAL TERMS: No context filters, returning all terms for {$taxonomy_slug}", 'info');
 			return $this->get_taxonomy_terms($taxonomy_slug, $content_type);
 		}
+		
+		// CRITICAL: Clear corrupted cache data before contextual queries
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: Clearing corrupted cache data before query", 'info');
+		$this->clear_contextual_cache();
 		
 		// Build query args to find products in the specified context
 		$query_args = array(
@@ -231,15 +249,53 @@ class Handy_Custom_Filters_Renderer {
 		// Add taxonomy query for context filtering
 		$tax_query = array('relation' => 'AND');
 		
-		// Handle subcategory filtering (specific subcategory only)
+		// Handle subcategory filtering with flexible category matching
 		if (!empty($context_filters['subcategory'])) {
-			$tax_query[] = array(
-				'taxonomy' => $content_type === 'products' ? 'product-category' : 'recipe-category',
-				'field' => 'slug',
-				'terms' => $context_filters['subcategory'],
-				'include_children' => false  // Exact subcategory match only
-			);
-			Handy_Custom_Logger::log("Filtering by subcategory: {$context_filters['subcategory']}", 'info');
+			$subcategory_slug = $context_filters['subcategory'];
+			$taxonomy_name = $content_type === 'products' ? 'product-category' : 'recipe-category';
+			
+			// DEBUG: Check if the term actually exists
+			$term_check = get_term_by('slug', $subcategory_slug, $taxonomy_name);
+			if ($term_check && !is_wp_error($term_check)) {
+				Handy_Custom_Logger::log("✅ TERM FOUND: slug='{$subcategory_slug}' -> ID={$term_check->term_id}, name='{$term_check->name}', parent={$term_check->parent}", 'info');
+				
+				// Check if this term has child categories (making it a parent)
+				$child_terms = get_terms(array(
+					'taxonomy' => $taxonomy_name,
+					'parent' => $term_check->term_id,
+					'hide_empty' => false,
+					'fields' => 'ids'
+				));
+				
+				$has_children = !empty($child_terms) && !is_wp_error($child_terms);
+				$include_children = $has_children; // Include children if this is a parent category
+				
+				if ($has_children) {
+					Handy_Custom_Logger::log("🌳 PARENT CATEGORY: '{$subcategory_slug}' has " . count($child_terms) . " child categories - including children in query", 'info');
+				} else {
+					Handy_Custom_Logger::log("🍃 LEAF CATEGORY: '{$subcategory_slug}' has no children - exact match only", 'info');
+				}
+				
+				$tax_query[] = array(
+					'taxonomy' => $taxonomy_name,
+					'field' => 'slug',
+					'terms' => $subcategory_slug,
+					'include_children' => $include_children
+				);
+				Handy_Custom_Logger::log("Filtering by subcategory: {$subcategory_slug} (include_children: " . ($include_children ? 'true' : 'false') . ")", 'info');
+				
+			} else {
+				Handy_Custom_Logger::log("❌ TERM NOT FOUND: slug='{$subcategory_slug}' in taxonomy '{$taxonomy_name}'", 'error');
+				Handy_Custom_Logger::log("❌ get_term_by result: " . wp_json_encode($term_check), 'error');
+				
+				// Still add the query even if term not found - let WordPress handle the empty result
+				$tax_query[] = array(
+					'taxonomy' => $taxonomy_name,
+					'field' => 'slug',
+					'terms' => $subcategory_slug,
+					'include_children' => false
+				);
+			}
 		}
 		// Handle category filtering (category and its subcategories if no specific subcategory)
 		elseif (!empty($context_filters['category'])) {
@@ -279,46 +335,99 @@ class Handy_Custom_Filters_Renderer {
 			$query_args['tax_query'] = $tax_query;
 		}
 		
-		// Get product/recipe IDs in the specified context with caching
-		$cache_key = Handy_Custom_Base_Utils::generate_query_cache_key($query_args, $content_type . '_context');
-		$cached_query = Handy_Custom_Base_Utils::get_cached_query($cache_key);
-		
-		if (false !== $cached_query) {
-			// Return cached post IDs
-			$posts_in_context = wp_list_pluck($cached_query->posts, 'ID');
-			Handy_Custom_Logger::log("Using cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
-		} else {
-			// Execute query and cache results
-			$wp_query = new WP_Query($query_args);
-			$posts_in_context = wp_list_pluck($wp_query->posts, 'ID');
-			
-			// Cache the query results
-			Handy_Custom_Base_Utils::cache_query_results($cache_key, $wp_query);
-			
-			// Log if we hit the limit (may need to increase)
-			if (count($posts_in_context) >= 1000) {
-				Handy_Custom_Logger::log("Contextual query for {$content_type} hit limit of 1000 posts - consider increasing if taxonomy filtering seems incomplete", 'warning');
-			}
-			
-			Handy_Custom_Logger::log("Executed and cached contextual query for {$content_type}: " . count($posts_in_context) . " posts", 'info');
-		}
+		// Execute primary query with fallback logic
+		$posts_in_context = $this->execute_contextual_query_with_fallback($query_args, $content_type, $context_filters);
 		
 		if (empty($posts_in_context)) {
-			Handy_Custom_Logger::log("No {$content_type} found in context: " . wp_json_encode($context_filters), 'info');
+			Handy_Custom_Logger::log("CONTEXTUAL TERMS: ❌ No {$content_type} found in context: " . wp_json_encode($context_filters), 'info');
+			Handy_Custom_Logger::log("CONTEXTUAL TERMS: ❌ Query args were: " . wp_json_encode($query_args), 'info');
+			
+			// DEBUG: Let's investigate what products actually exist and their category assignments
+			if (!empty($context_filters['subcategory'])) {
+				$debug_subcategory = $context_filters['subcategory'];
+				Handy_Custom_Logger::log("🔍 DEBUGGING: Investigating products and their category assignments for subcategory '{$debug_subcategory}'", 'info');
+				
+				// Get ALL products to see what exists
+				$all_products_query = new WP_Query(array(
+					'post_type' => $content_type === 'products' ? 'product' : 'recipe',
+					'post_status' => 'publish',
+					'posts_per_page' => 20, // Just a sample
+					'fields' => 'ids'
+				));
+				
+				if (!empty($all_products_query->posts)) {
+					Handy_Custom_Logger::log("🔍 Found " . count($all_products_query->posts) . " total {$content_type} in database. Checking first 5 for category assignments:", 'info');
+					
+					$sample_products = array_slice($all_products_query->posts, 0, 5);
+					foreach ($sample_products as $product_id) {
+						$product_title = get_the_title($product_id);
+						$product_categories = wp_get_post_terms($product_id, $content_type === 'products' ? 'product-category' : 'recipe-category');
+						
+						if (!is_wp_error($product_categories) && !empty($product_categories)) {
+							$category_info = array();
+							foreach ($product_categories as $cat) {
+								$category_info[] = "{$cat->name} (slug: {$cat->slug}, ID: {$cat->term_id})";
+							}
+							Handy_Custom_Logger::log("🔍 Product '{$product_title}' (ID: {$product_id}) assigned to: " . implode(', ', $category_info), 'info');
+						} else {
+							Handy_Custom_Logger::log("🔍 Product '{$product_title}' (ID: {$product_id}) has NO categories assigned!", 'info');
+						}
+					}
+					
+					// Check if any products contain "crab" in title
+					$crab_query = new WP_Query(array(
+						'post_type' => $content_type === 'products' ? 'product' : 'recipe',
+						'post_status' => 'publish',
+						'posts_per_page' => 10,
+						's' => 'crab',
+						'fields' => 'ids'
+					));
+					
+					if (!empty($crab_query->posts)) {
+						Handy_Custom_Logger::log("🔍 Found " . count($crab_query->posts) . " {$content_type} with 'crab' in title/content", 'info');
+						foreach (array_slice($crab_query->posts, 0, 3) as $crab_product_id) {
+							$crab_title = get_the_title($crab_product_id);
+							$crab_categories = wp_get_post_terms($crab_product_id, $content_type === 'products' ? 'product-category' : 'recipe-category');
+							
+							if (!is_wp_error($crab_categories) && !empty($crab_categories)) {
+								$crab_category_info = array();
+								foreach ($crab_categories as $cat) {
+									$crab_category_info[] = "{$cat->name} (slug: {$cat->slug})";
+								}
+								Handy_Custom_Logger::log("🔍 Crab product '{$crab_title}' categories: " . implode(', ', $crab_category_info), 'info');
+							}
+						}
+					} else {
+						Handy_Custom_Logger::log("🔍 No {$content_type} found with 'crab' in title/content", 'info');
+					}
+				} else {
+					Handy_Custom_Logger::log("🔍 No {$content_type} found in database at all!", 'error');
+				}
+			}
+			
 			return array();
 		}
 		
-		Handy_Custom_Logger::log("Found " . count($posts_in_context) . " {$content_type} in context: " . wp_json_encode($context_filters), 'info');
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: ✅ Found " . count($posts_in_context) . " {$content_type} in context: " . wp_json_encode($context_filters), 'info');
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: ✅ Product IDs found: " . implode(', ', array_slice($posts_in_context, 0, 10)) . (count($posts_in_context) > 10 ? '...' : ''), 'info');
 		
 		// Get all terms actually used by these products/recipes
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: Getting terms for taxonomy '{$taxonomy_slug}' from " . count($posts_in_context) . " products", 'info');
+		
 		$used_terms = wp_get_object_terms($posts_in_context, $taxonomy_slug, array(
 			'orderby' => 'name',
 			'order' => 'ASC'
 		));
 		
 		if (is_wp_error($used_terms)) {
-			Handy_Custom_Logger::log("Error getting used terms for {$taxonomy_slug}: " . $used_terms->get_error_message(), 'error');
+			Handy_Custom_Logger::log("CONTEXTUAL TERMS: ❌ Error getting used terms for {$taxonomy_slug}: " . $used_terms->get_error_message(), 'error');
 			return array();
+		}
+		
+		Handy_Custom_Logger::log("CONTEXTUAL TERMS: Raw terms found: " . count($used_terms) . " for taxonomy {$taxonomy_slug}", 'info');
+		if (!empty($used_terms)) {
+			$term_names = array_map(function($term) { return $term->name; }, array_slice($used_terms, 0, 5));
+			Handy_Custom_Logger::log("CONTEXTUAL TERMS: Sample terms: " . implode(', ', $term_names) . (count($used_terms) > 5 ? '...' : ''), 'info');
 		}
 		
 		// Remove duplicates and return unique terms
@@ -346,7 +455,7 @@ class Handy_Custom_Filters_Renderer {
 	 */
 	private function get_taxonomy_terms($taxonomy_slug, $content_type) {
 		$args = array(
-			'hide_empty' => false,  // Show all terms for dynamic updates
+			'hide_empty' => true,  // Only show terms used by published content
 			'orderby' => 'name',
 			'order' => 'ASC'
 		);
@@ -426,6 +535,84 @@ class Handy_Custom_Filters_Renderer {
 	}
 
 	/**
+	 * Auto-detect current category context from URL
+	 * Extracts category/subcategory when on category pages like /products/crab-cakes/
+	 *
+	 * @param string $content_type Content type (products/recipes)
+	 * @return array Context filters array with detected category/subcategory
+	 */
+	private function detect_current_category_context($content_type) {
+		$context_filters = array();
+		
+		// Get current URL path
+		$current_url = $_SERVER['REQUEST_URI'] ?? '';
+		$current_path = parse_url($current_url, PHP_URL_PATH);
+		
+		Handy_Custom_Logger::log("Auto-detecting category context from URL: {$current_path}", 'info');
+		
+		// Handle products URLs: /products/category-slug/ or /products/category/subcategory/
+		if ($content_type === 'products' && preg_match('/^\/products\/([^\/]+)\/(?:([^\/]+)\/)?$/', $current_path, $matches)) {
+			$first_segment = $matches[1];
+			$second_segment = isset($matches[2]) ? $matches[2] : null;
+			
+			// Check if first segment is a valid product category
+			$category_term = get_term_by('slug', $first_segment, 'product-category');
+			
+			if ($category_term && !is_wp_error($category_term)) {
+				// Check if this is a parent category (has children) or subcategory
+				$child_categories = get_terms(array(
+					'taxonomy' => 'product-category',
+					'parent' => $category_term->term_id,
+					'hide_empty' => false
+				));
+				
+				if (!empty($child_categories) && !is_wp_error($child_categories)) {
+					// This is a parent category - first segment is category
+					$context_filters['category'] = $first_segment;
+					Handy_Custom_Logger::log("Auto-detected parent category: {$first_segment}", 'info');
+					
+					// Check if second segment is a valid subcategory
+					if ($second_segment) {
+						$subcategory_term = get_term_by('slug', $second_segment, 'product-category');
+						if ($subcategory_term && !is_wp_error($subcategory_term) && $subcategory_term->parent == $category_term->term_id) {
+							$context_filters['subcategory'] = $second_segment;
+							Handy_Custom_Logger::log("Auto-detected subcategory: {$second_segment}", 'info');
+						}
+					}
+				} else {
+					// This is a subcategory (no children) - first segment is subcategory
+					$context_filters['subcategory'] = $first_segment;
+					
+					// Get parent category
+					if ($category_term->parent > 0) {
+						$parent_term = get_term($category_term->parent, 'product-category');
+						if ($parent_term && !is_wp_error($parent_term)) {
+							$context_filters['category'] = $parent_term->slug;
+						}
+					}
+					
+					Handy_Custom_Logger::log("Auto-detected subcategory: {$first_segment} with parent category: " . ($context_filters['category'] ?? 'none'), 'info');
+				}
+			}
+		}
+		
+		// Handle recipes URLs: /recipes/ or /recipe/recipe-slug/ (recipes don't have subcategories like products)
+		elseif ($content_type === 'recipes' && preg_match('/^\/recipe\/([^\/]+)\/$/', $current_path, $matches)) {
+			// On individual recipe pages, we could detect recipe categories, but this is less common
+			// For now, recipes context detection is simpler since they don't have the complex category structure
+			Handy_Custom_Logger::log("Recipe URL detected, but no automatic context filtering implemented yet", 'debug');
+		}
+		
+		if (!empty($context_filters)) {
+			Handy_Custom_Logger::log("Auto-detected context filters: " . wp_json_encode($context_filters), 'info');
+		} else {
+			Handy_Custom_Logger::log("No category context auto-detected from URL", 'debug');
+		}
+		
+		return $context_filters;
+	}
+
+	/**
 	 * Load unified filter template
 	 *
 	 * @param string $content_type Content type (products/recipes)
@@ -457,5 +644,146 @@ class Handy_Custom_Filters_Renderer {
 		include $template_path;
 
 		return ob_get_clean();
+	}
+
+	/**
+	 * Clear contextual query cache to prevent corrupted data issues
+	 * This addresses the "Invalid post object in cached data" warnings
+	 */
+	private function clear_contextual_cache() {
+		// Clear all query caches that may be corrupted
+		Handy_Custom_Base_Utils::clear_query_cache('context');
+		
+		// Also clear WordPress object cache for good measure
+		if (wp_cache_supports('flush_group')) {
+			wp_cache_flush_group('handy_custom_queries');
+		}
+		
+		Handy_Custom_Logger::log("CACHE: Cleared contextual query cache", 'info');
+	}
+
+	/**
+	 * Execute contextual query with robust fallback logic
+	 * Primary method tries WP_Query tax_query, fallback uses direct term relationships
+	 *
+	 * @param array $query_args WP_Query arguments
+	 * @param string $content_type Content type (products/recipes)
+	 * @param array $context_filters Context filters for debugging
+	 * @return array Array of post IDs found in context
+	 */
+	private function execute_contextual_query_with_fallback($query_args, $content_type, $context_filters) {
+		Handy_Custom_Logger::log("QUERY: Attempting primary WP_Query with tax_query", 'info');
+		Handy_Custom_Logger::log("QUERY: Query args: " . wp_json_encode($query_args), 'info');
+		
+		// Try primary WP_Query method
+		$wp_query = new WP_Query($query_args);
+		$posts_in_context = wp_list_pluck($wp_query->posts, 'ID');
+		
+		Handy_Custom_Logger::log("QUERY: Primary query found " . count($posts_in_context) . " posts", 'info');
+		
+		// Add SQL debugging for primary query
+		if (empty($posts_in_context)) {
+			global $wpdb;
+			Handy_Custom_Logger::log("QUERY: Primary query SQL: " . $wpdb->last_query, 'info');
+			Handy_Custom_Logger::log("QUERY: WordPress found_posts: " . $wp_query->found_posts, 'info');
+		}
+
+		// If primary query fails and we have subcategory context, try fallback
+		if (empty($posts_in_context) && !empty($context_filters['subcategory'])) {
+			Handy_Custom_Logger::log("QUERY: Primary query failed, attempting fallback method", 'warning');
+			$posts_in_context = $this->execute_fallback_contextual_query($context_filters, $content_type);
+		}
+		
+		// Log if we hit the limit (may need to increase)
+		if (count($posts_in_context) >= 1000) {
+			Handy_Custom_Logger::log("QUERY: Contextual query hit limit of 1000 posts - consider increasing if taxonomy filtering seems incomplete", 'warning');
+		}
+		
+		Handy_Custom_Logger::log("QUERY: Final result: " . count($posts_in_context) . " posts found in context", 'info');
+		
+		return $posts_in_context;
+	}
+
+	/**
+	 * Fallback contextual query using direct term relationships
+	 * Used when WP_Query tax_query fails to find expected results
+	 * Fixed to properly use term_taxonomy_id for post relationships
+	 *
+	 * @param array $context_filters Context filters  
+	 * @param string $content_type Content type (products/recipes)
+	 * @return array Array of post IDs
+	 */
+	private function execute_fallback_contextual_query($context_filters, $content_type) {
+		global $wpdb;
+		
+		if (empty($context_filters['subcategory'])) {
+			return array();
+		}
+		
+		$subcategory_slug = $context_filters['subcategory'];
+		$taxonomy_name = $content_type === 'products' ? 'product-category' : 'recipe-category';
+		$post_type = $content_type === 'products' ? 'product' : 'recipe';
+		
+		Handy_Custom_Logger::log("FALLBACK: Searching for posts with term slug '{$subcategory_slug}' in taxonomy '{$taxonomy_name}'", 'info');
+		
+		// First, validate that WordPress can find this term
+		$wp_term_check = get_term_by('slug', $subcategory_slug, $taxonomy_name);
+		if ($wp_term_check && !is_wp_error($wp_term_check)) {
+			Handy_Custom_Logger::log("FALLBACK: WordPress confirms term exists - ID: {$wp_term_check->term_id}, name: '{$wp_term_check->name}'", 'info');
+		}
+		
+		// CORRECTED: Get both term_id AND term_taxonomy_id (they're different!)
+		$term_data = $wpdb->get_row($wpdb->prepare(
+			"SELECT t.term_id, tt.term_taxonomy_id 
+			 FROM {$wpdb->terms} t 
+			 INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id 
+			 WHERE t.slug = %s AND tt.taxonomy = %s",
+			$subcategory_slug,
+			$taxonomy_name
+		));
+		
+		if (!$term_data) {
+			Handy_Custom_Logger::log("FALLBACK: Term not found in database query", 'error');
+			// Add SQL debugging
+			$debug_sql = $wpdb->prepare(
+				"SELECT t.term_id, tt.term_taxonomy_id FROM {$wpdb->terms} t INNER JOIN {$wpdb->term_taxonomy} tt ON t.term_id = tt.term_id WHERE t.slug = %s AND tt.taxonomy = %s",
+				$subcategory_slug,
+				$taxonomy_name
+			);
+			Handy_Custom_Logger::log("FALLBACK: Debug SQL: {$debug_sql}", 'error');
+			return array();
+		}
+		
+		Handy_Custom_Logger::log("FALLBACK: Found term - term_id: {$term_data->term_id}, term_taxonomy_id: {$term_data->term_taxonomy_id}", 'info');
+		
+		// CORRECTED: Use term_taxonomy_id for the relationship query (this is the key fix!)
+		$post_ids = $wpdb->get_col($wpdb->prepare(
+			"SELECT DISTINCT p.ID 
+			 FROM {$wpdb->posts} p
+			 INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id
+			 WHERE tr.term_taxonomy_id = %d 
+			 AND p.post_type = %s 
+			 AND p.post_status = 'publish'
+			 LIMIT 1000",
+			$term_data->term_taxonomy_id,  // Using term_taxonomy_id instead of term_id
+			$post_type
+		));
+		
+		$post_count = is_array($post_ids) ? count($post_ids) : 0;
+		Handy_Custom_Logger::log("FALLBACK: Direct database query found {$post_count} posts using term_taxonomy_id: {$term_data->term_taxonomy_id}", 'info');
+		
+		if ($post_count > 0) {
+			Handy_Custom_Logger::log("FALLBACK: Sample post IDs: " . implode(', ', array_slice($post_ids, 0, 5)) . ($post_count > 5 ? '...' : ''), 'info');
+		} else {
+			// Additional debugging if still no posts found
+			$debug_sql = $wpdb->prepare(
+				"SELECT DISTINCT p.ID FROM {$wpdb->posts} p INNER JOIN {$wpdb->term_relationships} tr ON p.ID = tr.object_id WHERE tr.term_taxonomy_id = %d AND p.post_type = %s AND p.post_status = 'publish'",
+				$term_data->term_taxonomy_id,
+				$post_type
+			);
+			Handy_Custom_Logger::log("FALLBACK: No posts found. Debug SQL: {$debug_sql}", 'error');
+		}
+		
+		return is_array($post_ids) ? array_map('intval', $post_ids) : array();
 	}
 }

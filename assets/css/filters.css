@@ -26,17 +26,53 @@
 }
 
 .handy-filters[data-content-type="recipes"] {
-    border-left: 4px solid #d63638; /* Red accent for recipes */
+    border-left: 4px solid #007cba; /* Blue accent for recipes - matching products */
 }
 
 /* ==========================================================================
-   Filter Row Layout
+   Filter Header - "FILTER" with icons
    ========================================================================== */
 
-.filters-row {
+.handy-filter-header {
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.handy-filter-tag-icon {
+    color: #6c757d;
+    font-size: 1rem;
+}
+
+.handy-filter-title {
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #1d2327;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+
+/* ==========================================================================
+   Filter Row Layout - Content type specific grids
+   ========================================================================== */
+
+/* Products: 7 filters - 7 column grid */
+.handy-filters[data-content-type="products"] .filters-row {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 15px;
+    align-items: end;
+}
+
+/* Recipes: 3 filters - 3 column grid */  
+.handy-filters[data-content-type="recipes"] .filters-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 15px;
     align-items: end;
 }
 
@@ -47,8 +83,6 @@
 .filter-group {
     display: flex;
     flex-direction: column;
-    min-width: 200px;
-    flex: 1;
 }
 
 .filter-group label {
@@ -72,7 +106,14 @@
     min-height: 44px; /* Touch-friendly minimum */
 }
 
-.filter-group .filter-select:focus {
+/* Focus states - content type specific colors */
+.handy-filters[data-content-type="products"] .filter-group .filter-select:focus {
+    outline: none;
+    border-color: #007cba;
+    box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
+}
+
+.handy-filters[data-content-type="recipes"] .filter-group .filter-select:focus {
     outline: none;
     border-color: #007cba;
     box-shadow: 0 0 0 2px rgba(0, 124, 186, 0.1);
@@ -82,8 +123,13 @@
     border-color: #999;
 }
 
-/* Selected state for filters with active values */
-.filter-group .filter-select[data-has-value="true"] {
+/* Selected state for filters with active values - content type specific colors */
+.handy-filters[data-content-type="products"] .filter-group .filter-select[data-has-value="true"] {
+    border-color: #007cba;
+    background: #f0f8ff;
+}
+
+.handy-filters[data-content-type="recipes"] .filter-group .filter-select[data-has-value="true"] {
     border-color: #007cba;
     background: #f0f8ff;
 }
@@ -99,6 +145,45 @@
     text-align: center;
 }
 
+/* Universal Clear Button Container - separate from main filter container */
+.handy-filter-clear-container {
+    max-width: 1440px;
+    margin: 0 auto 30px auto;
+    text-align: left;
+    padding: 0 20px;
+}
+
+.btn-clear-filters-universal {
+    background: #6c757d;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.btn-clear-filters-universal:hover {
+    background: #5a6268;
+    transform: translateY(-1px);
+}
+
+.btn-clear-filters-universal:active {
+    transform: translateY(0);
+}
+
+.btn-clear-filters-universal i {
+    font-size: 0.75rem;
+}
+
+/* Legacy clear button support */
 .btn-clear-filters {
     background: #6c757d;
     color: white;
@@ -147,8 +232,19 @@
     font-weight: 500;
 }
 
-/* Loading spinner animation */
-.filter-loading::before {
+/* Loading spinner animation - content type specific colors */
+.handy-filters[data-content-type="products"] .filter-loading::before {
+    content: '';
+    width: 20px;
+    height: 20px;
+    border: 2px solid #e9ecef;
+    border-top: 2px solid #007cba;
+    border-radius: 50%;
+    animation: filter-spin 1s linear infinite;
+    margin-right: 10px;
+}
+
+.handy-filters[data-content-type="recipes"] .filter-loading::before {
     content: '';
     width: 20px;
     height: 20px;
@@ -197,13 +293,22 @@
         padding: 15px 40px;
     }
     
-    .filters-row {
+    /* Products: maintain 7-column grid but with adjusted gap */
+    .handy-filters[data-content-type="products"] .filters-row {
+        gap: 12px;
+    }
+    
+    /* Recipes: maintain 3-column grid with consistent gap */
+    .handy-filters[data-content-type="recipes"] .filters-row {
         gap: 15px;
     }
     
     .filter-group {
         min-width: 150px;
-        flex-basis: calc(50% - 7.5px);
+    }
+    
+    .handy-filter-clear-container {
+        padding: 0 40px;
     }
 }
 
@@ -214,7 +319,10 @@
         margin-bottom: 20px;
     }
     
-    .filters-row {
+    /* Both products and recipes stack vertically on mobile */
+    .handy-filters[data-content-type="products"] .filters-row,
+    .handy-filters[data-content-type="recipes"] .filters-row {
+        display: flex;
         flex-direction: column;
         gap: 15px;
     }
@@ -231,6 +339,10 @@
     .filter-group .filter-select {
         padding: 12px;
         font-size: 1rem; /* Prevent zoom on iOS */
+    }
+    
+    .handy-filter-clear-container {
+        padding: 0 20px;
     }
 }
 

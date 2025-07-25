@@ -28,6 +28,12 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
 <div class="handy-filters" data-content-type="<?php echo esc_attr($content_type); ?>" 
      data-shortcode="filter-<?php echo esc_attr($content_type); ?>">
     
+    <!-- Filter Header -->
+    <div class="handy-filter-header">
+        <i class="fas fa-tag handy-filter-tag-icon"></i>
+        <span class="handy-filter-title">FILTER</span>
+    </div>
+    
     <?php if (!empty($filter_options)): ?>
         <div class="filters-row">
             <?php foreach ($filter_options as $filter_key => $terms): ?>
@@ -74,17 +80,7 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
                 
             <?php endforeach; ?>
         </div>
-        
-        <!-- Clear Filters Button (only show if filters are applied) -->
-        <?php if (isset($has_active_filters) && $has_active_filters): ?>
-            <div class="filter-actions">
-                <button type="button" class="btn btn-clear-filters-main" 
-                        data-content-type="<?php echo esc_attr($content_type); ?>">
-                    Clear All Filters
-                </button>
-            </div>
-            <?php Handy_Custom_Logger::log("Clear filters button displayed - active filters detected", 'debug'); ?>
-        <?php endif; ?>
+        <?php Handy_Custom_Logger::log("Universal clear filters button displayed", 'debug'); ?>
         
     <?php else: ?>
         <!-- No filter options available -->
@@ -99,6 +95,15 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
         <p>Updating filters...</p>
     </div>
     
+</div>
+
+<!-- Universal Clear Filters Button - separate container below filters -->
+<div class="handy-filter-clear-container" data-content-type="<?php echo esc_attr($content_type); ?>">
+    <button type="button" class="btn btn-clear-filters-universal" 
+            data-content-type="<?php echo esc_attr($content_type); ?>">
+        Clear (view all)
+        <i class="fas fa-arrow-right"></i>
+    </button>
 </div>
 
 <?php
