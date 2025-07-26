@@ -235,4 +235,159 @@ class Handy_Custom_Recipes_Renderer {
 		<?php
 		return ob_get_clean();
 	}
+
+	/**
+	 * Render specific recipes by post IDs
+	 * Used for featured recipes sections - bypasses taxonomy filtering
+	 *
+	 * @param array $recipe_ids Array of recipe post IDs to display
+	 * @param array $options Options array for layout customization
+	 * @return string HTML for specific recipe cards
+	 */
+	public function render_specific_recipes($recipe_ids, $options = array()) {
+		// Validate recipe IDs
+		if (empty($recipe_ids) || !is_array($recipe_ids)) {
+			Handy_Custom_Logger::log("Invalid recipe IDs provided to render_specific_recipes", 'warning');
+			return '';
+		}
+
+		// Sanitize recipe IDs to ensure they're all integers
+		$recipe_ids = array_map('intval', $recipe_ids);
+		$recipe_ids = array_filter($recipe_ids, function($id) {
+			return $id > 0;
+		});
+
+		if (empty($recipe_ids)) {
+			Handy_Custom_Logger::log("No valid recipe IDs after sanitization", 'warning');
+			return '';
+		}
+
+		// Default options
+		$defaults = array(
+			'columns' => 3,
+			'show_wrapper' => true,
+			'wrapper_class' => 'handy-featured-recipes-grid'
+		);
+		$options = array_merge($defaults, $options);
+
+		// Query specific recipes
+		$query_args = array(
+			'post_type' => 'recipe',
+			'post_status' => 'publish',
+			'post__in' => $recipe_ids,
+			'orderby' => 'post__in', // Maintain the order specified in recipe_ids
+			'posts_per_page' => count($recipe_ids)
+		);
+
+		$query = new WP_Query($query_args);
+
+		if (!$query->have_posts()) {
+			Handy_Custom_Logger::log("No published recipes found for IDs: " . implode(', ', $recipe_ids), 'info');
+			return '';
+		}
+
+		$recipes = $query->posts;
+		wp_reset_postdata();
+
+		Handy_Custom_Logger::log("Rendering " . count($recipes) . " specific recipes for featured section", 'info');
+
+		// Start output buffering
+		ob_start();
+
+		if ($options['show_wrapper']) {
+			echo '<div class="' . esc_attr($options['wrapper_class']) . '" data-columns="' . esc_attr($options['columns']) . '">';
+		}
+
+		foreach ($recipes as $recipe) {
+			$card_data = Handy_Custom_Recipes_Display::get_recipe_card_data($recipe->ID);
+			
+			if (empty($card_data)) {
+				Handy_Custom_Logger::log("No card data for recipe ID: {$recipe->ID}", 'warning');
+				continue;
+			}
+			?>
+			<div class="recipe-card" data-recipe-id="<?php echo esc_attr($card_data['id']); ?>">
+				<a href="<?php echo esc_url($card_data['url']); ?>" class="recipe-card-link">
+					
+					<!-- Recipe Featured Image -->
+					<div class="recipe-card-image-container">
+						<?php if ($card_data['has_image']): ?>
+							<img src="<?php echo esc_url($card_data['featured_image']); ?>" 
+								 alt="<?php echo esc_attr($card_data['title']); ?>" 
+								 class="recipe-card-image" 
+								 loading="lazy" />
+						<?php else: ?>
+							<div class="recipe-card-image-placeholder">
+								<span>No Image</span>
+							</div>
+						<?php endif; ?>
+					</div>
+					
+					<!-- Recipe Card Content -->
+					<div class="recipe-card-content">
+						
+						<!-- Recipe Title -->
+						<h3 class="recipe-card-title"><?php echo esc_html($card_data['title']); ?></h3>
+						
+						<!-- Recipe Description -->
+						<?php if ($card_data['description']): ?>
+							<p class="recipe-card-description"><?php echo esc_html($card_data['description']); ?></p>
+						<?php endif; ?>
+						
+						<!-- Recipe Meta: Prep Time & Servings -->
+						<div class="recipe-card-meta">
+							<div class="recipe-prep-time">
+								<i class="fa-regular fa-clock recipe-icon recipe-clock-icon" aria-hidden="true"></i>
+								<span class="recipe-prep-time-text"><?php echo esc_html($card_data['prep_time']); ?></span>
+							</div>
+							
+							<div class="recipe-servings">
+								<i class="fa-regular fa-user recipe-icon recipe-person-icon" aria-hidden="true"></i>
+								<span class="recipe-servings-text"><?php echo esc_html($card_data['servings']); ?></span>
+							</div>
+						</div>
+						
+					</div>
+					
+				</a>
+			</div>
+			<?php
+		}
+
+		if ($options['show_wrapper']) {
+			echo '</div>';
+		}
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Extract recipe post ID from URL
+	 * Domain-agnostic approach using recipe slug extraction
+	 *
+	 * @param string $url Recipe URL from ACF link field
+	 * @return int|false Recipe post ID or false if not found
+	 */
+	public static function extract_recipe_id_from_url($url) {
+		if (empty($url) || !is_string($url)) {
+			return false;
+		}
+
+		// Extract slug from URL path (works with any domain)
+		if (preg_match('/\/recipe\/([^\/\?#]+)/', $url, $matches)) {
+			$slug = sanitize_title($matches[1]);
+			$recipe = get_page_by_path($slug, OBJECT, 'recipe');
+			
+			if ($recipe && $recipe->post_status === 'publish') {
+				Handy_Custom_Logger::log("Found recipe ID {$recipe->ID} for slug: {$slug}", 'info');
+				return $recipe->ID;
+			}
+			
+			Handy_Custom_Logger::log("No published recipe found for slug: {$slug}", 'warning');
+		} else {
+			Handy_Custom_Logger::log("Invalid recipe URL format: {$url}", 'warning');
+		}
+
+		return false;
+	}
 }

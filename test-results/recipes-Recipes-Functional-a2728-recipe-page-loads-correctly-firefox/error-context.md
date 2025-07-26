@@ -1,0 +1,158 @@
+# Page snapshot
+
+```yaml
+- link "Skip to content":
+  - /url: "#main"
+- banner:
+  - navigation:
+    - link "Handy Seafood":
+      - /url: http://localhost:10008/
+      - img "Handy Seafood"
+    - list
+    - list:
+      - listitem:
+        - link "Products":
+          - /url: http://localhost:10008/products/
+      - listitem:
+        - link "Industries We Serve":
+          - /url: http://localhost:10008/industries/
+      - listitem: About
+      - listitem: Resources
+      - listitem:
+        - link "Contact Us":
+          - /url: http://localhost:10008/contact/
+      - listitem:
+        - link "Product Locator":
+          - /url: http://localhost:10008/product-locator/
+      - listitem:
+        - link "Search":
+          - /url: "#"
+          - text: 
+      - listitem:
+        - link "How to order":
+          - /url: /order/
+- main:
+  - navigation:
+    - link "Home":
+      - /url: http://localhost:10008/
+    - text: /
+    - link "Recipes":
+      - /url: http://localhost:10008/recipes/
+    - text: / Bacon Jalapeño Shrimp Corn Muffins
+  - heading "Bacon Jalapeño Shrimp Corn Muffins" [level=1]
+  - link "Print":
+    - /url: "#"
+  - text: "|"
+  - link "Email":
+    - /url: mailto:?subject=Bacon+Jalape%C3%B1o+Shrimp+Corn+Muffins&body=http%3A%2F%2Flocalhost%3A10008%2Frecipe%2Fbacon-jalapeno-shrimp-corn-muffins%2F
+  - text: "|"
+  - link "Share via Text":
+    - /url: "#"
+  - text: "|"
+  - link "Share on Facebook":
+    - /url: "#"
+  - link "Share on X":
+    - /url: "#"
+  - link "Share on LinkedIn":
+    - /url: "#"
+  - paragraph: Golden corn muffins packed with smokey bacon, fiery jalapeños, and cheddar cheese. Topped with savory cream cheese icing, Spicy Jalapeño Shrimp, and more bacon, it’s an explosion of flavors in every bite!
+  - table:
+    - rowgroup:
+      - row "Prep Time 5min":
+        - cell "Prep Time"
+        - cell "5min"
+      - row "Servings 12 Servings":
+        - cell "Servings"
+        - cell "12 Servings"
+  - button "Ingredients"
+  - list:
+    - listitem: 1 Carton Handy Spicy Jalapeño Shrimp
+    - listitem: 1 (8.5 oz) box cornbread/muffin mix
+    - listitem: 1 (14.5 oz) can creamed corn
+    - listitem: 1/2 cup buttermilk
+    - listitem: 1/3 cup Cheddar Cheese
+    - listitem: 1/4 cup chopped cooked bacon
+    - listitem: 1/4 cup chopped jalapeños (adjust to your spice preference)
+    - listitem: 1 large egg
+    - listitem: 1 tablespoon melted butter
+    - listitem: 4 oz. cream cheese, softened
+    - listitem: 2 tablespoons honey
+    - listitem: 1/4 cup chopped green onions
+  - button "Cooking Instructions"
+- contentinfo:
+  - link:
+    - /url: http://localhost:10008/
+  - paragraph:
+    - strong: 700 E Main St.
+    - strong: Salisbury, MD 21804
+    - strong: "Phone: 410.912.2000"
+    - strong: "Toll Free: 800.426.3977"
+    - strong: "Fax: 410.912.0097"
+  - paragraph:
+    - link "Contact us":
+      - /url: /contact/
+  - paragraph:
+    - link "Crab Cakes":
+      - /url: /products/crab-cakes/
+    - link "Crab Meat":
+      - /url: /products/crab-meat/
+    - link "Soft Shell Crab":
+      - /url: /products/soft-shell-crab/
+    - link "Shrimp":
+      - /url: /products/shrimp/
+    - link "Appetizers":
+      - /url: /products/appetizers/
+    - link "Dietary Alternatives":
+      - /url: /products/dietary-alternatives/
+  - paragraph:
+    - link "Industries We Serve":
+      - /url: /industries/
+    - link "Retail & Club":
+      - /url: /industries/retail-club/
+    - link "Foodservice":
+      - /url: /industries/foodservice/
+    - link "Capabilities":
+      - /url: /industries/capabilities/
+    - link "Vendor Resources":
+      - /url: /industries/resources/
+    - link "How to Order":
+      - /url: /order/
+  - paragraph:
+    - link "The Handy Way":
+      - /url: /the-handy-way/
+    - link "Our History":
+      - /url: /history/
+    - link "Values, Purpose & Mission":
+      - /url: /values-purpose-mission/
+    - link "Brands & Partnerships":
+      - /url: /brands/
+    - link "Stewardship":
+      - /url: /stewardship/
+    - link "Product Catalog":
+      - /url: /products/product-catalog/
+  - link "Follow on Facebook":
+    - /url: https://
+    - text: 
+  - link "Follow on Instagram":
+    - /url: https://
+    - text: 
+  - link "Follow on Pinterest":
+    - /url: https://
+    - text: 
+  - link "Follow on LinkedIn":
+    - /url: https://
+    - text: 
+  - link "Follow on YouTube":
+    - /url: https://
+    - text: 
+  - paragraph:
+    - link "Privacy Policy":
+      - /url: /privacy-policy/
+    - text: "|"
+    - link "Terms of Use":
+      - /url: /terms-of-use/
+    - text: "| © Copyright 2025 by Handy Seafood"
+  - link "Go to top":
+    - /url: "#top"
+    - text: 
+```

@@ -358,6 +358,39 @@ get_header(); ?>
             </div>
         </div>
 
+        <!-- Featured Recipes Section -->
+        <?php
+        $featured_recipes = function_exists('get_field') ? get_field('featured_recipes') : null;
+        if ($featured_recipes && !empty($featured_recipes)) {
+            $recipe_ids = array();
+            
+            // Extract recipe IDs from ACF link field URLs
+            foreach ($featured_recipes as $featured_recipe) {
+                if (isset($featured_recipe['featured_recipe']['url']) && !empty($featured_recipe['featured_recipe']['url'])) {
+                    $recipe_id = Handy_Custom_Recipes_Renderer::extract_recipe_id_from_url($featured_recipe['featured_recipe']['url']);
+                    if ($recipe_id) {
+                        $recipe_ids[] = $recipe_id;
+                    }
+                }
+            }
+            
+            // Limit to maximum 3 recipes and render if we have valid IDs
+            if (!empty($recipe_ids)) {
+                $recipe_ids = array_slice($recipe_ids, 0, 3);
+                $recipe_count = count($recipe_ids);
+                $renderer = new Handy_Custom_Recipes_Renderer();
+                ?>
+                <div class="handy-featured-recipes-section">
+                    <div class="handy-featured-recipes-content">
+                        <h2 class="handy-featured-recipes-title">Featured Recipes</h2>
+                    </div>
+                </div>
+                <?php echo $renderer->render_specific_recipes($recipe_ids, array('columns' => $recipe_count)); ?>
+                <?php
+            }
+        }
+        ?>
+
     <?php endwhile; ?>
 </div>
 
