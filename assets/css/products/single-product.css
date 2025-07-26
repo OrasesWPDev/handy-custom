@@ -523,3 +523,97 @@
         display: none;
     }
 }
+
+/* Featured Recipes Section */
+.handy-featured-recipes-section {
+    background-color: #e7edf0;
+    padding: 60px 0;
+    margin-top: 40px;
+}
+
+.handy-featured-recipes-content {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.handy-featured-recipes-title {
+    font-family: Poppins, sans-serif;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #0145AB;
+    text-align: center;
+    margin: 0 0 40px 0;
+    letter-spacing: -0.82px;
+}
+
+/* Featured Recipes Grid - 3 columns with centering */
+.handy-featured-recipes-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 40px;
+    justify-content: center;
+    align-items: start;
+}
+
+/* Center recipes when fewer than 3 are displayed */
+.handy-featured-recipes-grid[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+}
+
+.handy-featured-recipes-grid[data-columns="2"] {
+    grid-template-columns: repeat(2, 1fr);
+    max-width: 80%;
+    margin: 0 auto;
+}
+
+.handy-featured-recipes-grid[data-columns="1"] {
+    grid-template-columns: 1fr;
+    max-width: 40%;
+    margin: 0 auto;
+}
+
+/* Responsive design for Featured Recipes */
+@media (max-width: 1199px) {
+    .handy-featured-recipes-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 30px;
+    }
+    
+    .handy-featured-recipes-grid[data-columns="1"] {
+        grid-template-columns: 1fr;
+        max-width: 50%;
+    }
+    
+    .handy-featured-recipes-title {
+        font-size: 2.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .handy-featured-recipes-section {
+        padding: 40px 0;
+    }
+    
+    .handy-featured-recipes-grid {
+        grid-template-columns: 1fr;
+        gap: 20px;
+    }
+    
+    .handy-featured-recipes-grid[data-columns="1"],
+    .handy-featured-recipes-grid[data-columns="2"],
+    .handy-featured-recipes-grid[data-columns="3"] {
+        grid-template-columns: 1fr;
+        max-width: 100%;
+        margin: 0;
+    }
+    
+    .handy-featured-recipes-title {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+    
+    .handy-featured-recipes-content {
+        padding: 0 15px;
+    }
+}
