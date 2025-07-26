@@ -195,7 +195,7 @@ test.describe('Recipes Functionality @full', () => {
     }
     
     // Check recipe content area
-    const recipeContent = page.locator('.recipe-content, .single-recipe-content, .entry-content');
+    const recipeContent = page.locator('.handy-recipe-content, .recipe-content, .single-recipe-content, .entry-content');
     await expect(recipeContent).toBeVisible();
   });
 
