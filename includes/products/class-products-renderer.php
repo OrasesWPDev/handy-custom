@@ -126,17 +126,47 @@ class Handy_Custom_Products_Renderer {
 			echo '<div class="' . esc_attr($options['wrapper_class']) . '" data-columns="' . esc_attr($options['columns']) . '">';
 		}
 
-		// Render each product as a card using existing display infrastructure
+		// Render each product as a card using existing display methods
 		while ($products_query->have_posts()) {
 			$products_query->the_post();
 			
-			// Use the existing product display system to get card data
-			$product_data = Handy_Custom_Products_Display::get_product_card_data(get_the_ID());
+			// Get product data using existing individual methods
+			$product_id = get_the_ID();
+			$product_thumbnail = Handy_Custom_Products_Display::get_product_thumbnail($product_id);
+			$product_excerpt = Handy_Custom_Products_Display::get_product_excerpt($product_id);
+			$product_url = Handy_Custom_Products_Display::get_product_single_url($product_id);
 			
-			if ($product_data) {
-				// Load product card template
-				$this->load_product_card_template($product_data);
+			// Render product card HTML directly (matching archive template structure)
+			echo '<div class="product-list-card" data-product="' . esc_attr($product_id) . '">';
+			echo '<a href="' . esc_url($product_url) . '" class="product-card-link">';
+			
+			// Product thumbnail
+			echo '<div class="product-thumbnail">';
+			if ($product_thumbnail) {
+				echo '<img src="' . esc_url($product_thumbnail) . '" alt="' . esc_attr(get_the_title()) . '" loading="lazy">';
+			} else {
+				echo '<div class="image-placeholder"><span>' . esc_html(get_the_title()) . '</span></div>';
 			}
+			echo '</div>';
+			
+			// Product info
+			echo '<div class="product-info">';
+			echo '<div class="product-content">';
+			echo '<h3 class="product-title">' . esc_html(get_the_title()) . '</h3>';
+			
+			if (!empty($product_excerpt)) {
+				echo '<div class="product-excerpt"><p>' . esc_html($product_excerpt) . '</p></div>';
+			}
+			echo '</div>';
+			
+			// Product actions
+			echo '<div class="product-actions">';
+			echo '<a href="' . esc_url($product_url) . '" class="btn-see-details">See Product Details</a>';
+			echo '</div>';
+			echo '</div>';
+			
+			echo '</a>';
+			echo '</div>';
 		}
 
 		if ($options['show_wrapper']) {
@@ -174,49 +204,6 @@ class Handy_Custom_Products_Renderer {
 		return false;
 	}
 
-	/**
-	 * Load product card template for individual product display
-	 *
-	 * @param array $product_data Product card data
-	 */
-	private function load_product_card_template($product_data) {
-		// Load the individual product card template
-		$card_template_path = HANDY_CUSTOM_PLUGIN_DIR . 'templates/shortcodes/products/product-card.php';
-		
-		// If specific card template doesn't exist, create inline card HTML
-		if (file_exists($card_template_path)) {
-			include $card_template_path;
-		} else {
-			// Create product card HTML inline (matching archive template structure)
-			echo '<div class="product-list-card">';
-			echo '<a href="' . esc_url($product_data['url']) . '" class="product-card-link">';
-			
-			// Product image
-			echo '<div class="product-image-container">';
-			if (!empty($product_data['image'])) {
-				echo '<img src="' . esc_url($product_data['image']) . '" alt="' . esc_attr($product_data['title']) . '" class="product-image">';
-			} else {
-				echo '<div class="product-image-placeholder">No Image Available</div>';
-			}
-			echo '</div>';
-			
-			// Product content
-			echo '<div class="product-info">';
-			echo '<div class="product-content">';
-			echo '<h3 class="product-title">' . esc_html($product_data['title']) . '</h3>';
-			echo '<div class="product-excerpt"><p>' . esc_html($product_data['excerpt']) . '</p></div>';
-			echo '</div>';
-			
-			// Product actions
-			echo '<div class="product-actions">';
-			echo '<a href="' . esc_url($product_data['url']) . '" class="btn-see-details">See Product Details</a>';
-			echo '</div>';
-			echo '</div>';
-			
-			echo '</a>';
-			echo '</div>';
-		}
-	}
 
 	/**
 	 * Load a template file
