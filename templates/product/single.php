@@ -377,14 +377,15 @@ get_header(); ?>
             // Limit to maximum 3 recipes and render if we have valid IDs
             if (!empty($recipe_ids)) {
                 $recipe_ids = array_slice($recipe_ids, 0, 3);
+                $recipe_count = count($recipe_ids);
                 $renderer = new Handy_Custom_Recipes_Renderer();
                 ?>
                 <div class="handy-featured-recipes-section">
                     <div class="handy-featured-recipes-content">
                         <h2 class="handy-featured-recipes-title">Featured Recipes</h2>
-                        <?php echo $renderer->render_specific_recipes($recipe_ids, array('columns' => 3)); ?>
                     </div>
                 </div>
+                <?php echo $renderer->render_specific_recipes($recipe_ids, array('columns' => $recipe_count)); ?>
                 <?php
             }
         }
