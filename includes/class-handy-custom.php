@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '2.0.8';
+	const VERSION = '2.0.9';
 
 	/**
 	 * Single instance of the class
@@ -428,7 +428,7 @@ class Handy_Custom {
 			wp_enqueue_script(
 				'handy-custom-single-recipe',
 				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/recipes/single-recipe.js',
-				array('jquery'),
+				array('jquery', 'handy-custom-card-equalizer'),
 				$js_version,
 				true
 			);

@@ -78,6 +78,147 @@ class Handy_Custom_Products_Renderer {
 
 
 	/**
+	 * Render specific products by IDs for featured product sections
+	 *
+	 * @param array $product_ids Array of product post IDs
+	 * @param array $options Display options (columns, wrapper_class, etc.)
+	 * @return string
+	 */
+	public function render_specific_products($product_ids, $options = array()) {
+		// Validate product IDs
+		if (empty($product_ids) || !is_array($product_ids)) {
+			Handy_Custom_Logger::log("Invalid product IDs provided to render_specific_products", 'warning');
+			return '';
+		}
+
+		// Default options with dynamic column count
+		$defaults = array(
+			'columns' => count($product_ids),
+			'show_wrapper' => true,
+			'wrapper_class' => 'handy-featured-products-grid'
+		);
+		$options = array_merge($defaults, $options);
+
+		// Query specific products
+		$products_query = new WP_Query(array(
+			'post_type' => 'product',
+			'post_status' => 'publish',
+			'post__in' => $product_ids,
+			'orderby' => 'post__in', // Maintain the order of IDs
+			'posts_per_page' => count($product_ids),
+			'no_found_rows' => true, // Performance optimization
+			'update_post_meta_cache' => false // Performance optimization
+		));
+
+		if (!$products_query->have_posts()) {
+			Handy_Custom_Logger::log("No valid products found for IDs: " . implode(', ', $product_ids), 'warning');
+			return '';
+		}
+
+		// Log success
+		Handy_Custom_Logger::log("Rendering " . $products_query->post_count . " specific products", 'info');
+
+		// Start output buffering
+		ob_start();
+
+		// Create wrapper with dynamic column data attribute
+		if ($options['show_wrapper']) {
+			echo '<div class="' . esc_attr($options['wrapper_class']) . '" data-columns="' . esc_attr($options['columns']) . '">';
+		}
+
+		// Render each product as a card using existing display infrastructure
+		while ($products_query->have_posts()) {
+			$products_query->the_post();
+			
+			// Use the existing product display system to get card data
+			$product_data = Handy_Custom_Products_Display::get_product_card_data(get_the_ID());
+			
+			if ($product_data) {
+				// Load product card template
+				$this->load_product_card_template($product_data);
+			}
+		}
+
+		if ($options['show_wrapper']) {
+			echo '</div>';
+		}
+
+		// Reset post data
+		wp_reset_postdata();
+
+		return ob_get_clean();
+	}
+
+	/**
+	 * Extract product ID from URL (domain-agnostic)
+	 * Handles both URL formats:
+	 * - /products/{category}/{product-slug}/
+	 * - /products/{parent-category}/{child-category}/{product-slug}/
+	 *
+	 * @param string $url Product URL
+	 * @return int|false Product post ID or false if not found
+	 */
+	public static function extract_product_id_from_url($url) {
+		// Use regex to extract the final slug from product URLs
+		if (preg_match('/\/products\/(?:[^\/]+\/)*([^\/\?#]+)\/?$/', $url, $matches)) {
+			$slug = sanitize_title($matches[1]);
+			$product = get_page_by_path($slug, OBJECT, 'product');
+			
+			if ($product && $product->post_status === 'publish') {
+				Handy_Custom_Logger::log("Extracted product ID {$product->ID} from URL: {$url}", 'info');
+				return $product->ID;
+			}
+		}
+		
+		Handy_Custom_Logger::log("Could not extract valid product ID from URL: {$url}", 'warning');
+		return false;
+	}
+
+	/**
+	 * Load product card template for individual product display
+	 *
+	 * @param array $product_data Product card data
+	 */
+	private function load_product_card_template($product_data) {
+		// Load the individual product card template
+		$card_template_path = HANDY_CUSTOM_PLUGIN_DIR . 'templates/shortcodes/products/product-card.php';
+		
+		// If specific card template doesn't exist, create inline card HTML
+		if (file_exists($card_template_path)) {
+			include $card_template_path;
+		} else {
+			// Create product card HTML inline (matching archive template structure)
+			echo '<div class="product-list-card">';
+			echo '<a href="' . esc_url($product_data['url']) . '" class="product-card-link">';
+			
+			// Product image
+			echo '<div class="product-image-container">';
+			if (!empty($product_data['image'])) {
+				echo '<img src="' . esc_url($product_data['image']) . '" alt="' . esc_attr($product_data['title']) . '" class="product-image">';
+			} else {
+				echo '<div class="product-image-placeholder">No Image Available</div>';
+			}
+			echo '</div>';
+			
+			// Product content
+			echo '<div class="product-info">';
+			echo '<div class="product-content">';
+			echo '<h3 class="product-title">' . esc_html($product_data['title']) . '</h3>';
+			echo '<div class="product-excerpt"><p>' . esc_html($product_data['excerpt']) . '</p></div>';
+			echo '</div>';
+			
+			// Product actions
+			echo '<div class="product-actions">';
+			echo '<a href="' . esc_url($product_data['url']) . '" class="btn-see-details">See Product Details</a>';
+			echo '</div>';
+			echo '</div>';
+			
+			echo '</a>';
+			echo '</div>';
+		}
+	}
+
+	/**
 	 * Load a template file
 	 *
 	 * @param string $template Template name (without .php extension)
