@@ -191,32 +191,39 @@ get_header(); ?>
             </div>
         </div>
 
+        <!-- Featured Products Section -->
+        <?php
+        $related_products = function_exists('get_field') ? get_field('related_products') : '';
+        if (!empty($related_products) && is_array($related_products)): 
+            $product_ids = array();
+            
+            // Extract product IDs from ACF URLs
+            foreach ($related_products as $related_product) {
+                if (!empty($related_product['related_product_url'])) {
+                    $product_id = Handy_Custom_Products_Renderer::extract_product_id_from_url($related_product['related_product_url']);
+                    if ($product_id) {
+                        $product_ids[] = $product_id;
+                    }
+                }
+            }
+            
+            // Only show section if we have valid product IDs
+            if (!empty($product_ids)):
+                // Limit to 2 products maximum
+                $product_ids = array_slice($product_ids, 0, 2);
+                $product_count = count($product_ids);
+                $renderer = new Handy_Custom_Products_Renderer();
+        ?>
+        <div class="handy-featured-products-section">
+            <div class="handy-featured-products-content">
+                <h2 class="handy-featured-products-title">Featured Products</h2>
+            </div>
+        </div>
+        <?php echo $renderer->render_specific_products($product_ids, array('columns' => $product_count)); ?>
+        <?php endif; ?>
+        <?php endif; ?>
+
     <?php endwhile; ?>
 </div>
-
-<!-- Load Recipe-Specific JavaScript -->
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Accordion functionality
-    const accordionHeaders = document.querySelectorAll('.handy-accordion-header');
-    
-    accordionHeaders.forEach(header => {
-        header.addEventListener('click', function() {
-            const section = this.getAttribute('data-section');
-            const content = document.getElementById(section);
-            const isActive = this.classList.contains('active');
-            
-            // Toggle current section
-            if (isActive) {
-                this.classList.remove('active');
-                content.classList.remove('active');
-            } else {
-                this.classList.add('active');
-                content.classList.add('active');
-            }
-        });
-    });
-});
-</script>
 
 <?php get_footer(); ?>
