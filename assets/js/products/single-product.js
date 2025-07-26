@@ -211,11 +211,42 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize smooth scroll
     initSmoothScroll();
     
+    // Initialize card equalizer for featured recipes
+    initFeaturedRecipeCardEqualizer();
+    
+    /**
+     * Initialize card equalizer for featured recipes section
+     */
+    function initFeaturedRecipeCardEqualizer() {
+        const featuredRecipesGrid = document.querySelector('.handy-featured-recipes-grid');
+        
+        if (featuredRecipesGrid && typeof window.cardEqualizer !== 'undefined') {
+            // Wait for images to load before equalizing
+            setTimeout(function() {
+                window.cardEqualizer.equalizeRecipeCards();
+                
+                if (typeof handyCustomSingleProduct !== 'undefined' && handyCustomSingleProduct.debug) {
+                    console.log('Featured recipes card equalizer initialized');
+                }
+            }, 100);
+            
+            // Re-equalize on window resize
+            window.addEventListener('resize', function() {
+                setTimeout(function() {
+                    if (window.cardEqualizer) {
+                        window.cardEqualizer.equalizeRecipeCards();
+                    }
+                }, 250);
+            });
+        }
+    }
+    
     // Debug logging for accordion functionality
     if (typeof handyCustomSingleProduct !== 'undefined' && handyCustomSingleProduct.debug) {
         console.log('Single Product accordion initialized');
         console.log('Accordion headers found:', document.querySelectorAll('.handy-accordion-header').length);
         console.log('Accordion contents found:', document.querySelectorAll('.handy-accordion-content').length);
+        console.log('Featured recipes grid found:', document.querySelector('.handy-featured-recipes-grid') ? 'Yes' : 'No');
     }
     
 });

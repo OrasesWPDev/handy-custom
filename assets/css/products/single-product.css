@@ -527,6 +527,12 @@
 /* Featured Recipes Section */
 .handy-featured-recipes-section {
     margin-top: 40px;
+    background-color: #B5016E;
+    margin-left: -100vw;
+    margin-right: -100vw;
+    padding-left: 100vw;
+    padding-right: 100vw;
+    padding: 60px 0;
 }
 
 .handy-featured-recipes-content {
@@ -539,24 +545,25 @@
     font-family: Poppins, sans-serif;
     font-size: 4rem;
     font-weight: 700;
-    color: #000;
+    color: #ffffff;
     text-align: center;
     margin: 0 0 40px 0;
-    padding: 60px 0;
-    background-color: #B5016E;
-    margin-left: -100vw;
-    margin-right: -100vw;
-    padding-left: 100vw;
-    padding-right: 100vw;
+    white-space: nowrap;
 }
 
-/* Featured Recipes Grid - 3 columns with centering */
+/* Featured Recipes Grid - Dynamic centering for 1, 2, or 3 recipes */
 .handy-featured-recipes-grid {
     display: grid;
-    grid-template-columns: repeat(3, 1fr);
     gap: 40px;
     justify-content: center;
     align-items: start;
+    margin: 0 auto;
+}
+
+/* Default 3-column layout */
+.handy-featured-recipes-grid {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
 }
 
 /* Recipe Cards - Matching archive styling exactly */
@@ -678,33 +685,45 @@
     color: #3E434A;
 }
 
-/* Center recipes when fewer than 3 are displayed */
-.handy-featured-recipes-grid[data-columns="3"] {
-    grid-template-columns: repeat(3, 1fr);
+/* Dynamic centering based on number of recipes */
+.handy-featured-recipes-grid[data-columns="1"] {
+    grid-template-columns: 1fr;
+    max-width: 400px;
+    margin: 0 auto;
 }
 
 .handy-featured-recipes-grid[data-columns="2"] {
     grid-template-columns: repeat(2, 1fr);
-    max-width: 80%;
+    max-width: 800px;
     margin: 0 auto;
 }
 
-.handy-featured-recipes-grid[data-columns="1"] {
-    grid-template-columns: 1fr;
-    max-width: 40%;
+.handy-featured-recipes-grid[data-columns="3"] {
+    grid-template-columns: repeat(3, 1fr);
+    max-width: 1200px;
     margin: 0 auto;
 }
 
 /* Responsive design for Featured Recipes */
 @media (max-width: 1199px) {
-    .handy-featured-recipes-grid {
+    /* On tablets, 3 cards become 2+1, 2 cards stay 2, 1 card stays 1 */
+    .handy-featured-recipes-grid[data-columns="3"] {
         grid-template-columns: repeat(2, 1fr);
-        gap: 30px;
+        max-width: 800px;
+    }
+    
+    .handy-featured-recipes-grid[data-columns="2"] {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 800px;
     }
     
     .handy-featured-recipes-grid[data-columns="1"] {
         grid-template-columns: 1fr;
-        max-width: 50%;
+        max-width: 400px;
+    }
+    
+    .handy-featured-recipes-grid {
+        gap: 30px;
     }
     
     .handy-featured-recipes-title {
@@ -713,22 +732,17 @@
 }
 
 @media (max-width: 768px) {
-    .handy-featured-recipes-grid {
-        grid-template-columns: 1fr;
-        gap: 20px;
-    }
-    
+    /* On mobile, all layouts become single column */
     .handy-featured-recipes-grid[data-columns="1"],
     .handy-featured-recipes-grid[data-columns="2"],
     .handy-featured-recipes-grid[data-columns="3"] {
         grid-template-columns: 1fr;
         max-width: 100%;
-        margin: 0;
+        gap: 20px;
     }
     
     .handy-featured-recipes-title {
         font-size: 2.5rem;
-        padding: 40px 0;
         margin-bottom: 30px;
     }
     
