@@ -408,6 +408,7 @@ class Handy_Custom {
 	private function enqueue_single_recipe_assets() {
 		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/recipes/single-recipe.css';
 		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/recipes/single-recipe.js';
+		$card_equalizer_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/shared/card-equalizer.js';
 
 		// Enqueue single recipe CSS
 		if (file_exists($css_file)) {
@@ -420,6 +421,20 @@ class Handy_Custom {
 			);
 			
 			Handy_Custom_Logger::log('Single recipe CSS enqueued', 'debug');
+		}
+
+		// Enqueue card equalizer JS for featured products
+		if (file_exists($card_equalizer_file)) {
+			$equalizer_version = filemtime($card_equalizer_file);
+			wp_enqueue_script(
+				'handy-custom-card-equalizer',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/shared/card-equalizer.js',
+				array('jquery'),
+				$equalizer_version,
+				true
+			);
+			
+			Handy_Custom_Logger::log('Card equalizer JS enqueued for single recipe', 'debug');
 		}
 
 		// Enqueue single recipe JS if it exists

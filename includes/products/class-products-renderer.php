@@ -149,19 +149,24 @@ class Handy_Custom_Products_Renderer {
 			}
 			echo '</div>';
 			
-			// Product info
+			// Product info (matching archive template structure exactly)
 			echo '<div class="product-info">';
-			echo '<div class="product-content">';
+			
+			// Product Title
 			echo '<h3 class="product-title">' . esc_html(get_the_title()) . '</h3>';
 			
+			// Product Excerpt
 			if (!empty($product_excerpt)) {
-				echo '<div class="product-excerpt"><p>' . esc_html($product_excerpt) . '</p></div>';
+				echo '<div class="product-excerpt">';
+				echo '<p>' . esc_html($product_excerpt) . '</p>';
+				echo '</div>';
 			}
-			echo '</div>';
 			
-			// Product actions
+			// Product Link Button (matching archive template exactly)
 			echo '<div class="product-actions">';
-			echo '<a href="' . esc_url($product_url) . '" class="btn-see-details">See Product Details</a>';
+			echo '<a href="' . esc_url($product_url) . '" class="btn btn-product-details">';
+			echo '<i class="fa-regular fa-circle-info" aria-hidden="true"></i>See Product Details';
+			echo '</a>';
 			echo '</div>';
 			echo '</div>';
 			

@@ -2,7 +2,7 @@
 
 ![WordPress](https://img.shields.io/badge/WordPress-6.5%2B-blue.svg)
 ![PHP](https://img.shields.io/badge/PHP-8.0%2B-purple.svg)
-![Version](https://img.shields.io/badge/version-2.0.3-green.svg)
+![Version](https://img.shields.io/badge/version-2.0.9-green.svg)
 ![License](https://img.shields.io/badge/license-GPL--2.0-orange.svg)
 
 A powerful WordPress plugin providing advanced product and recipe management with AJAX filtering, SEO-friendly URLs, custom single post templates, and hierarchical category management.
@@ -25,6 +25,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 - **Advanced Shortcodes**: `[products]` and `[filter-products]` with comprehensive filtering
 - **SEO-Friendly URLs**: `/products/{category}/{product-slug}/` structure for single products
 - **Single Product Templates**: Professional two-column layout with specifications, features, cooking instructions, nutritional facts, and allergens
+- **Featured Recipes Integration**: Display up to 3 related recipes on product single pages with responsive grid layout
 - **Social Sharing Integration**: Print, email, text, Facebook, X (Twitter), and LinkedIn sharing
 - **Smart Category Detection**: Automatic parent category resolution for hierarchical navigation
 - **Rich Product Cards**: Featured images, descriptions, and action buttons in archive views
@@ -33,6 +34,7 @@ Handy Custom transforms your WordPress site's product and recipe displays into d
 ### 🍳 Recipes System  
 - **Recipe Shortcodes**: `[recipes]` and `[filter-recipes]` with category and method filtering
 - **Single Recipe Templates**: Dedicated single recipe layout with ingredients, prep instructions, cooking instructions, and recipe details
+- **Featured Products Integration**: Display up to 2 related products on recipe single pages with automatic card height equalization
 - **Recipe Cards**: Prep time, servings, and comprehensive recipe information
 - **Advanced Custom Fields Integration**: Full ACF support for recipe metadata including prep instructions, where to buy links
 - **Social Sharing**: Consistent sharing functionality across recipe templates
@@ -230,53 +232,9 @@ Handy_Custom (Main Controller)
     └── Renderer (Template rendering)
 ```
 
-### Browser Testing & Development Workflow
+### Browser Testing
 
-The plugin includes a comprehensive browser testing system using **Playwright** and **Local by WP Engine** for local-first development and testing.
-
-#### Prerequisites
-- [Local by WP Engine](https://localwp.com/) installed and running
-- Node.js (v16+) for testing framework
-- handy-crab site running at `http://localhost:10008`
-
-#### Quick Start
-```bash
-# Install testing dependencies
-npm install
-
-# Start development with auto-deployment
-npm run watch:deploy
-
-# Run quick validation tests
-npm run test:smoke
-
-# Run comprehensive test suite
-npm run test:full
-```
-
-#### Development Commands
-```bash
-# Development workflow
-npm run deploy:local          # Deploy plugin to Local test site
-npm run watch:deploy          # Auto-deploy on file changes
-npm run version:update -- --increment patch  # Update version numbers
-
-# Testing workflow
-npm run test:smoke           # Quick smoke tests
-npm run test:full            # Comprehensive testing
-npm run test:headed          # Debug with visible browser
-
-# Database management
-npm run db:reset backup --name "clean-state"  # Create backup
-npm run db:reset restore --source "clean-state"  # Restore backup
-```
-
-#### Testing Features
-- **Cross-browser testing** (Chrome, Firefox, Safari)
-- **WordPress integration** (login, plugin management, admin functions)
-- **Plugin-specific testing** (shortcodes, filters, single pages, URL rewriting)
-- **Responsive design testing** (mobile, tablet, desktop viewports)
-- **Database state management** (backup/restore for consistent testing)
+The plugin includes comprehensive browser testing using Playwright for quality assurance across Chrome, Firefox, and Safari, ensuring consistent functionality and responsive design across all devices.
 
 ### Extending the Plugin
 
@@ -299,24 +257,39 @@ Override templates by copying to your theme:
 - **Template Caching**: Smart template loading and caching
 - **AJAX Optimization**: Streamlined AJAX requests for filtering
 
-## 📝 Recent Updates (v2.0.2)
+## 📝 Recent Updates (v2.0.9)
 
-### Recipe System Completion (v2.0.0 - v2.0.2)
-- ✅ **Single Recipe Templates**: Professional recipe single post layout
-- ✅ **Social Sharing Standardization**: Consistent sharing across products and recipes  
-- ✅ **Recipe Content Organization**: Proper accordion sections for ingredients, prep instructions, cooking instructions
-- ✅ **Recipe Details Integration**: Prep time, servings, and where to buy information
-- ✅ **Breadcrumb Fix**: Recipe breadcrumbs now show proper hierarchy (Home / Recipes / Recipe Title)
+### Featured Content System (v2.0.8 - v2.0.9)
+- ✅ **Featured Recipes on Products**: Display up to 3 related recipes on product single pages
+- ✅ **Featured Products on Recipes**: Display up to 2 related products on recipe single pages
+- ✅ **Card Height Equalization**: JavaScript-based height matching for consistent layouts
+- ✅ **Responsive Grid Design**: CSS Grid with dynamic centering based on content count
+- ✅ **Domain-Agnostic URL Parsing**: Flexible ACF URL field integration across different domains
 
-### Product System Enhancement (v1.9.6)
-- ✅ **Single Product Templates**: Comprehensive single product display system
-- ✅ **Product Detail Tabs**: Collapsible specifications, features, cooking instructions, nutritional facts, allergens
-- ✅ **Social Sharing Integration**: Full sharing functionality with print, email, and social media
-- ✅ **Breadcrumb Integration**: Complete Yoast SEO breadcrumb support
+### Enhanced Filtering System (v2.0.7)
+- ✅ **Recipe Filter Implementation**: Complete `[filter-recipes]` shortcode with design consistency
+- ✅ **Contextual Filtering**: Auto-detection of category context for relevant filter options
+- ✅ **Universal Clear Button**: Left-aligned clear functionality across all filter types
+- ✅ **Responsive Filter Design**: 3-column recipe filters, 7-column product filters
+
+### Product & Recipe System Foundation (v2.0.0 - v2.0.6)
+- ✅ **Single Templates**: Professional layouts for both products and recipes
+- ✅ **Social Sharing Integration**: Consistent sharing across all templates
+- ✅ **Breadcrumb Integration**: Complete Yoast SEO support with proper hierarchy
+- ✅ **"Where to Buy" Sections**: Updated design matching provided examples
 
 ## 🤝 Contributing
 
 **Lead Developer**: [@chad-orases](https://github.com/chad-orases)
+
+**Contributors**:
+
+<a href="https://github.com/Orases-Javier">
+  <img src="https://github.com/Orases-Javier.png" width="50" height="50" alt="Orases-Javier" style="border-radius: 50%;">
+</a>
+<a href="https://github.com/luke3butler">
+  <img src="https://github.com/luke3butler.png" width="50" height="50" alt="luke3butler" style="border-radius: 50%;">
+</a>
 
 ### Code Standards
 

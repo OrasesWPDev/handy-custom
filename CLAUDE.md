@@ -44,6 +44,8 @@ Essential development guidance for Claude Code when working with this WordPress 
 - **Conditional Asset Loading**: Filter CSS/JS only load when filter shortcodes detected on page
 - **Template Location**: Filter HTML in `/templates/shortcodes/filters/archive.php`
 - **AJAX Handling**: Filters communicate via URL parameters and AJAX endpoints
+- **Contextual Filtering**: Auto-detection of category context for relevant filter options
+- **Universal Clear Button**: Left-aligned clear button works across all filter types
 
 ### Auto-Updater Implementation
 - **Library**: Uses YahnisElsts Plugin Update Checker v5.6 (industry standard)
@@ -128,6 +130,15 @@ Essential development guidance for Claude Code when working with this WordPress 
 3. **Pre-Release**: `npm run version:update`, `npm run test:full`, manual validation on localhost:10008
 4. **Release**: Create GitHub PR only after all local tests pass
 
+### Featured Content System
+- **Featured Recipes on Products**: Display up to 3 related recipes on product single pages
+- **Featured Products on Recipes**: Display up to 2 related products on recipe single pages
+- **ACF Integration**: Uses repeater fields with URL parsing for domain-agnostic linking
+- **Renderer Reuse**: Leverages existing shortcode infrastructure for consistency
+- **Card Equalization**: JavaScript-based height matching for consistent layouts
+- **Responsive Design**: CSS Grid with dynamic centering based on content count
+- **Background Sections**: Styled with magenta (#B5016E) background and proper spacing
+
 ### Testing File Structure
 ```
 /tests/
@@ -138,7 +149,6 @@ Essential development guidance for Claude Code when working with this WordPress 
 ├── helpers/                 # Testing utilities
 │   ├── wordpress-utils.js   # WordPress-specific helpers
 │   └── plugin-utils.js      # Plugin-specific helpers
-└── data/                    # Test data and database backups
 /scripts/                    # Automation scripts
 ├── deploy-to-local.js       # Deploy plugin to Local site
 ├── watch-and-deploy.js      # Auto-deploy on file changes
