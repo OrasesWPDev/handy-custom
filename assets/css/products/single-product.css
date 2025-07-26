@@ -526,8 +526,6 @@
 
 /* Featured Recipes Section */
 .handy-featured-recipes-section {
-    background-color: #e7edf0;
-    padding: 60px 0;
     margin-top: 40px;
 }
 
@@ -539,12 +537,17 @@
 
 .handy-featured-recipes-title {
     font-family: Poppins, sans-serif;
-    font-size: 2.5rem;
+    font-size: 4rem;
     font-weight: 700;
-    color: #0145AB;
+    color: #000;
     text-align: center;
     margin: 0 0 40px 0;
-    letter-spacing: -0.82px;
+    padding: 60px 0;
+    background-color: #B5016E;
+    margin-left: -100vw;
+    margin-right: -100vw;
+    padding-left: 100vw;
+    padding-right: 100vw;
 }
 
 /* Featured Recipes Grid - 3 columns with centering */
@@ -586,15 +589,11 @@
     }
     
     .handy-featured-recipes-title {
-        font-size: 2.25rem;
+        font-size: 3rem;
     }
 }
 
 @media (max-width: 768px) {
-    .handy-featured-recipes-section {
-        padding: 40px 0;
-    }
-    
     .handy-featured-recipes-grid {
         grid-template-columns: 1fr;
         gap: 20px;
@@ -609,7 +608,8 @@
     }
     
     .handy-featured-recipes-title {
-        font-size: 2rem;
+        font-size: 2.5rem;
+        padding: 40px 0;
         margin-bottom: 30px;
     }
     
