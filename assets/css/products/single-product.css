@@ -165,29 +165,27 @@
     display: inline-flex;
     align-items: center;
     gap: 10px;
-    background: #E5E5E5;
-    color: #273749;
-    padding: 12px 20px;
-    border-radius: 25px;
+    background: #E7EDF0;
+    color: #0145AB;
+    padding: 10px 20px;
+    border-radius: 31px;
     text-decoration: none;
     font-family: Poppins, sans-serif;
     font-size: 1rem;
-    font-weight: 500;
+    font-weight: 600;
     transition: all 0.3s ease;
     border: 1px solid #D0D0D0;
 }
 
 .handy-buy-button:hover {
     background: #D8D8D8;
-    color: #273749;
+    color: #0145AB;
     text-decoration: none;
-    transform: translateY(-1px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 .handy-buy-button i {
     font-size: 1rem;
-    color: #666;
+    color: #7C96A2;
 }
 
 .handy-buy-button:hover i {
