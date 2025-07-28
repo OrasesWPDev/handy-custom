@@ -154,16 +154,16 @@
 }
 
 .btn-clear-filters-universal {
-    background: #6c757d;
+    background: #0145AB;
     color: white;
     border: none;
-    padding: 10px 20px;
+    padding: 0px 20px;
     border-radius: 6px;
     font-size: 0.875rem;
     font-weight: 500;
     cursor: pointer;
     transition: all 0.3s ease;
-    text-transform: uppercase;
+	text-transform: none;
     letter-spacing: 0.5px;
     display: inline-flex;
     align-items: center;
@@ -171,8 +171,7 @@
 }
 
 .btn-clear-filters-universal:hover {
-    background: #5a6268;
-    transform: translateY(-1px);
+    background: #0145AB;
 }
 
 .btn-clear-filters-universal:active {
