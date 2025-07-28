@@ -25,6 +25,9 @@
             this.ajaxUrl = (typeof handyCustomFiltersAjax !== 'undefined' && handyCustomFiltersAjax.ajaxUrl) || '/wp-admin/admin-ajax.php';
             this.nonce = (typeof handyCustomFiltersAjax !== 'undefined' && handyCustomFiltersAjax.nonce) || '';
             
+            // Store context boundaries to prevent users from breaking out of intended scope
+            this.contextBoundaries = {};
+            
             this.log('Initializing Handy Custom Filters system', 'info');
             this.init();
         }
@@ -45,6 +48,9 @@
                 this.handleClearFilters(event);
             });
             
+            // Initialize context boundaries from data attributes
+            this.initializeContextBoundaries();
+            
             // Initialize filter states from URL on page load
             this.initializeFromURL();
             
@@ -56,6 +62,29 @@
             });
 
             this.log('Filter system initialization complete', 'info');
+        }
+
+        /**
+         * Initialize context boundaries from filter container data attributes
+         * These boundaries prevent users from breaking out of the intended filtering scope
+         */
+        initializeContextBoundaries() {
+            $('.handy-filters').each((index, filterContainer) => {
+                const $container = $(filterContainer);
+                const contentType = $container.data('content-type');
+                
+                if (contentType) {
+                    this.contextBoundaries[contentType] = {
+                        context_category: $container.data('context-category') || '',
+                        context_subcategory: $container.data('context-subcategory') || ''
+                    };
+                    
+                    this.log('Context boundaries initialized', 'info', {
+                        contentType: contentType,
+                        boundaries: this.contextBoundaries[contentType]
+                    });
+                }
+            });
         }
 
         /**
@@ -330,12 +359,23 @@
                 containerClass: $productsContainer.attr('class')
             });
             
-            // Add display mode and other required parameters
+            // Add display mode, context boundaries, and other required parameters
             const ajaxParams = Object.assign({
                 action: 'filter_products',
                 nonce: this.nonce,
                 display: displayMode
             }, filterParams);
+            
+            // CRITICAL: Add context boundaries to preserve filtering scope
+            if (this.contextBoundaries.products) {
+                ajaxParams.context_category = this.contextBoundaries.products.context_category;
+                ajaxParams.context_subcategory = this.contextBoundaries.products.context_subcategory;
+                
+                this.log('Adding context boundaries to AJAX request', 'info', {
+                    context_category: ajaxParams.context_category,
+                    context_subcategory: ajaxParams.context_subcategory
+                });
+            }
             
             $.ajax({
                 url: this.ajaxUrl,
@@ -370,6 +410,17 @@
                 action: 'filter_recipes',
                 nonce: this.nonce
             }, filterParams);
+            
+            // Add context boundaries for recipes if available
+            if (this.contextBoundaries.recipes) {
+                ajaxParams.context_category = this.contextBoundaries.recipes.context_category;
+                ajaxParams.context_subcategory = this.contextBoundaries.recipes.context_subcategory;
+                
+                this.log('Adding context boundaries to recipes AJAX request', 'info', {
+                    context_category: ajaxParams.context_category,
+                    context_subcategory: ajaxParams.context_subcategory
+                });
+            }
             
             $.ajax({
                 url: this.ajaxUrl,

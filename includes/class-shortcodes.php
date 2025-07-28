@@ -179,7 +179,7 @@ class Handy_Custom_Shortcodes {
 
 	/**
 	 * AJAX handler for product filtering
-	 * Now supports display parameter for categories/list modes
+	 * Now supports display parameter for categories/list modes and preserves context boundaries
 	 */
 	public static function ajax_filter_products() {
 		// Verify nonce
@@ -201,6 +201,31 @@ class Handy_Custom_Shortcodes {
 			Handy_Custom_Logger::log('AJAX products filter: Taxonomy mapping is empty or invalid', 'error');
 			wp_send_json_error('Invalid taxonomy configuration');
 			return;
+		}
+		
+		// CRITICAL: Preserve original context boundaries from shortcode
+		// These parameters define the filtering context and should not be overridden by user selections
+		$context_category = isset($_POST['context_category']) ? sanitize_text_field($_POST['context_category']) : '';
+		$context_subcategory = isset($_POST['context_subcategory']) ? sanitize_text_field($_POST['context_subcategory']) : '';
+		
+		// If we have context boundaries, enforce them regardless of user filter selections
+		if (!empty($context_subcategory)) {
+			$raw_filters['subcategory'] = $context_subcategory;
+			
+			// Auto-detect parent category if not provided
+			if (empty($context_category)) {
+				$parent_category = Handy_Custom_Products_Utils::get_parent_category_from_subcategory($context_subcategory);
+				if ($parent_category && $parent_category !== $context_subcategory) {
+					$context_category = $parent_category;
+				}
+			}
+			
+			Handy_Custom_Logger::log("AJAX: Enforcing subcategory context boundary: {$context_subcategory}", 'info');
+		}
+		
+		if (!empty($context_category)) {
+			$raw_filters['category'] = $context_category;
+			Handy_Custom_Logger::log("AJAX: Enforcing category context boundary: {$context_category}", 'info');
 		}
 		
 		// Add display and pagination parameters with validation
@@ -226,7 +251,11 @@ class Handy_Custom_Shortcodes {
 		
 		$filters = Handy_Custom_Products_Utils::sanitize_filters($raw_filters);
 
-		Handy_Custom_Logger::log('AJAX filter request with display mode: ' . wp_json_encode($filters));
+		$context_info = '';
+		if (!empty($context_category) || !empty($context_subcategory)) {
+			$context_info = " (context boundaries: category={$context_category}, subcategory={$context_subcategory})";
+		}
+		Handy_Custom_Logger::log('AJAX filter request with display mode: ' . wp_json_encode($filters) . $context_info);
 
 		try {
 			// Load the products renderer
