@@ -68,8 +68,14 @@ class Handy_Custom_Filters_Renderer {
 			Handy_Custom_Logger::log("Current URL filter parameters: " . wp_json_encode($current_filters), 'info');
 		}
 		
+		// Prepare context data for JavaScript (preserves boundaries)
+		$context_data = array(
+			'context_category' => !empty($context_filters['category']) ? $context_filters['category'] : '',
+			'context_subcategory' => !empty($context_filters['subcategory']) ? $context_filters['subcategory'] : ''
+		);
+		
 		// Load unified template
-		return $this->load_template($content_type, $filter_options, $current_filters, $attributes);
+		return $this->load_template($content_type, $filter_options, $current_filters, $attributes, $context_data);
 	}
 
 	/**
@@ -177,7 +183,7 @@ class Handy_Custom_Filters_Renderer {
 				continue;
 			}
 			// Skip certain taxonomies that shouldn't appear in filters
-			if ($this->should_skip_taxonomy($key, $content_type)) {
+			if ($this->should_skip_taxonomy($key, $content_type, $context_filters)) {
 				Handy_Custom_Logger::log("Skipping taxonomy for filters: {$key}", 'debug');
 				continue;
 			}
@@ -198,14 +204,23 @@ class Handy_Custom_Filters_Renderer {
 
 	/**
 	 * Check if taxonomy should be skipped for filters
+	 * Enhanced to handle context-aware filtering
 	 *
 	 * @param string $key Taxonomy key
 	 * @param string $content_type Content type
+	 * @param array $context_filters Current context filters (optional)
 	 * @return bool True if should skip
 	 */
-	private function should_skip_taxonomy($key, $content_type) {
+	private function should_skip_taxonomy($key, $content_type, $context_filters = array()) {
 		// For products: skip category in standalone filters (it's handled by products shortcode display mode)
 		if ($content_type === 'products' && $key === 'category') {
+			return true;
+		}
+		
+		// Skip subcategory filter when we're already in a specific subcategory context
+		// This prevents users from breaking out of the intended filtering scope
+		if ($content_type === 'products' && $key === 'subcategory' && !empty($context_filters['subcategory'])) {
+			Handy_Custom_Logger::log("Skipping subcategory filter - already in subcategory context: {$context_filters['subcategory']}", 'info');
 			return true;
 		}
 		
@@ -619,9 +634,10 @@ class Handy_Custom_Filters_Renderer {
 	 * @param array $filter_options Generated filter options
 	 * @param array $current_filters Current filter values from URL
 	 * @param array $attributes Shortcode attributes
+	 * @param array $context_data Context boundaries for JavaScript
 	 * @return string Rendered HTML
 	 */
-	private function load_template($content_type, $filter_options, $current_filters, $attributes) {
+	private function load_template($content_type, $filter_options, $current_filters, $attributes, $context_data = array()) {
 		$template_path = HANDY_CUSTOM_PLUGIN_DIR . 'templates/shortcodes/filters/archive.php';
 
 		if (!file_exists($template_path)) {

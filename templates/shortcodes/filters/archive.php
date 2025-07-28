@@ -14,6 +14,7 @@
  * @var array $filter_options Available filter options per taxonomy
  * @var array $filters Current filter values from URL parameters
  * @var array $attributes Shortcode attributes (display, exclude)
+ * @var array $context_data Context boundaries for JavaScript
  */
 
 if (!defined('ABSPATH')) {
@@ -26,7 +27,13 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
 ?>
 
 <div class="handy-filters" data-content-type="<?php echo esc_attr($content_type); ?>" 
-     data-shortcode="filter-<?php echo esc_attr($content_type); ?>">
+     data-shortcode="filter-<?php echo esc_attr($content_type); ?>"
+     <?php if (!empty($context_data['context_category'])): ?>
+         data-context-category="<?php echo esc_attr($context_data['context_category']); ?>"
+     <?php endif; ?>
+     <?php if (!empty($context_data['context_subcategory'])): ?>
+         data-context-subcategory="<?php echo esc_attr($context_data['context_subcategory']); ?>"
+     <?php endif; ?>>
     
     <!-- Filter Header -->
     <div class="handy-filter-header">
