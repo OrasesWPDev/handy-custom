@@ -21,7 +21,6 @@
 }
 
 .category-image-item-link:hover {
-    transform: translateY(-5px);
     text-decoration: none;
     color: inherit;
 }
@@ -43,6 +42,8 @@
     width: 100%;
     aspect-ratio: 1;
     border-radius: 50%;
+	border: 8px solid #E7EDF0;
+	box-shadow: 10px 5px 0px #2329330F;
     overflow: hidden;
     margin-bottom: 0.75rem;
     background-color: #f5f5f5; /* Fallback background */
@@ -61,9 +62,9 @@
 }
 
 .category-name {
-    font-size: 1rem;
-    font-weight: 600;
-    color: #2c5aa0; /* Blue color matching design example */
+    font-size: 1.375rem;
+    font-weight: 700;
+    color: #0145AB; /* Blue color matching design example */
     margin: 0;
     line-height: 1.2;
     text-align: center;
