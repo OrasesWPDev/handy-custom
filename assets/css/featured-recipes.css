@@ -23,9 +23,10 @@
 /* Recipe Cards - Matching archive styling exactly */
 .handy-featured-recipes-grid .recipe-card {
     background: white;
-    border-radius: 60px;
+    border-radius: 31px;
+	border: 1px solid #E7EDF0;
     overflow: hidden;
-    box-shadow: 10px 25px 0px #2329330F;
+    box-shadow: 15px 25px 0px #2329330F;
     margin-bottom: 30px; /* Reduced from 60px for shortcode */
     min-width: 350px; /* Slightly smaller for shortcode context */
 }
@@ -84,7 +85,6 @@
     margin: 0 0 12px 0;
     font-size: 1.625rem;
     font-weight: 700;
-    letter-spacing: -0.82px;
     color: #0145AB;
     line-height: 1.2;
 }
@@ -130,14 +130,16 @@
 }
 
 .handy-featured-recipes-grid .recipe-icon {
-    font-size: 1.125rem;
-    color: #0145AB;
+    font-size: 1rem;
+    color: #B6006E;
 }
 
 .handy-featured-recipes-grid .recipe-prep-time-text,
 .handy-featured-recipes-grid .recipe-servings-text {
-    font-weight: 500;
-    color: #3E434A;
+    font-weight: 400;
+	font-size: .875rem;
+	font-style: italic;
+    color: #627680;
 }
 
 /* Dynamic centering based on number of recipes - Less aggressive margins for shortcode */
