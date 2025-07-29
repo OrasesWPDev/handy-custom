@@ -18,6 +18,9 @@ class Handy_Custom_Shortcodes {
 		add_shortcode('products', array(__CLASS__, 'products_shortcode'));
 		add_shortcode('recipes', array(__CLASS__, 'recipes_shortcode'));
 		
+		// Featured recipes shortcode
+		add_shortcode('featured-recipes', array(__CLASS__, 'featured_recipes_shortcode'));
+		
 		// New filter shortcodes
 		add_shortcode('filter-products', array(__CLASS__, 'filter_products_shortcode'));
 		add_shortcode('filter-recipes', array(__CLASS__, 'filter_recipes_shortcode'));
@@ -174,6 +177,66 @@ class Handy_Custom_Shortcodes {
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('Recipes shortcode error: ' . $e->getMessage(), 'error');
 			return '<div class="recipe-error"><p>Error loading recipes. Please try again later.</p></div>';
+		}
+	}
+
+	/**
+	 * Featured recipes shortcode handler
+	 * Simple implementation following the same pattern as product featured recipes
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML for featured recipes
+	 */
+	public static function featured_recipes_shortcode($atts) {
+		$defaults = array(
+			'limit' => 3
+		);
+		$atts = shortcode_atts($defaults, $atts, 'featured-recipes');
+
+		// Validate limit
+		$atts['limit'] = absint($atts['limit']);
+		if ($atts['limit'] < 1 || $atts['limit'] > 10) {
+			$atts['limit'] = 3;
+		}
+
+		Handy_Custom_Logger::log('Featured recipes shortcode called with limit: ' . $atts['limit'], 'info');
+
+		try {
+			// Get featured recipe IDs directly (published only)
+			$featured_recipe_ids = get_posts(array(
+				'post_type' => 'recipe',
+				'post_status' => 'publish',
+				'meta_key' => Handy_Custom_Recipes_Featured_Admin::FEATURED_META_KEY,
+				'meta_value' => '1',
+				'posts_per_page' => $atts['limit'],
+				'orderby' => 'date',
+				'order' => 'DESC',
+				'fields' => 'ids'
+			));
+			
+			if (empty($featured_recipe_ids)) {
+				Handy_Custom_Logger::log('Featured recipes shortcode: No featured recipes found', 'info');
+				return ''; // Return empty if no featured recipes
+			}
+			
+			Handy_Custom_Logger::log('Found ' . count($featured_recipe_ids) . ' featured recipes: ' . implode(', ', $featured_recipe_ids), 'info');
+			
+			// Use existing recipes renderer with standard recipe archive wrapper
+			$renderer = new Handy_Custom_Recipes_Renderer();
+			$recipe_count = count($featured_recipe_ids);
+			
+			$options = array(
+				'wrapper_class' => 'handy-featured-recipes-grid',
+				'columns' => $recipe_count,
+				'show_wrapper' => true
+			);
+			
+			// Render just the recipe cards (no title needed)
+			return $renderer->render_specific_recipes($featured_recipe_ids, $options);
+			
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Featured recipes shortcode error: ' . $e->getMessage(), 'error');
+			return '<div class="featured-recipes-error"><p>Error loading featured recipes. Please try again later.</p></div>';
 		}
 	}
 

@@ -14,7 +14,7 @@ class Handy_Custom {
 	/**
 	 * Plugin version
 	 */
-	const VERSION = '2.1.0';
+	const VERSION = '2.1.1';
 
 	/**
 	 * Single instance of the class
@@ -129,6 +129,9 @@ class Handy_Custom {
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-filters.php';
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-display.php';
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
+		
+		// Featured recipes functionality (needed for both admin and frontend shortcode)
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-featured-admin.php';
 	}
 
 	/**
@@ -149,6 +152,7 @@ class Handy_Custom {
 		// Initialize admin functionality
 		if (is_admin()) {
 			Handy_Custom_Admin::init();
+			Handy_Custom_Recipes_Featured_Admin::init();
 		}
 		
 		// Initialize shortcodes and AJAX handlers (needed for both frontend and admin)
@@ -181,12 +185,14 @@ class Handy_Custom {
 		$has_products_shortcode = false;
 		$has_recipes_shortcode = false;
 		$has_filter_shortcode = false;
+		$has_featured_recipes_shortcode = false;
 		
 		if ($post) {
 			$has_products_shortcode = has_shortcode($post->post_content, 'products');
 			$has_recipes_shortcode = has_shortcode($post->post_content, 'recipes');
 			$has_filter_shortcode = has_shortcode($post->post_content, 'filter-products') || 
 									has_shortcode($post->post_content, 'filter-recipes');
+			$has_featured_recipes_shortcode = has_shortcode($post->post_content, 'featured-recipes');
 		}
 		
 		// Enqueue single product assets if on single product page
@@ -211,6 +217,11 @@ class Handy_Custom {
 		
 		if ($has_recipes_shortcode) {
 			$this->enqueue_recipes_assets();
+		}
+		
+		// Enqueue featured recipes shortcode assets if shortcode is present
+		if ($has_featured_recipes_shortcode) {
+			$this->enqueue_featured_recipes_shortcode_assets();
 		}
 		
 		// Legacy support - load old custom files if they exist
@@ -399,6 +410,64 @@ class Handy_Custom {
 			wp_localize_script('handy-custom-single-product', 'handyCustomSingleProduct', $localize_data);
 			
 			Handy_Custom_Logger::log('Single product JS enqueued with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
+		}
+	}
+
+	/**
+	 * Enqueue featured recipes shortcode assets
+	 * Loads dedicated CSS for shortcode + single product JS for card equalizer
+	 */
+	private function enqueue_featured_recipes_shortcode_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/featured-recipes.css';
+		$js_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/products/single-product.js';
+		$card_equalizer_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/js/shared/card-equalizer.js';
+
+		// Enqueue card equalizer JS first (needed for recipe card height equalization)
+		if (file_exists($card_equalizer_file)) {
+			$equalizer_version = filemtime($card_equalizer_file);
+			wp_enqueue_script(
+				'handy-custom-card-equalizer',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/shared/card-equalizer.js',
+				array('jquery'),
+				$equalizer_version,
+				true
+			);
+			
+			Handy_Custom_Logger::log('Card equalizer JS enqueued for featured recipes shortcode', 'debug');
+		}
+
+		// Enqueue featured recipes shortcode CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-featured-recipes',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/featured-recipes.css',
+				array(),
+				$css_version
+			);
+			
+			Handy_Custom_Logger::log('Featured recipes shortcode CSS enqueued', 'debug');
+		}
+
+		// Enqueue single product JS for card equalizer functionality
+		if (file_exists($js_file)) {
+			$js_version = filemtime($js_file);
+			wp_enqueue_script(
+				'handy-custom-single-product',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/js/products/single-product.js',
+				array('jquery', 'handy-custom-card-equalizer'),
+				$js_version,
+				true
+			);
+
+			// Localize script with debug flag
+			$localize_data = array(
+				'debug' => defined('HANDY_CUSTOM_DEBUG') && HANDY_CUSTOM_DEBUG === true
+			);
+
+			wp_localize_script('handy-custom-single-product', 'handyCustomSingleProduct', $localize_data);
+			
+			Handy_Custom_Logger::log('Single product JS enqueued for featured recipes shortcode with debug: ' . ($localize_data['debug'] ? 'enabled' : 'disabled'), 'debug');
 		}
 	}
 	
