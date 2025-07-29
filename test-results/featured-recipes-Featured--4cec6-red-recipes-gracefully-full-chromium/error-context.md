@@ -1,0 +1,1151 @@
+# Page snapshot
+
+```yaml
+- navigation "Main menu":
+  - link "Skip to main content":
+    - /url: "#wpbody-content"
+  - link "Skip to toolbar":
+    - /url: "#wp-toolbar"
+  - list:
+    - listitem:
+      - link "Dashboard":
+        - /url: index.php
+      - list:
+        - listitem:
+          - link "Home":
+            - /url: index.php
+        - listitem:
+          - link "Updates":
+            - /url: update-core.php
+        - listitem:
+          - link "User searches":
+            - /url: index.php?page=relevanssi_user_searches
+        - listitem:
+          - link "Admin search":
+            - /url: index.php?page=relevanssi_admin_search
+    - listitem:
+      - link "Flatsome":
+        - /url: admin.php?page=flatsome-panel
+      - list:
+        - listitem:
+          - link "Flatsome":
+            - /url: admin.php?page=flatsome-panel
+        - listitem:
+          - link "Theme Registration":
+            - /url: admin.php?page=flatsome-panel
+        - listitem:
+          - link "Help & Guides":
+            - /url: admin.php?page=flatsome-panel-support
+        - listitem:
+          - link "Status":
+            - /url: admin.php?page=flatsome-panel-status
+        - listitem:
+          - link "Features":
+            - /url: admin.php?page=flatsome-panel-features
+        - listitem:
+          - link "Change log":
+            - /url: admin.php?page=flatsome-panel-changelog
+        - listitem:
+          - link "Theme Options":
+            - /url: customize.php
+        - listitem:
+          - link "Advanced":
+            - /url: admin.php?page=optionsframework
+        - listitem:
+          - link "Setup Wizard":
+            - /url: admin.php?page=flatsome-setup
+    - listitem:
+      - link "Simple History":
+        - /url: admin.php?page=simple_history_admin_menu_page
+      - list:
+        - listitem:
+          - link "Event Log":
+            - /url: admin.php?page=simple_history_admin_menu_page
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=simple_history_settings_page
+        - listitem:
+          - link "History Insights New":
+            - /url: admin.php?page=simple_history_stats_page
+        - listitem:
+          - link "Help & Support":
+            - /url: admin.php?page=simple_history_help_support
+        - listitem:
+          - link "Export":
+            - /url: admin.php?page=simple_history_export_history
+        - listitem:
+          - link "Get Premium":
+            - /url: admin.php?page=simple_history_promo_upsell
+    - listitem:
+      - link "Posts":
+        - /url: edit.php
+      - list:
+        - listitem:
+          - link "All Posts":
+            - /url: edit.php
+        - listitem:
+          - link "Add Post":
+            - /url: post-new.php
+        - listitem:
+          - link "Categories":
+            - /url: edit-tags.php?taxonomy=category
+        - listitem:
+          - link "Tags":
+            - /url: edit-tags.php?taxonomy=post_tag
+    - listitem:
+      - link "Media":
+        - /url: upload.php
+      - list:
+        - listitem:
+          - link "Library":
+            - /url: upload.php
+        - listitem:
+          - link "Add Media File":
+            - /url: media-new.php
+    - listitem:
+      - link "Forms":
+        - /url: admin.php?page=gf_edit_forms
+      - list:
+        - listitem:
+          - link "Forms":
+            - /url: admin.php?page=gf_edit_forms
+        - listitem:
+          - link "New Form":
+            - /url: admin.php?page=gf_new_form
+        - listitem:
+          - link "Entries":
+            - /url: admin.php?page=gf_entries
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=gf_settings
+        - listitem:
+          - link "Import/Export":
+            - /url: admin.php?page=gf_export
+        - listitem:
+          - link "Add-Ons":
+            - /url: admin.php?page=gf_addons
+        - listitem:
+          - link "System Status":
+            - /url: admin.php?page=gf_system_status
+        - listitem:
+          - link "Help":
+            - /url: admin.php?page=gf_help
+    - listitem:
+      - link "Pages":
+        - /url: edit.php?post_type=page
+      - list:
+        - listitem:
+          - link "All Pages":
+            - /url: edit.php?post_type=page
+        - listitem:
+          - link "Add Page":
+            - /url: post-new.php?post_type=page
+    - listitem:
+      - link "Comments":
+        - /url: edit-comments.php
+    - listitem:
+      - link "UX Blocks":
+        - /url: edit.php?post_type=blocks
+      - list:
+        - listitem:
+          - link "UX Blocks":
+            - /url: edit.php?post_type=blocks
+        - listitem:
+          - link "Add New Block":
+            - /url: post-new.php?post_type=blocks
+        - listitem:
+          - link "Categories":
+            - /url: edit-tags.php?taxonomy=block_categories&post_type=blocks
+    - listitem:
+      - link "Products":
+        - /url: edit.php?post_type=product
+      - list:
+        - listitem:
+          - link "All Products":
+            - /url: edit.php?post_type=product
+        - listitem:
+          - link "Add New Product":
+            - /url: post-new.php?post_type=product
+        - listitem:
+          - link "Grades":
+            - /url: edit-tags.php?taxonomy=grade&post_type=product
+        - listitem:
+          - link "Market Segments":
+            - /url: edit-tags.php?taxonomy=market-segment&post_type=product
+        - listitem:
+          - link "Product Categories":
+            - /url: edit-tags.php?taxonomy=product-category&post_type=product
+        - listitem:
+          - link "Product Cooking Methods":
+            - /url: edit-tags.php?taxonomy=product-cooking-method&post_type=product
+        - listitem:
+          - link "Product Menu Occasion":
+            - /url: edit-tags.php?taxonomy=product-menu-occasion&post_type=product
+        - listitem:
+          - link "Types":
+            - /url: edit-tags.php?taxonomy=product-type&post_type=product
+        - listitem:
+          - link "Sizes":
+            - /url: edit-tags.php?taxonomy=size&post_type=product
+    - listitem:
+      - link "Recipes":
+        - /url: edit.php?post_type=recipe
+      - list:
+        - listitem:
+          - link "All Recipes":
+            - /url: edit.php?post_type=recipe
+        - listitem:
+          - link "Add New Recipe":
+            - /url: post-new.php?post_type=recipe
+        - listitem:
+          - link "Recipe Categories":
+            - /url: edit-tags.php?taxonomy=recipe-category&post_type=recipe
+        - listitem:
+          - link "Recipe Cooking Methods":
+            - /url: edit-tags.php?taxonomy=recipe-cooking-method&post_type=recipe
+        - listitem:
+          - link "Recipe Menu Occasions":
+            - /url: edit-tags.php?taxonomy=recipe-menu-occasion&post_type=recipe
+    - listitem:
+      - link "Appearance":
+        - /url: themes.php
+      - list:
+        - listitem:
+          - link "Themes":
+            - /url: themes.php
+        - listitem:
+          - link "Design":
+            - /url: site-editor.php
+        - listitem:
+          - link "Customize":
+            - /url: customize.php?return=%2Fwp-admin%2Fedit.php%3Fpost_type%3Drecipe
+        - listitem:
+          - link "Widgets":
+            - /url: widgets.php
+        - listitem:
+          - link "Menus":
+            - /url: nav-menus.php
+        - listitem:
+          - link "Install Plugins":
+            - /url: themes.php?page=tgmpa-install-plugins
+        - listitem:
+          - link "Theme File Editor":
+            - /url: theme-editor.php
+    - listitem:
+      - link "Plugins":
+        - /url: plugins.php
+      - list:
+        - listitem:
+          - link "Installed Plugins":
+            - /url: plugins.php
+        - listitem:
+          - link "Add Plugin":
+            - /url: plugin-install.php
+        - listitem:
+          - link "Plugin File Editor":
+            - /url: plugin-editor.php
+    - listitem:
+      - link "Users":
+        - /url: users.php
+      - list:
+        - listitem:
+          - link "All Users":
+            - /url: users.php
+        - listitem:
+          - link "Add User":
+            - /url: user-new.php
+        - listitem:
+          - link "Profile":
+            - /url: profile.php
+    - listitem:
+      - link "Tools":
+        - /url: tools.php
+      - list:
+        - listitem:
+          - link "Available Tools":
+            - /url: tools.php
+        - listitem:
+          - link "Import":
+            - /url: import.php
+        - listitem:
+          - link "Export":
+            - /url: export.php
+        - listitem:
+          - link "Site Health":
+            - /url: site-health.php
+        - listitem:
+          - link "Export Personal Data":
+            - /url: export-personal-data.php
+        - listitem:
+          - link "Erase Personal Data":
+            - /url: erase-personal-data.php
+    - listitem:
+      - link "Settings":
+        - /url: options-general.php
+      - list:
+        - listitem:
+          - link "General":
+            - /url: options-general.php
+        - listitem:
+          - link "Writing":
+            - /url: options-writing.php
+        - listitem:
+          - link "Reading":
+            - /url: options-reading.php
+        - listitem:
+          - link "Discussion":
+            - /url: options-discussion.php
+        - listitem:
+          - link "Media":
+            - /url: options-media.php
+        - listitem:
+          - link "Permalinks":
+            - /url: options-permalink.php
+        - listitem:
+          - link "Privacy":
+            - /url: options-privacy.php
+        - listitem:
+          - link "Disable Gutenberg":
+            - /url: options-general.php?page=disable-gutenberg
+        - listitem:
+          - link "Duplicate Page":
+            - /url: options-general.php?page=duplicate_page_settings
+        - listitem:
+          - link "HappyFiles":
+            - /url: options-general.php?page=happyfiles_settings
+        - listitem:
+          - link "Relevanssi":
+            - /url: options-general.php?page=relevanssi/relevanssi.php
+        - listitem:
+          - link "Font Awesome":
+            - /url: options-general.php?page=font-awesome
+    - listitem:
+      - link "ACF":
+        - /url: edit.php?post_type=acf-field-group
+      - list:
+        - listitem:
+          - link "Field Groups":
+            - /url: edit.php?post_type=acf-field-group
+        - listitem:
+          - link "Post Types":
+            - /url: edit.php?post_type=acf-post-type
+        - listitem:
+          - link "Taxonomies":
+            - /url: edit.php?post_type=acf-taxonomy
+        - listitem:
+          - link "Options Pages":
+            - /url: edit.php?post_type=acf-ui-options-page
+        - listitem:
+          - link "Tools":
+            - /url: edit.php?post_type=acf-field-group&page=acf-tools
+        - listitem:
+          - link "Updates":
+            - /url: edit.php?post_type=acf-field-group&page=acf-settings-updates
+    - listitem:
+      - link "WP Mail SMTP":
+        - /url: admin.php?page=wp-mail-smtp
+      - list:
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=wp-mail-smtp
+        - listitem:
+          - link "Email Log":
+            - /url: admin.php?page=wp-mail-smtp-logs
+        - listitem:
+          - link "Email Reports":
+            - /url: admin.php?page=wp-mail-smtp-reports
+        - listitem:
+          - link "Tools":
+            - /url: admin.php?page=wp-mail-smtp-tools
+        - listitem:
+          - link "About Us":
+            - /url: admin.php?page=wp-mail-smtp-about
+        - listitem:
+          - link "Upgrade to Pro":
+            - /url: https://wpmailsmtp.com/lite-upgrade/?utm_source=WordPress&utm_medium=admin-menu&utm_campaign=liteplugin&utm_locale=en_us&utm_content=Upgrade%20to%20Pro%20-%20edit
+    - listitem:
+      - link "Yoast SEO":
+        - /url: admin.php?page=wpseo_dashboard
+      - list:
+        - listitem:
+          - link "General":
+            - /url: admin.php?page=wpseo_dashboard
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=wpseo_page_settings
+        - listitem:
+          - link "Integrations":
+            - /url: admin.php?page=wpseo_integrations
+        - listitem:
+          - link "Tools":
+            - /url: admin.php?page=wpseo_tools
+        - listitem:
+          - link "Academy":
+            - /url: admin.php?page=wpseo_page_academy
+        - listitem:
+          - link "Plans":
+            - /url: admin.php?page=wpseo_licenses
+        - listitem:
+          - link "Workouts Premium":
+            - /url: admin.php?page=wpseo_workouts
+        - listitem:
+          - link "Redirects Premium":
+            - /url: admin.php?page=wpseo_redirects
+        - listitem:
+          - link "Support":
+            - /url: admin.php?page=wpseo_page_support
+    - listitem:
+      - link "All Export":
+        - /url: admin.php?page=pmxe-admin-export
+      - list:
+        - listitem:
+          - link "New Export":
+            - /url: admin.php?page=pmxe-admin-export
+        - listitem:
+          - link "Manage Exports":
+            - /url: admin.php?page=pmxe-admin-manage
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=pmxe-admin-settings
+        - listitem:
+          - link "Partner Discounts":
+            - /url: admin.php?page=pmxe-admin-partners
+    - listitem:
+      - link "All Import":
+        - /url: admin.php?page=pmxi-admin-import
+      - list:
+        - listitem:
+          - link "New Import":
+            - /url: admin.php?page=pmxi-admin-import
+        - listitem:
+          - link "Manage Imports":
+            - /url: admin.php?page=pmxi-admin-manage
+        - listitem:
+          - link "Settings":
+            - /url: admin.php?page=pmxi-admin-settings
+        - listitem:
+          - link "Partner Discounts":
+            - /url: admin.php?page=pmxi-admin-partners
+    - listitem:
+      - button "Collapse Main menu" [expanded]: Collapse Menu
+- navigation "Toolbar":
+  - menu:
+    - group:
+      - menuitem "About WordPress"
+    - group:
+      - menuitem " Handy Seafood"
+    - group:
+      - menuitem "Flatsome":
+        - img
+        - text: Flatsome
+    - group:
+      - menuitem "Activate Theme"
+    - group:
+      - menuitem "0 Comments in moderation"
+    - group:
+      - menuitem "New"
+    - group:
+      - menuitem "SEO"
+    - group:
+      - menuitem "History"
+    - group:
+      - menuitem "Forms"
+  - menu:
+    - group:
+      - menuitem " Howdy, Chad Diaz"
+- main:
+  - button "Screen Options "
+  - button "Help "
+  - heading "Recipes" [level=1]
+  - link "Add New Recipe":
+    - /url: http://localhost:10008/wp-admin/post-new.php?post_type=recipe
+  - heading "Filter recipes list" [level=2]
+  - list:
+    - listitem:
+      - link "All (84)":
+        - /url: edit.php?post_type=recipe
+      - text: "|"
+    - listitem:
+      - link "Published (28)":
+        - /url: edit.php?post_status=publish&post_type=recipe
+      - text: "|"
+    - listitem:
+      - link "Drafts (56)":
+        - /url: edit.php?post_status=draft&post_type=recipe
+      - text: "|"
+    - listitem:
+      - link "Trash (1)":
+        - /url: edit.php?post_status=trash&post_type=recipe
+      - text: "|"
+    - listitem:
+      - link "Cornerstone content":
+        - /url: edit.php?yoast_filter=cornerstone&post_type=recipe
+      - text: (0)
+  - paragraph:
+    - text: "Search Recipes:"
+    - searchbox "Search Recipes:"
+    - button "Search Recipes"
+  - text: Select bulk action
+  - combobox "Select bulk action":
+    - option "Bulk actions" [selected]
+    - option "Edit"
+    - option "Move to Trash"
+  - button "Apply"
+  - text: Filter recipes by date
+  - combobox "Filter recipes by date":
+    - option "All dates" [selected]
+    - option "July 2025"
+    - option "June 2025"
+  - text: Filter by SEO Score
+  - combobox "Filter by SEO Score":
+    - option "All SEO Scores" [selected]
+    - 'option "SEO: Needs improvement"'
+    - 'option "SEO: OK"'
+    - 'option "SEO: Good"'
+    - 'option "SEO: No Focus Keyphrase"'
+    - 'option "SEO: Post Noindexed"'
+  - text: Filter by Readability Score
+  - combobox "Filter by Readability Score":
+    - option "All Readability Scores" [selected]
+    - 'option "Readability: Needs improvement"'
+    - 'option "Readability: OK"'
+    - 'option "Readability: Good"'
+    - 'option "Readability: Not analyzed"'
+  - button "Filter"
+  - heading "Recipes list navigation" [level=2]
+  - text: 84 items Current Page
+  - textbox "Current Page": "1"
+  - text: of 5
+  - link "Next page":
+    - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&paged=2
+  - link "Last page":
+    - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&paged=5
+  - heading "Recipes list" [level=2]
+  - table:
+    - rowgroup:
+      - row "Select All Title Sort ascending. Featured Sort ascending. Date":
+        - cell "Select All":
+          - checkbox "Select All"
+          - text: Select All
+        - columnheader "Title Sort ascending.":
+          - link "Title Sort ascending.":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=title&order=asc
+        - columnheader "Featured Sort ascending.":
+          - link "Featured Sort ascending.":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=featured_recipe_admin_col&order=asc
+        - columnheader "Date":
+          - link "Date":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=date&order=asc
+    - rowgroup:
+      - row "Select Aioli Sauce “Aioli Sauce” (Edit) — Draft Edit “Aioli Sauce” | Quick edit “Aioli Sauce” inline | Move “Aioli Sauce” to the Trash | Preview “Aioli Sauce” | Duplicate This  Last Modified 2025/06/30 at 12:41 pm":
+        - rowheader "Select Aioli Sauce":
+          - checkbox "Select Aioli Sauce"
+          - text: Select Aioli Sauce
+        - cell "“Aioli Sauce” (Edit) — Draft Edit “Aioli Sauce” | Quick edit “Aioli Sauce” inline | Move “Aioli Sauce” to the Trash | Preview “Aioli Sauce” | Duplicate This":
+          - strong:
+            - link "“Aioli Sauce” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=708&action=edit&classic-editor
+              - text: Aioli Sauce
+            - text: — Draft
+          - link "Edit “Aioli Sauce”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=708&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Aioli Sauce” inline": Quick Edit
+          - text: "|"
+          - link "Move “Aioli Sauce” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=708&action=trash&_wpnonce=6bc21f5110
+            - text: Trash
+          - text: "|"
+          - link "Preview “Aioli Sauce”":
+            - /url: http://localhost:10008/?post_type=recipe&p=708&preview=true
+            - text: Preview
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=708&nonce=225103f934
+        - cell ""
+        - cell "Last Modified 2025/06/30 at 12:41 pm"
+      - row "Select Bacon Jalapeño Shrimp Corn Muffins “Bacon Jalapeño Shrimp Corn Muffins” (Edit) Edit “Bacon Jalapeño Shrimp Corn Muffins” | Quick edit “Bacon Jalapeño Shrimp Corn Muffins” inline | Move “Bacon Jalapeño Shrimp Corn Muffins” to the Trash | View “Bacon Jalapeño Shrimp Corn Muffins” | Duplicate This  Published 2025/07/16 at 6:00 pm":
+        - rowheader "Select Bacon Jalapeño Shrimp Corn Muffins":
+          - checkbox "Select Bacon Jalapeño Shrimp Corn Muffins"
+          - text: Select Bacon Jalapeño Shrimp Corn Muffins
+        - cell "“Bacon Jalapeño Shrimp Corn Muffins” (Edit) Edit “Bacon Jalapeño Shrimp Corn Muffins” | Quick edit “Bacon Jalapeño Shrimp Corn Muffins” inline | Move “Bacon Jalapeño Shrimp Corn Muffins” to the Trash | View “Bacon Jalapeño Shrimp Corn Muffins” | Duplicate This":
+          - strong:
+            - link "“Bacon Jalapeño Shrimp Corn Muffins” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=649&action=edit&classic-editor
+              - text: Bacon Jalapeño Shrimp Corn Muffins
+          - link "Edit “Bacon Jalapeño Shrimp Corn Muffins”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=649&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Bacon Jalapeño Shrimp Corn Muffins” inline": Quick Edit
+          - text: "|"
+          - link "Move “Bacon Jalapeño Shrimp Corn Muffins” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=649&action=trash&_wpnonce=f58696a57e
+            - text: Trash
+          - text: "|"
+          - link "View “Bacon Jalapeño Shrimp Corn Muffins”":
+            - /url: http://localhost:10008/recipe/bacon-jalapeno-shrimp-corn-muffins/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=649&nonce=d24ee9999e
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/16 at 6:00 pm"
+      - row "Select Beer Battered Soft Shell Crabs “Beer Battered Soft Shell Crabs” (Edit) Edit “Beer Battered Soft Shell Crabs” | Quick edit “Beer Battered Soft Shell Crabs” inline | Move “Beer Battered Soft Shell Crabs” to the Trash | View “Beer Battered Soft Shell Crabs” | Duplicate This  Published 2025/07/24 at 2:09 pm":
+        - rowheader "Select Beer Battered Soft Shell Crabs":
+          - checkbox "Select Beer Battered Soft Shell Crabs"
+          - text: Select Beer Battered Soft Shell Crabs
+        - cell "“Beer Battered Soft Shell Crabs” (Edit) Edit “Beer Battered Soft Shell Crabs” | Quick edit “Beer Battered Soft Shell Crabs” inline | Move “Beer Battered Soft Shell Crabs” to the Trash | View “Beer Battered Soft Shell Crabs” | Duplicate This":
+          - strong:
+            - link "“Beer Battered Soft Shell Crabs” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=689&action=edit&classic-editor
+              - text: Beer Battered Soft Shell Crabs
+          - link "Edit “Beer Battered Soft Shell Crabs”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=689&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Beer Battered Soft Shell Crabs” inline": Quick Edit
+          - text: "|"
+          - link "Move “Beer Battered Soft Shell Crabs” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=689&action=trash&_wpnonce=7a81becce5
+            - text: Trash
+          - text: "|"
+          - link "View “Beer Battered Soft Shell Crabs”":
+            - /url: http://localhost:10008/recipe/beer-battered-soft-shell-crabs/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=689&nonce=224a74389c
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 2:09 pm"
+      - row "Select Bloody Mariner “Bloody Mariner” (Edit) Edit “Bloody Mariner” | Quick edit “Bloody Mariner” inline | Move “Bloody Mariner” to the Trash | View “Bloody Mariner” | Duplicate This  Published 2025/07/16 at 6:15 pm":
+        - rowheader "Select Bloody Mariner":
+          - checkbox "Select Bloody Mariner"
+          - text: Select Bloody Mariner
+        - cell "“Bloody Mariner” (Edit) Edit “Bloody Mariner” | Quick edit “Bloody Mariner” inline | Move “Bloody Mariner” to the Trash | View “Bloody Mariner” | Duplicate This":
+          - strong:
+            - link "“Bloody Mariner” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=680&action=edit&classic-editor
+              - text: Bloody Mariner
+          - link "Edit “Bloody Mariner”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=680&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Bloody Mariner” inline": Quick Edit
+          - text: "|"
+          - link "Move “Bloody Mariner” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=680&action=trash&_wpnonce=17fcf266a2
+            - text: Trash
+          - text: "|"
+          - link "View “Bloody Mariner”":
+            - /url: http://localhost:10008/recipe/bloody-mariner/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=680&nonce=162ae331b3
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/16 at 6:15 pm"
+      - row "Select Bloody Mary Crab Cocktail “Bloody Mary Crab Cocktail” (Edit) Edit “Bloody Mary Crab Cocktail” | Quick edit “Bloody Mary Crab Cocktail” inline | Move “Bloody Mary Crab Cocktail” to the Trash | View “Bloody Mary Crab Cocktail” | Duplicate This  Published 2025/07/24 at 3:15 pm":
+        - rowheader "Select Bloody Mary Crab Cocktail":
+          - checkbox "Select Bloody Mary Crab Cocktail"
+          - text: Select Bloody Mary Crab Cocktail
+        - cell "“Bloody Mary Crab Cocktail” (Edit) Edit “Bloody Mary Crab Cocktail” | Quick edit “Bloody Mary Crab Cocktail” inline | Move “Bloody Mary Crab Cocktail” to the Trash | View “Bloody Mary Crab Cocktail” | Duplicate This":
+          - strong:
+            - link "“Bloody Mary Crab Cocktail” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=710&action=edit&classic-editor
+              - text: Bloody Mary Crab Cocktail
+          - link "Edit “Bloody Mary Crab Cocktail”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=710&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Bloody Mary Crab Cocktail” inline": Quick Edit
+          - text: "|"
+          - link "Move “Bloody Mary Crab Cocktail” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=710&action=trash&_wpnonce=18662f7c59
+            - text: Trash
+          - text: "|"
+          - link "View “Bloody Mary Crab Cocktail”":
+            - /url: http://localhost:10008/recipe/bloody-mary-crab-cocktail/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=710&nonce=e740ff20d7
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 3:15 pm"
+      - row "Select Buffalo Crab Wing Sauce “Buffalo Crab Wing Sauce” (Edit) Edit “Buffalo Crab Wing Sauce” | Quick edit “Buffalo Crab Wing Sauce” inline | Move “Buffalo Crab Wing Sauce” to the Trash | View “Buffalo Crab Wing Sauce” | Duplicate This  Published 2025/07/24 at 3:31 pm":
+        - rowheader "Select Buffalo Crab Wing Sauce":
+          - checkbox "Select Buffalo Crab Wing Sauce"
+          - text: Select Buffalo Crab Wing Sauce
+        - cell "“Buffalo Crab Wing Sauce” (Edit) Edit “Buffalo Crab Wing Sauce” | Quick edit “Buffalo Crab Wing Sauce” inline | Move “Buffalo Crab Wing Sauce” to the Trash | View “Buffalo Crab Wing Sauce” | Duplicate This":
+          - strong:
+            - link "“Buffalo Crab Wing Sauce” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=690&action=edit&classic-editor
+              - text: Buffalo Crab Wing Sauce
+          - link "Edit “Buffalo Crab Wing Sauce”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=690&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Buffalo Crab Wing Sauce” inline": Quick Edit
+          - text: "|"
+          - link "Move “Buffalo Crab Wing Sauce” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=690&action=trash&_wpnonce=bc5e92a389
+            - text: Trash
+          - text: "|"
+          - link "View “Buffalo Crab Wing Sauce”":
+            - /url: http://localhost:10008/recipe/buffalo-crab-wing-sauce/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=690&nonce=547f9b0e5d
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 3:31 pm"
+      - row "Select Buffalo-Style Soft Shell Crab Sandwich “Buffalo-Style Soft Shell Crab Sandwich” (Edit) Edit “Buffalo-Style Soft Shell Crab Sandwich” | Quick edit “Buffalo-Style Soft Shell Crab Sandwich” inline | Move “Buffalo-Style Soft Shell Crab Sandwich” to the Trash | View “Buffalo-Style Soft Shell Crab Sandwich” | Duplicate This  Published 2025/07/24 at 4:06 pm":
+        - rowheader "Select Buffalo-Style Soft Shell Crab Sandwich":
+          - checkbox "Select Buffalo-Style Soft Shell Crab Sandwich"
+          - text: Select Buffalo-Style Soft Shell Crab Sandwich
+        - cell "“Buffalo-Style Soft Shell Crab Sandwich” (Edit) Edit “Buffalo-Style Soft Shell Crab Sandwich” | Quick edit “Buffalo-Style Soft Shell Crab Sandwich” inline | Move “Buffalo-Style Soft Shell Crab Sandwich” to the Trash | View “Buffalo-Style Soft Shell Crab Sandwich” | Duplicate This":
+          - strong:
+            - link "“Buffalo-Style Soft Shell Crab Sandwich” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=691&action=edit&classic-editor
+              - text: Buffalo-Style Soft Shell Crab Sandwich
+          - link "Edit “Buffalo-Style Soft Shell Crab Sandwich”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=691&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Buffalo-Style Soft Shell Crab Sandwich” inline": Quick Edit
+          - text: "|"
+          - link "Move “Buffalo-Style Soft Shell Crab Sandwich” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=691&action=trash&_wpnonce=128d9ffa1f
+            - text: Trash
+          - text: "|"
+          - link "View “Buffalo-Style Soft Shell Crab Sandwich”":
+            - /url: http://localhost:10008/recipe/buffalo-style-soft-shell-crab-sandwich/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=691&nonce=e187a04902
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 4:06 pm"
+      - row "Select Chimichurri Crab & Roasted Red Pepper Pasta “Chimichurri Crab & Roasted Red Pepper Pasta” (Edit) Edit “Chimichurri Crab & Roasted Red Pepper Pasta” | Quick edit “Chimichurri Crab & Roasted Red Pepper Pasta” inline | Move “Chimichurri Crab & Roasted Red Pepper Pasta” to the Trash | View “Chimichurri Crab & Roasted Red Pepper Pasta” | Duplicate This  Published 2025/07/24 at 7:20 pm":
+        - rowheader "Select Chimichurri Crab & Roasted Red Pepper Pasta":
+          - checkbox "Select Chimichurri Crab & Roasted Red Pepper Pasta"
+          - text: Select Chimichurri Crab & Roasted Red Pepper Pasta
+        - cell "“Chimichurri Crab & Roasted Red Pepper Pasta” (Edit) Edit “Chimichurri Crab & Roasted Red Pepper Pasta” | Quick edit “Chimichurri Crab & Roasted Red Pepper Pasta” inline | Move “Chimichurri Crab & Roasted Red Pepper Pasta” to the Trash | View “Chimichurri Crab & Roasted Red Pepper Pasta” | Duplicate This":
+          - strong:
+            - link "“Chimichurri Crab & Roasted Red Pepper Pasta” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=711&action=edit&classic-editor
+              - text: Chimichurri Crab & Roasted Red Pepper Pasta
+          - link "Edit “Chimichurri Crab & Roasted Red Pepper Pasta”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=711&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Chimichurri Crab & Roasted Red Pepper Pasta” inline": Quick Edit
+          - text: "|"
+          - link "Move “Chimichurri Crab & Roasted Red Pepper Pasta” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=711&action=trash&_wpnonce=b2810997ff
+            - text: Trash
+          - text: "|"
+          - link "View “Chimichurri Crab & Roasted Red Pepper Pasta”":
+            - /url: http://localhost:10008/recipe/chimichurri-crab-roasted-red-pepper-pasta/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=711&nonce=d9c72d1bbd
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 7:20 pm"
+      - row "Select Crab & Kimchi Pot Stickers “Crab & Kimchi Pot Stickers” (Edit) Edit “Crab & Kimchi Pot Stickers” | Quick edit “Crab & Kimchi Pot Stickers” inline | Move “Crab & Kimchi Pot Stickers” to the Trash | View “Crab & Kimchi Pot Stickers” | Duplicate This  Published 2025/07/24 at 7:34 pm":
+        - rowheader "Select Crab & Kimchi Pot Stickers":
+          - checkbox "Select Crab & Kimchi Pot Stickers"
+          - text: Select Crab & Kimchi Pot Stickers
+        - cell "“Crab & Kimchi Pot Stickers” (Edit) Edit “Crab & Kimchi Pot Stickers” | Quick edit “Crab & Kimchi Pot Stickers” inline | Move “Crab & Kimchi Pot Stickers” to the Trash | View “Crab & Kimchi Pot Stickers” | Duplicate This":
+          - strong:
+            - link "“Crab & Kimchi Pot Stickers” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=722&action=edit&classic-editor
+              - text: Crab & Kimchi Pot Stickers
+          - link "Edit “Crab & Kimchi Pot Stickers”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=722&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab & Kimchi Pot Stickers” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab & Kimchi Pot Stickers” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=722&action=trash&_wpnonce=1207710f9d
+            - text: Trash
+          - text: "|"
+          - link "View “Crab & Kimchi Pot Stickers”":
+            - /url: http://localhost:10008/recipe/crab-kimchi-pot-stickers/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=722&nonce=4dbdb7718f
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 7:34 pm"
+      - row "Select Crab Angel Hair Pasta “Crab Angel Hair Pasta” (Edit) Edit “Crab Angel Hair Pasta” | Quick edit “Crab Angel Hair Pasta” inline | Move “Crab Angel Hair Pasta” to the Trash | View “Crab Angel Hair Pasta” | Duplicate This  Published 2025/07/24 at 7:45 pm":
+        - rowheader "Select Crab Angel Hair Pasta":
+          - checkbox "Select Crab Angel Hair Pasta"
+          - text: Select Crab Angel Hair Pasta
+        - cell "“Crab Angel Hair Pasta” (Edit) Edit “Crab Angel Hair Pasta” | Quick edit “Crab Angel Hair Pasta” inline | Move “Crab Angel Hair Pasta” to the Trash | View “Crab Angel Hair Pasta” | Duplicate This":
+          - strong:
+            - link "“Crab Angel Hair Pasta” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=709&action=edit&classic-editor
+              - text: Crab Angel Hair Pasta
+          - link "Edit “Crab Angel Hair Pasta”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=709&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Angel Hair Pasta” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Angel Hair Pasta” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=709&action=trash&_wpnonce=d3ce86dff0
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Angel Hair Pasta”":
+            - /url: http://localhost:10008/recipe/crab-angel-hair-pasta/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=709&nonce=facbaab047
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 7:45 pm"
+      - row "Select Crab Cake BLT “Crab Cake BLT” (Edit) Edit “Crab Cake BLT” | Quick edit “Crab Cake BLT” inline | Move “Crab Cake BLT” to the Trash | View “Crab Cake BLT” | Duplicate This  Published 2025/07/24 at 7:53 pm":
+        - rowheader "Select Crab Cake BLT":
+          - checkbox "Select Crab Cake BLT"
+          - text: Select Crab Cake BLT
+        - cell "“Crab Cake BLT” (Edit) Edit “Crab Cake BLT” | Quick edit “Crab Cake BLT” inline | Move “Crab Cake BLT” to the Trash | View “Crab Cake BLT” | Duplicate This":
+          - strong:
+            - link "“Crab Cake BLT” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=651&action=edit&classic-editor
+              - text: Crab Cake BLT
+          - link "Edit “Crab Cake BLT”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=651&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake BLT” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake BLT” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=651&action=trash&_wpnonce=d8a127d1e7
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake BLT”":
+            - /url: http://localhost:10008/recipe/crab-cake-blt/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=651&nonce=260d5b6541
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 7:53 pm"
+      - row "Select Crab Cake Egg Rolls “Crab Cake Egg Rolls” (Edit) Edit “Crab Cake Egg Rolls” | Quick edit “Crab Cake Egg Rolls” inline | Move “Crab Cake Egg Rolls” to the Trash | View “Crab Cake Egg Rolls” | Duplicate This  Published 2025/07/24 at 8:03 pm":
+        - rowheader "Select Crab Cake Egg Rolls":
+          - checkbox "Select Crab Cake Egg Rolls"
+          - text: Select Crab Cake Egg Rolls
+        - cell "“Crab Cake Egg Rolls” (Edit) Edit “Crab Cake Egg Rolls” | Quick edit “Crab Cake Egg Rolls” inline | Move “Crab Cake Egg Rolls” to the Trash | View “Crab Cake Egg Rolls” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Egg Rolls” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=692&action=edit&classic-editor
+              - text: Crab Cake Egg Rolls
+          - link "Edit “Crab Cake Egg Rolls”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=692&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Egg Rolls” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Egg Rolls” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=692&action=trash&_wpnonce=81ece25225
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Egg Rolls”":
+            - /url: http://localhost:10008/recipe/crab-cake-egg-rolls/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=692&nonce=b40c6bb8f5
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 8:03 pm"
+      - row "Select Crab Cake Eggs Benedict “Crab Cake Eggs Benedict” (Edit) Edit “Crab Cake Eggs Benedict” | Quick edit “Crab Cake Eggs Benedict” inline | Move “Crab Cake Eggs Benedict” to the Trash | View “Crab Cake Eggs Benedict” | Duplicate This  Published 2025/07/24 at 8:24 pm":
+        - rowheader "Select Crab Cake Eggs Benedict":
+          - checkbox "Select Crab Cake Eggs Benedict"
+          - text: Select Crab Cake Eggs Benedict
+        - cell "“Crab Cake Eggs Benedict” (Edit) Edit “Crab Cake Eggs Benedict” | Quick edit “Crab Cake Eggs Benedict” inline | Move “Crab Cake Eggs Benedict” to the Trash | View “Crab Cake Eggs Benedict” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Eggs Benedict” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=652&action=edit&classic-editor
+              - text: Crab Cake Eggs Benedict
+          - link "Edit “Crab Cake Eggs Benedict”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=652&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Eggs Benedict” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Eggs Benedict” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=652&action=trash&_wpnonce=4a656d0013
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Eggs Benedict”":
+            - /url: http://localhost:10008/recipe/crab-cake-eggs-benedict/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=652&nonce=0d754ec9d7
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 8:24 pm"
+      - row "Select Crab Cake Huevos Rancheros “Crab Cake Huevos Rancheros” (Edit) Edit “Crab Cake Huevos Rancheros” | Quick edit “Crab Cake Huevos Rancheros” inline | Move “Crab Cake Huevos Rancheros” to the Trash | View “Crab Cake Huevos Rancheros” | Duplicate This  Published 2025/07/16 at 6:23 pm":
+        - rowheader "Select Crab Cake Huevos Rancheros":
+          - checkbox "Select Crab Cake Huevos Rancheros"
+          - text: Select Crab Cake Huevos Rancheros
+        - cell "“Crab Cake Huevos Rancheros” (Edit) Edit “Crab Cake Huevos Rancheros” | Quick edit “Crab Cake Huevos Rancheros” inline | Move “Crab Cake Huevos Rancheros” to the Trash | View “Crab Cake Huevos Rancheros” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Huevos Rancheros” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=653&action=edit&classic-editor
+              - text: Crab Cake Huevos Rancheros
+          - link "Edit “Crab Cake Huevos Rancheros”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=653&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Huevos Rancheros” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Huevos Rancheros” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=653&action=trash&_wpnonce=cbc7e4f00a
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Huevos Rancheros”":
+            - /url: http://localhost:10008/recipe/crab-cake-huevos-rancheros/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=653&nonce=0072b1bf7f
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/16 at 6:23 pm"
+      - row "Select Crab Cake Parmesan “Crab Cake Parmesan” (Edit) Edit “Crab Cake Parmesan” | Quick edit “Crab Cake Parmesan” inline | Move “Crab Cake Parmesan” to the Trash | View “Crab Cake Parmesan” | Duplicate This  Published 2025/07/24 at 8:31 pm":
+        - rowheader "Select Crab Cake Parmesan":
+          - checkbox "Select Crab Cake Parmesan"
+          - text: Select Crab Cake Parmesan
+        - cell "“Crab Cake Parmesan” (Edit) Edit “Crab Cake Parmesan” | Quick edit “Crab Cake Parmesan” inline | Move “Crab Cake Parmesan” to the Trash | View “Crab Cake Parmesan” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Parmesan” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=654&action=edit&classic-editor
+              - text: Crab Cake Parmesan
+          - link "Edit “Crab Cake Parmesan”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=654&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Parmesan” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Parmesan” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=654&action=trash&_wpnonce=c3c7fce164
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Parmesan”":
+            - /url: http://localhost:10008/recipe/crab-cake-parmesan/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=654&nonce=2506a3aab5
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/24 at 8:31 pm"
+      - row "Select Crab Cake Parmesan Sub “Crab Cake Parmesan Sub” (Edit) Edit “Crab Cake Parmesan Sub” | Quick edit “Crab Cake Parmesan Sub” inline | Move “Crab Cake Parmesan Sub” to the Trash | View “Crab Cake Parmesan Sub” | Duplicate This  Published 2025/07/25 at 12:35 pm":
+        - rowheader "Select Crab Cake Parmesan Sub":
+          - checkbox "Select Crab Cake Parmesan Sub"
+          - text: Select Crab Cake Parmesan Sub
+        - cell "“Crab Cake Parmesan Sub” (Edit) Edit “Crab Cake Parmesan Sub” | Quick edit “Crab Cake Parmesan Sub” inline | Move “Crab Cake Parmesan Sub” to the Trash | View “Crab Cake Parmesan Sub” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Parmesan Sub” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=655&action=edit&classic-editor
+              - text: Crab Cake Parmesan Sub
+          - link "Edit “Crab Cake Parmesan Sub”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=655&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Parmesan Sub” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Parmesan Sub” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=655&action=trash&_wpnonce=5b047da040
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Parmesan Sub”":
+            - /url: http://localhost:10008/recipe/crab-cake-parmesan-sub/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=655&nonce=8c3c338260
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/25 at 12:35 pm"
+      - row "Select Crab Cake Sandwich “Crab Cake Sandwich” (Edit) Edit “Crab Cake Sandwich” | Quick edit “Crab Cake Sandwich” inline | Move “Crab Cake Sandwich” to the Trash | View “Crab Cake Sandwich” | Duplicate This  Published 2025/07/25 at 1:10 pm":
+        - rowheader "Select Crab Cake Sandwich":
+          - checkbox "Select Crab Cake Sandwich"
+          - text: Select Crab Cake Sandwich
+        - cell "“Crab Cake Sandwich” (Edit) Edit “Crab Cake Sandwich” | Quick edit “Crab Cake Sandwich” inline | Move “Crab Cake Sandwich” to the Trash | View “Crab Cake Sandwich” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Sandwich” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=723&action=edit&classic-editor
+              - text: Crab Cake Sandwich
+          - link "Edit “Crab Cake Sandwich”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=723&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Sandwich” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Sandwich” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=723&action=trash&_wpnonce=b43336589c
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Sandwich”":
+            - /url: http://localhost:10008/recipe/crab-cake-sandwich/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=723&nonce=1f167c2ff0
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/25 at 1:10 pm"
+      - row "Select Crab Cake Stuffed Peppers “Crab Cake Stuffed Peppers” (Edit) Edit “Crab Cake Stuffed Peppers” | Quick edit “Crab Cake Stuffed Peppers” inline | Move “Crab Cake Stuffed Peppers” to the Trash | View “Crab Cake Stuffed Peppers” | Duplicate This  Published 2025/07/25 at 1:22 pm":
+        - rowheader "Select Crab Cake Stuffed Peppers":
+          - checkbox "Select Crab Cake Stuffed Peppers"
+          - text: Select Crab Cake Stuffed Peppers
+        - cell "“Crab Cake Stuffed Peppers” (Edit) Edit “Crab Cake Stuffed Peppers” | Quick edit “Crab Cake Stuffed Peppers” inline | Move “Crab Cake Stuffed Peppers” to the Trash | View “Crab Cake Stuffed Peppers” | Duplicate This":
+          - strong:
+            - link "“Crab Cake Stuffed Peppers” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=656&action=edit&classic-editor
+              - text: Crab Cake Stuffed Peppers
+          - link "Edit “Crab Cake Stuffed Peppers”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=656&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Cake Stuffed Peppers” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Cake Stuffed Peppers” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=656&action=trash&_wpnonce=4a47d2009b
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Cake Stuffed Peppers”":
+            - /url: http://localhost:10008/recipe/crab-cake-stuffed-peppers/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=656&nonce=8e48b33693
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/25 at 1:22 pm"
+      - row "Select Crab Claws Sautéed in Garlic & White Wine “Crab Claws Sautéed in Garlic & White Wine” (Edit) Edit “Crab Claws Sautéed in Garlic & White Wine” | Quick edit “Crab Claws Sautéed in Garlic & White Wine” inline | Move “Crab Claws Sautéed in Garlic & White Wine” to the Trash | View “Crab Claws Sautéed in Garlic & White Wine” | Duplicate This  Published 2025/07/25 at 1:31 pm":
+        - rowheader "Select Crab Claws Sautéed in Garlic & White Wine":
+          - checkbox "Select Crab Claws Sautéed in Garlic & White Wine"
+          - text: Select Crab Claws Sautéed in Garlic & White Wine
+        - cell "“Crab Claws Sautéed in Garlic & White Wine” (Edit) Edit “Crab Claws Sautéed in Garlic & White Wine” | Quick edit “Crab Claws Sautéed in Garlic & White Wine” inline | Move “Crab Claws Sautéed in Garlic & White Wine” to the Trash | View “Crab Claws Sautéed in Garlic & White Wine” | Duplicate This":
+          - strong:
+            - link "“Crab Claws Sautéed in Garlic & White Wine” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=727&action=edit&classic-editor
+              - text: Crab Claws Sautéed in Garlic & White Wine
+          - link "Edit “Crab Claws Sautéed in Garlic & White Wine”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=727&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Claws Sautéed in Garlic & White Wine” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Claws Sautéed in Garlic & White Wine” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=727&action=trash&_wpnonce=3f3251febd
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Claws Sautéed in Garlic & White Wine”":
+            - /url: http://localhost:10008/recipe/crab-claws-sauteed-in-garlic-white-wine/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=727&nonce=89c3d77567
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/25 at 1:31 pm"
+      - row "Select Crab Dip “Crab Dip” (Edit) Edit “Crab Dip” | Quick edit “Crab Dip” inline | Move “Crab Dip” to the Trash | View “Crab Dip” | Duplicate This  Published 2025/07/25 at 1:53 pm":
+        - rowheader "Select Crab Dip":
+          - checkbox "Select Crab Dip"
+          - text: Select Crab Dip
+        - cell "“Crab Dip” (Edit) Edit “Crab Dip” | Quick edit “Crab Dip” inline | Move “Crab Dip” to the Trash | View “Crab Dip” | Duplicate This":
+          - strong:
+            - link "“Crab Dip” (Edit)":
+              - /url: http://localhost:10008/wp-admin/post.php?post=657&action=edit&classic-editor
+              - text: Crab Dip
+          - link "Edit “Crab Dip”":
+            - /url: http://localhost:10008/wp-admin/post.php?post=657&action=edit&classic-editor
+            - text: Edit
+          - text: "|"
+          - button "Quick edit “Crab Dip” inline": Quick Edit
+          - text: "|"
+          - link "Move “Crab Dip” to the Trash":
+            - /url: http://localhost:10008/wp-admin/post.php?post=657&action=trash&_wpnonce=0e6fae2289
+            - text: Trash
+          - text: "|"
+          - link "View “Crab Dip”":
+            - /url: http://localhost:10008/recipe/crab-dip/
+            - text: View
+          - text: "|"
+          - link "Duplicate This":
+            - /url: admin.php?action=dt_duplicate_post_as_draft&post=657&nonce=53d4f54f23
+        - cell "":
+          - link "":
+            - /url: "#"
+        - cell "Published 2025/07/25 at 1:53 pm"
+    - rowgroup:
+      - row "Select All Title Sort ascending. Featured Sort ascending. Date":
+        - cell "Select All":
+          - checkbox "Select All"
+          - text: Select All
+        - columnheader "Title Sort ascending.":
+          - link "Title Sort ascending.":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=title&order=asc
+        - columnheader "Featured Sort ascending.":
+          - link "Featured Sort ascending.":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=featured_recipe_admin_col&order=asc
+        - columnheader "Date":
+          - link "Date":
+            - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&orderby=date&order=asc
+  - text: Select bulk action
+  - combobox "Select bulk action":
+    - option "Bulk actions" [selected]
+    - option "Edit"
+    - option "Move to Trash"
+  - button "Apply"
+  - text: 84 items Current Page 1 of 5
+  - link "Next page":
+    - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&paged=2
+  - link "Last page":
+    - /url: http://localhost:10008/wp-admin/edit.php?post_type=recipe&paged=5
+- contentinfo:
+  - paragraph:
+    - text: Thank you for creating with
+    - link "WordPress":
+      - /url: https://wordpress.org/
+    - text: .
+  - paragraph: Version 6.8.2
+```

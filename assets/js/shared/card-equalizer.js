@@ -32,9 +32,9 @@ class HandyCardEqualizer {
         // Responsive breakpoints matching CSS exactly
         this.breakpoints = {
             recipes: {
-                threeColumn: 1601,   // 3 columns above 1600px (updated from 4)
-                twoColumn: 1201,     // 2 columns: 1201-1600px  
-                oneColumn: 550       // 1 column below 549px
+                threeColumn: 1201,   // 3 columns above 1200px (matches CSS default)
+                twoColumn: 550,      // 2 columns: 550-1200px (matches CSS @media max-width: 1200px)
+                oneColumn: 549       // 1 column below 549px (matches CSS @media max-width: 549px)
             },
             products: {
                 twoColumn: 549       // 2 columns above 549px, 1 column below (matches CSS)

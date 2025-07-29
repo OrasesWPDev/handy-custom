@@ -289,3 +289,79 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     
 });
+
+/**
+ * Global function to initialize card equalizer for any featured recipes grid
+ * Can be called after shortcode renders or for any dynamically added content
+ */
+window.initFeaturedRecipesCardEqualizer = function() {
+    const featuredRecipesGrids = document.querySelectorAll('.handy-featured-recipes-grid');
+    
+    if (featuredRecipesGrids.length === 0) {
+        return;
+    }
+    
+    featuredRecipesGrids.forEach(function(featuredRecipesGrid) {
+        if (typeof window.HandyCardEqualizer !== 'undefined') {
+            
+            // Function to run equalization
+            function runEqualization() {
+                if (window.HandyCardEqualizer) {
+                    window.HandyCardEqualizer.refresh();
+                    
+                    if (typeof handyCustomSingleProduct !== 'undefined' && handyCustomSingleProduct.debug) {
+                        console.log('Featured recipes card equalizer executed for grid:', featuredRecipesGrid);
+                    }
+                }
+            }
+            
+            // Multiple triggers for better reliability
+            
+            // 1. Initial timeout
+            setTimeout(runEqualization, 500);
+            
+            // 2. Window load event for when all resources are loaded
+            window.addEventListener('load', function() {
+                setTimeout(runEqualization, 100);
+            });
+            
+            // 3. Wait for images to load
+            const images = featuredRecipesGrid.querySelectorAll('img');
+            if (images.length > 0) {
+                let imagesLoaded = 0;
+                images.forEach(function(img) {
+                    if (img.complete) {
+                        imagesLoaded++;
+                    } else {
+                        img.addEventListener('load', function() {
+                            imagesLoaded++;
+                            if (imagesLoaded === images.length) {
+                                setTimeout(runEqualization, 50);
+                            }
+                        });
+                    }
+                });
+                
+                // If all images already loaded
+                if (imagesLoaded === images.length) {
+                    setTimeout(runEqualization, 50);
+                }
+            } else {
+                // No images, run equalization after a short delay
+                setTimeout(runEqualization, 100);
+            }
+            
+            if (typeof handyCustomSingleProduct !== 'undefined' && handyCustomSingleProduct.debug) {
+                console.log('Featured recipes card equalizer initialized for grid:', featuredRecipesGrid);
+            }
+        }
+    });
+};
+
+// Auto-initialize on DOM ready for any existing grids
+document.addEventListener('DOMContentLoaded', function() {
+    // Delay execution to ensure shortcodes have rendered
+    setTimeout(function() {
+        window.initFeaturedRecipesCardEqualizer();
+    }, 1000);
+});
