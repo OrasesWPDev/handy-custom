@@ -333,6 +333,19 @@ class Handy_Custom_Shortcodes {
 			
 			Handy_Custom_Logger::log('AJAX: Generated cascading filter options for ' . count($updated_filter_options) . ' taxonomies', 'info');
 			
+			// Debug: Log what options are being returned for each taxonomy
+			foreach ($updated_filter_options as $taxonomy_key => $terms) {
+				$term_count = is_array($terms) ? count($terms) : 0;
+				$term_names = array();
+				if (is_array($terms) && $term_count > 0) {
+					$term_names = array_slice(array_map(function($term) {
+						return isset($term->name) ? $term->name : 'Unknown';
+					}, $terms), 0, 3);
+				}
+				$sample_terms = $term_count > 0 ? ' (samples: ' . implode(', ', $term_names) . ($term_count > 3 ? '...' : '') . ')' : '';
+				Handy_Custom_Logger::log("AJAX: Returning {$term_count} options for {$taxonomy_key}{$sample_terms}", 'info');
+			}
+			
 			wp_send_json_success(array(
 				'html' => $output,
 				'updated_filter_options' => $updated_filter_options
@@ -618,10 +631,10 @@ class Handy_Custom_Shortcodes {
 
 	/**
 	 * Extract available taxonomy terms from a set of products
-	 * Returns only terms that are actually used by the provided products
+	 * Returns terms used by products PLUS ensures current user selections are preserved
 	 *
 	 * @param array $product_ids Array of product IDs
-	 * @param array $current_filters Current filter selections (to exclude from results)
+	 * @param array $current_filters Current filter selections (must be preserved in results)
 	 * @param string $context_category Context category boundary
 	 * @param string $context_subcategory Context subcategory boundary
 	 * @return array Array of available filter options
@@ -631,10 +644,12 @@ class Handy_Custom_Shortcodes {
 		$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
 		
 		Handy_Custom_Logger::log('CASCADING: Extracting terms from ' . count($product_ids) . ' products for ' . count($taxonomy_mapping) . ' taxonomies', 'info');
+		Handy_Custom_Logger::log('CASCADING: Current filters to preserve: ' . wp_json_encode($current_filters), 'info');
 		
 		foreach ($taxonomy_mapping as $key => $taxonomy_slug) {
 			// Skip taxonomies that shouldn't appear in cascading filters
 			if (self::should_skip_taxonomy_for_cascading($key, $context_category, $context_subcategory)) {
+				Handy_Custom_Logger::log("CASCADING: Skipping taxonomy {$key} for cascading updates", 'debug');
 				continue;
 			}
 			
@@ -650,6 +665,30 @@ class Handy_Custom_Shortcodes {
 				continue;
 			}
 			
+			// CRITICAL FIX: Always include current user selection for this taxonomy
+			$current_selection = isset($current_filters[$key]) ? $current_filters[$key] : '';
+			if (!empty($current_selection)) {
+				// Get the current selected term to ensure it's included
+				$current_term = get_term_by('slug', $current_selection, $taxonomy_slug);
+				if ($current_term && !is_wp_error($current_term)) {
+					// Add current term to used_terms array if not already present
+					$current_term_exists = false;
+					foreach ($used_terms as $term) {
+						if ($term->term_id === $current_term->term_id) {
+							$current_term_exists = true;
+							break;
+						}
+					}
+					
+					if (!$current_term_exists) {
+						array_unshift($used_terms, $current_term); // Add at beginning
+						Handy_Custom_Logger::log("CASCADING: Added current selection '{$current_selection}' to {$key} options (was missing from product results)", 'info');
+					} else {
+						Handy_Custom_Logger::log("CASCADING: Current selection '{$current_selection}' already present in {$key} options", 'debug');
+					}
+				}
+			}
+			
 			// Remove duplicates and format for frontend
 			$unique_terms = array();
 			$term_ids = array();
@@ -663,7 +702,8 @@ class Handy_Custom_Shortcodes {
 			
 			$filter_options[$key] = $unique_terms;
 			
-			Handy_Custom_Logger::log("CASCADING: Taxonomy {$key} ({$taxonomy_slug}): " . count($unique_terms) . " available terms", 'debug');
+			$selection_info = !empty($current_selection) ? " (preserving current selection: {$current_selection})" : '';
+			Handy_Custom_Logger::log("CASCADING: Taxonomy {$key} ({$taxonomy_slug}): " . count($unique_terms) . " available terms{$selection_info}", 'debug');
 		}
 		
 		return $filter_options;
@@ -671,7 +711,7 @@ class Handy_Custom_Shortcodes {
 
 	/**
 	 * Check if taxonomy should be skipped for cascading filters
-	 * Some taxonomies shouldn't be updated in cascading mode (like category/subcategory context boundaries)
+	 * More selective logic - only skip when there's a hard context boundary constraint
 	 *
 	 * @param string $key Taxonomy key
 	 * @param string $context_category Context category boundary
@@ -684,11 +724,12 @@ class Handy_Custom_Shortcodes {
 			return true;
 		}
 		
-		// Skip subcategory if we're in a subcategory context (prevent breaking out of context)
-		if ($key === 'subcategory' && !empty($context_subcategory)) {
-			return true;
-		}
+		// CRITICAL FIX: Don't skip subcategory unless we're in a hard-coded subcategory context
+		// This allows user-selected subcategory filters to still be updated with cascading options
+		// Only skip if there's a context_subcategory set from shortcode attributes (not user selections)
 		
-		return false;
+		Handy_Custom_Logger::log("CASCADING: Taxonomy skip check for {$key} - context_category: '{$context_category}', context_subcategory: '{$context_subcategory}'", 'debug');
+		
+		return false; // For now, don't skip any taxonomies - let all be updatable
 	}
 }

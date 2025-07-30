@@ -111,6 +111,9 @@
             // Update URL parameters
             this.updateURL(filterName, filterValue);
             
+            // Store the triggering filter for smart cascading updates
+            this.lastChangedFilter = filterName;
+            
             // Trigger content update for matching content type
             this.triggerContentUpdate(contentType);
         }
@@ -142,6 +145,9 @@
             
             // Clear URL parameters
             this.clearURLParameters(contentType);
+            
+            // Clear last changed filter since we're clearing all
+            this.lastChangedFilter = null;
             
             // Trigger content update
             this.triggerContentUpdate(contentType);
@@ -601,8 +607,14 @@
                 return;
             }
 
-            // Update each filter select element
+            // Update each filter select element (except the one that triggered the change)
             Object.keys(updatedOptions).forEach((taxonomyKey) => {
+                // CRITICAL FIX: Don't update the filter that the user just changed
+                if (this.lastChangedFilter && taxonomyKey === this.lastChangedFilter) {
+                    this.log(`Skipping update for triggering filter: ${taxonomyKey}`, 'info');
+                    return;
+                }
+                
                 const $select = $filterContainer.find(`select[name="${taxonomyKey}"]`);
                 
                 if ($select.length === 0) {
@@ -616,7 +628,8 @@
 
                 this.log(`Updating ${taxonomyKey} filter with ${terms.length} options`, 'debug', {
                     currentValue: currentValue,
-                    newTermCount: terms.length
+                    newTermCount: terms.length,
+                    triggeringFilter: this.lastChangedFilter
                 });
 
                 // Remove all options except the first (placeholder)
