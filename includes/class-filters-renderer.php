@@ -191,6 +191,21 @@ class Handy_Custom_Filters_Renderer {
 			// Get terms for this taxonomy with context filtering
 			$terms = $this->get_contextual_taxonomy_terms($taxonomy_slug, $content_type, $context_filters);
 			
+			// CRITICAL DEBUG: Log actual term data being sent to template
+			if (!empty($terms) && is_array($terms)) {
+				Handy_Custom_Logger::log("DROPDOWN DEBUG: Terms for {$key} ({$taxonomy_slug}):", 'info');
+				foreach (array_slice($terms, 0, 5) as $term) {
+					if (is_object($term) && isset($term->slug, $term->name)) {
+						Handy_Custom_Logger::log("  - Term: name='{$term->name}', slug='{$term->slug}', ID={$term->term_id}", 'info');
+					} else {
+						Handy_Custom_Logger::log("  - Invalid term object: " . wp_json_encode($term), 'error');
+					}
+				}
+				if (count($terms) > 5) {
+					Handy_Custom_Logger::log("  - ... and " . (count($terms) - 5) . " more terms", 'info');
+				}
+			}
+			
 			// Always include the taxonomy, even if empty - this allows dynamic updates
 			$options[$key] = $terms;
 			

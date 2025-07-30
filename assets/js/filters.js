@@ -28,6 +28,11 @@
             // Store context boundaries to prevent users from breaking out of intended scope
             this.contextBoundaries = {};
             
+            // State management for preventing concurrent updates
+            this.isUpdating = false;
+            this.pendingUpdate = null;
+            this.updateTimeout = null;
+            
             this.log('Initializing Handy Custom Filters system', 'info');
             this.init();
         }
@@ -98,6 +103,27 @@
             const filterValue = $select.val();
             const contentType = $select.data('content-type');
             
+            // CRITICAL DEBUG: Log dropdown option details when selected
+            const selectedOption = $select.find('option:selected');
+            const selectedText = selectedOption.text();
+            
+            this.log('DROPDOWN DEBUG: Filter selection made', 'info', {
+                filter: filterName,
+                selectedValue: filterValue,
+                selectedText: selectedText,
+                contentType: contentType,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Log all available options for this select to debug value mismatches
+            if (filterName === 'subcategory') {
+                this.log('DROPDOWN DEBUG: All subcategory options:', 'info');
+                $select.find('option').each((index, option) => {
+                    const $option = $(option);
+                    this.log(`  Option ${index}: value="${$option.val()}", text="${$option.text()}"`, 'info');
+                });
+            }
+            
             this.log('Filter changed', 'info', {
                 filter: filterName,
                 value: filterValue,
@@ -110,6 +136,9 @@
             
             // Update URL parameters
             this.updateURL(filterName, filterValue);
+            
+            // Store the triggering filter for smart cascading updates
+            this.lastChangedFilter = filterName;
             
             // Trigger content update for matching content type
             this.triggerContentUpdate(contentType);
@@ -142,6 +171,9 @@
             
             // Clear URL parameters
             this.clearURLParameters(contentType);
+            
+            // Clear last changed filter since we're clearing all
+            this.lastChangedFilter = null;
             
             // Trigger content update
             this.triggerContentUpdate(contentType);
@@ -280,12 +312,49 @@
         }
 
         /**
-         * Trigger content update for matching content shortcodes
+         * Trigger content update for matching content shortcodes with debouncing
          * 
          * @param {string} contentType Content type to update (optional)
          */
         triggerContentUpdate(contentType) {
-            this.log('Triggering content update', 'info', {
+            this.log('Triggering content update with debouncing', 'info', {
+                contentType: contentType || 'all',
+                isCurrentlyUpdating: this.isUpdating,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Clear any existing timeout
+            if (this.updateTimeout) {
+                clearTimeout(this.updateTimeout);
+                this.updateTimeout = null;
+            }
+            
+            // If already updating, store this request as pending
+            if (this.isUpdating) {
+                this.pendingUpdate = { contentType: contentType };
+                this.log('Update already in progress, queuing this request', 'debug');
+                return;
+            }
+            
+            // Debounce the update to prevent rapid-fire calls
+            this.updateTimeout = setTimeout(() => {
+                this.executeContentUpdate(contentType);
+            }, 300); // 300ms debounce delay
+        }
+        
+        /**
+         * Execute the actual content update
+         * 
+         * @param {string} contentType Content type to update (optional)
+         */
+        executeContentUpdate(contentType) {
+            if (this.isUpdating) {
+                this.log('Update already in progress, skipping', 'debug');
+                return;
+            }
+            
+            this.isUpdating = true;
+            this.log('Starting content update execution', 'info', {
                 contentType: contentType || 'all',
                 timestamp: new Date().toISOString()
             });
@@ -462,6 +531,11 @@
                     timestamp: new Date().toISOString()
                 });
                 
+                // Process cascading filter options if provided
+                if (response.data.updated_filter_options) {
+                    this.updateFilterDropdowns(response.data.updated_filter_options, contentType);
+                }
+                
                 // Trigger custom event for other scripts
                 $(document).trigger('handyCustomContentUpdated', {
                     contentType: contentType,
@@ -476,6 +550,9 @@
                 });
                 this.showErrorMessage('Invalid response received from server.');
             }
+            
+            // Reset update state and process any pending updates
+            this.finishUpdate();
         }
 
         /**
@@ -497,6 +574,30 @@
             });
             
             this.showErrorMessage('Failed to update content. Please refresh the page and try again.');
+            
+            // Reset update state and process any pending updates
+            this.finishUpdate();
+        }
+
+        /**
+         * Complete update process and handle any pending updates
+         */
+        finishUpdate() {
+            this.isUpdating = false;
+            this.log('Update completed, checking for pending updates', 'debug');
+            
+            // Process any pending update
+            if (this.pendingUpdate) {
+                const pendingContentType = this.pendingUpdate.contentType;
+                this.pendingUpdate = null;
+                
+                this.log('Processing pending update', 'info', { contentType: pendingContentType });
+                
+                // Trigger the pending update after a short delay
+                setTimeout(() => {
+                    this.executeContentUpdate(pendingContentType);
+                }, 100);
+            }
         }
 
         /**
@@ -573,6 +674,87 @@
                 default:
                     console.log(logEntry, data);
             }
+        }
+
+        /**
+         * Update filter dropdowns with cascading options
+         * Dynamically updates all filter select elements with new options based on current selections
+         * 
+         * @param {Object} updatedOptions Updated filter options from server
+         * @param {string} contentType Content type (products/recipes)
+         */
+        updateFilterDropdowns(updatedOptions, contentType) {
+            this.log('Updating filter dropdowns with cascading options', 'info', {
+                contentType: contentType,
+                taxonomyCount: Object.keys(updatedOptions).length,
+                updatedOptions: updatedOptions
+            });
+
+            const $filterContainer = $(`.handy-filters[data-content-type="${contentType}"]`);
+            
+            if ($filterContainer.length === 0) {
+                this.log('No filter container found for content type: ' + contentType, 'warning');
+                return;
+            }
+
+            // Update each filter select element (except the one that triggered the change)
+            Object.keys(updatedOptions).forEach((taxonomyKey) => {
+                // CRITICAL FIX: Don't update the filter that the user just changed
+                if (this.lastChangedFilter && taxonomyKey === this.lastChangedFilter) {
+                    this.log(`Skipping update for triggering filter: ${taxonomyKey}`, 'info');
+                    return;
+                }
+                
+                const $select = $filterContainer.find(`select[name="${taxonomyKey}"]`);
+                
+                if ($select.length === 0) {
+                    this.log(`No select element found for taxonomy: ${taxonomyKey}`, 'debug');
+                    return;
+                }
+
+                // Store current selection
+                const currentValue = $select.val();
+                const terms = updatedOptions[taxonomyKey];
+
+                this.log(`Updating ${taxonomyKey} filter with ${terms.length} options`, 'debug', {
+                    currentValue: currentValue,
+                    newTermCount: terms.length,
+                    triggeringFilter: this.lastChangedFilter
+                });
+
+                // Remove all options except the first (placeholder)
+                $select.find('option:not(:first)').remove();
+
+                // Add new options
+                terms.forEach((term) => {
+                    const option = $('<option></option>')
+                        .attr('value', term.slug)
+                        .text(term.name);
+                    $select.append(option);
+                });
+
+                // Restore selection if it's still available
+                if (currentValue && $select.find(`option[value="${currentValue}"]`).length > 0) {
+                    $select.val(currentValue);
+                    this.log(`Restored selection for ${taxonomyKey}: ${currentValue}`, 'debug');
+                } else if (currentValue) {
+                    // Current selection is no longer available, clear it
+                    $select.val('');
+                    this.updateSelectState($select, '');
+                    this.log(`Cleared unavailable selection for ${taxonomyKey}: ${currentValue}`, 'info');
+                    
+                    // Update URL to remove this filter
+                    this.updateURL(taxonomyKey, '');
+                }
+
+                // Update visual state
+                this.updateSelectState($select, $select.val());
+            });
+
+            this.log('Filter dropdowns updated successfully', 'info', {
+                contentType: contentType,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 

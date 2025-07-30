@@ -123,6 +123,7 @@ Handy_Custom_Logger::log("Available filter groups: " . wp_json_encode(array_keys
 function generate_filter_label($filter_key) {
     // Custom labels for specific taxonomies
     $custom_labels = array(
+        'subcategory' => 'Category',
         'market_segment' => 'Market Segment',
         'cooking_method' => 'Cooking Method', 
         'menu_occasion' => 'Menu Occasion',
