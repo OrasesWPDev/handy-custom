@@ -327,7 +327,16 @@ class Handy_Custom_Shortcodes {
 			// Load the products renderer
 			$renderer = new Handy_Custom_Products_Renderer();
 			$output = $renderer->render($filters);
-			wp_send_json_success(array('html' => $output));
+			
+			// Generate cascading filter options based on current selections
+			$updated_filter_options = self::get_cascading_filter_options($filters, $context_category, $context_subcategory);
+			
+			Handy_Custom_Logger::log('AJAX: Generated cascading filter options for ' . count($updated_filter_options) . ' taxonomies', 'info');
+			
+			wp_send_json_success(array(
+				'html' => $output,
+				'updated_filter_options' => $updated_filter_options
+			));
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('AJAX filter error: ' . $e->getMessage(), 'error');
 			wp_send_json_error('Filter processing failed');
@@ -500,5 +509,186 @@ class Handy_Custom_Shortcodes {
 			Handy_Custom_Logger::log('Product category images shortcode error: ' . $e->getMessage(), 'error');
 			return '';
 		}
+	}
+
+	/**
+	 * Get cascading filter options based on current filter selections
+	 * Returns updated filter options that only show terms available in the current filtered product set
+	 *
+	 * @param array $current_filters Current filter selections
+	 * @param string $context_category Context category boundary
+	 * @param string $context_subcategory Context subcategory boundary
+	 * @return array Updated filter options array
+	 */
+	private static function get_cascading_filter_options($current_filters, $context_category = '', $context_subcategory = '') {
+		Handy_Custom_Logger::log('CASCADING: Starting filter options generation with filters: ' . wp_json_encode($current_filters), 'info');
+		
+		// Get products matching current filter selections
+		$matching_products = self::get_products_matching_current_filters($current_filters, $context_category, $context_subcategory);
+		
+		if (empty($matching_products)) {
+			Handy_Custom_Logger::log('CASCADING: No products found matching current filters', 'info');
+			// Return empty options for all taxonomies
+			$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
+			$empty_options = array();
+			foreach (array_keys($taxonomy_mapping) as $key) {
+				if (!self::should_skip_taxonomy_for_cascading($key, $context_category, $context_subcategory)) {
+					$empty_options[$key] = array();
+				}
+			}
+			return $empty_options;
+		}
+		
+		Handy_Custom_Logger::log('CASCADING: Found ' . count($matching_products) . ' products matching current filters', 'info');
+		
+		// Extract available taxonomy terms from matching products
+		return self::extract_available_taxonomy_terms_from_products($matching_products, $current_filters, $context_category, $context_subcategory);
+	}
+
+	/**
+	 * Get products matching current filter selections
+	 * This mimics the logic used by the products renderer to find matching products
+	 *
+	 * @param array $current_filters Current filter selections
+	 * @param string $context_category Context category boundary
+	 * @param string $context_subcategory Context subcategory boundary
+	 * @return array Array of product IDs matching current filters
+	 */
+	private static function get_products_matching_current_filters($current_filters, $context_category = '', $context_subcategory = '') {
+		Handy_Custom_Logger::log('CASCADING: Getting products matching filters: ' . wp_json_encode($current_filters), 'info');
+		
+		// Build query args similar to how the renderer does it
+		$query_args = array(
+			'post_type' => 'product',
+			'post_status' => 'publish',
+			'posts_per_page' => 1000, // High limit for comprehensive filtering
+			'fields' => 'ids' // Only need IDs for performance
+		);
+		
+		// Build tax_query from current filters
+		$tax_query = array('relation' => 'AND');
+		$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
+		
+		foreach ($current_filters as $key => $value) {
+			if (empty($value) || !isset($taxonomy_mapping[$key])) {
+				continue;
+			}
+			
+			$taxonomy_slug = $taxonomy_mapping[$key];
+			$tax_query[] = array(
+				'taxonomy' => $taxonomy_slug,
+				'field' => 'slug',
+				'terms' => $value
+			);
+			
+			Handy_Custom_Logger::log("CASCADING: Added tax query for {$key} ({$taxonomy_slug}): {$value}", 'debug');
+		}
+		
+		// Add context boundaries to tax_query if they exist
+		if (!empty($context_subcategory)) {
+			$tax_query[] = array(
+				'taxonomy' => 'product-category',
+				'field' => 'slug',
+				'terms' => $context_subcategory,
+				'include_children' => true
+			);
+			Handy_Custom_Logger::log("CASCADING: Added context subcategory constraint: {$context_subcategory}", 'debug');
+		} elseif (!empty($context_category)) {
+			$tax_query[] = array(
+				'taxonomy' => 'product-category',
+				'field' => 'slug',
+				'terms' => $context_category,
+				'include_children' => true
+			);
+			Handy_Custom_Logger::log("CASCADING: Added context category constraint: {$context_category}", 'debug');
+		}
+		
+		if (count($tax_query) > 1) {
+			$query_args['tax_query'] = $tax_query;
+		}
+		
+		// Execute query
+		$wp_query = new WP_Query($query_args);
+		$product_ids = wp_list_pluck($wp_query->posts, 'ID');
+		
+		Handy_Custom_Logger::log('CASCADING: Query found ' . count($product_ids) . ' matching products', 'info');
+		
+		return $product_ids;
+	}
+
+	/**
+	 * Extract available taxonomy terms from a set of products
+	 * Returns only terms that are actually used by the provided products
+	 *
+	 * @param array $product_ids Array of product IDs
+	 * @param array $current_filters Current filter selections (to exclude from results)
+	 * @param string $context_category Context category boundary
+	 * @param string $context_subcategory Context subcategory boundary
+	 * @return array Array of available filter options
+	 */
+	private static function extract_available_taxonomy_terms_from_products($product_ids, $current_filters, $context_category = '', $context_subcategory = '') {
+		$filter_options = array();
+		$taxonomy_mapping = Handy_Custom_Products_Utils::get_taxonomy_mapping();
+		
+		Handy_Custom_Logger::log('CASCADING: Extracting terms from ' . count($product_ids) . ' products for ' . count($taxonomy_mapping) . ' taxonomies', 'info');
+		
+		foreach ($taxonomy_mapping as $key => $taxonomy_slug) {
+			// Skip taxonomies that shouldn't appear in cascading filters
+			if (self::should_skip_taxonomy_for_cascading($key, $context_category, $context_subcategory)) {
+				continue;
+			}
+			
+			// Get all terms used by these products for this taxonomy
+			$used_terms = wp_get_object_terms($product_ids, $taxonomy_slug, array(
+				'orderby' => 'name',
+				'order' => 'ASC'
+			));
+			
+			if (is_wp_error($used_terms)) {
+				Handy_Custom_Logger::log("CASCADING: Error getting terms for {$taxonomy_slug}: " . $used_terms->get_error_message(), 'error');
+				$filter_options[$key] = array();
+				continue;
+			}
+			
+			// Remove duplicates and format for frontend
+			$unique_terms = array();
+			$term_ids = array();
+			
+			foreach ($used_terms as $term) {
+				if (!in_array($term->term_id, $term_ids)) {
+					$unique_terms[] = $term;
+					$term_ids[] = $term->term_id;
+				}
+			}
+			
+			$filter_options[$key] = $unique_terms;
+			
+			Handy_Custom_Logger::log("CASCADING: Taxonomy {$key} ({$taxonomy_slug}): " . count($unique_terms) . " available terms", 'debug');
+		}
+		
+		return $filter_options;
+	}
+
+	/**
+	 * Check if taxonomy should be skipped for cascading filters
+	 * Some taxonomies shouldn't be updated in cascading mode (like category/subcategory context boundaries)
+	 *
+	 * @param string $key Taxonomy key
+	 * @param string $context_category Context category boundary
+	 * @param string $context_subcategory Context subcategory boundary
+	 * @return bool True if should skip
+	 */
+	private static function should_skip_taxonomy_for_cascading($key, $context_category = '', $context_subcategory = '') {
+		// Always skip category (handled by products shortcode display mode)
+		if ($key === 'category') {
+			return true;
+		}
+		
+		// Skip subcategory if we're in a subcategory context (prevent breaking out of context)
+		if ($key === 'subcategory' && !empty($context_subcategory)) {
+			return true;
+		}
+		
+		return false;
 	}
 }

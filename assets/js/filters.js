@@ -462,6 +462,11 @@
                     timestamp: new Date().toISOString()
                 });
                 
+                // Process cascading filter options if provided
+                if (response.data.updated_filter_options) {
+                    this.updateFilterDropdowns(response.data.updated_filter_options, contentType);
+                }
+                
                 // Trigger custom event for other scripts
                 $(document).trigger('handyCustomContentUpdated', {
                     contentType: contentType,
@@ -573,6 +578,80 @@
                 default:
                     console.log(logEntry, data);
             }
+        }
+
+        /**
+         * Update filter dropdowns with cascading options
+         * Dynamically updates all filter select elements with new options based on current selections
+         * 
+         * @param {Object} updatedOptions Updated filter options from server
+         * @param {string} contentType Content type (products/recipes)
+         */
+        updateFilterDropdowns(updatedOptions, contentType) {
+            this.log('Updating filter dropdowns with cascading options', 'info', {
+                contentType: contentType,
+                taxonomyCount: Object.keys(updatedOptions).length,
+                updatedOptions: updatedOptions
+            });
+
+            const $filterContainer = $(`.handy-filters[data-content-type="${contentType}"]`);
+            
+            if ($filterContainer.length === 0) {
+                this.log('No filter container found for content type: ' + contentType, 'warning');
+                return;
+            }
+
+            // Update each filter select element
+            Object.keys(updatedOptions).forEach((taxonomyKey) => {
+                const $select = $filterContainer.find(`select[name="${taxonomyKey}"]`);
+                
+                if ($select.length === 0) {
+                    this.log(`No select element found for taxonomy: ${taxonomyKey}`, 'debug');
+                    return;
+                }
+
+                // Store current selection
+                const currentValue = $select.val();
+                const terms = updatedOptions[taxonomyKey];
+
+                this.log(`Updating ${taxonomyKey} filter with ${terms.length} options`, 'debug', {
+                    currentValue: currentValue,
+                    newTermCount: terms.length
+                });
+
+                // Remove all options except the first (placeholder)
+                $select.find('option:not(:first)').remove();
+
+                // Add new options
+                terms.forEach((term) => {
+                    const option = $('<option></option>')
+                        .attr('value', term.slug)
+                        .text(term.name);
+                    $select.append(option);
+                });
+
+                // Restore selection if it's still available
+                if (currentValue && $select.find(`option[value="${currentValue}"]`).length > 0) {
+                    $select.val(currentValue);
+                    this.log(`Restored selection for ${taxonomyKey}: ${currentValue}`, 'debug');
+                } else if (currentValue) {
+                    // Current selection is no longer available, clear it
+                    $select.val('');
+                    this.updateSelectState($select, '');
+                    this.log(`Cleared unavailable selection for ${taxonomyKey}: ${currentValue}`, 'info');
+                    
+                    // Update URL to remove this filter
+                    this.updateURL(taxonomyKey, '');
+                }
+
+                // Update visual state
+                this.updateSelectState($select, $select.val());
+            });
+
+            this.log('Filter dropdowns updated successfully', 'info', {
+                contentType: contentType,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 
