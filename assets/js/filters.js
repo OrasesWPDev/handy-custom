@@ -28,6 +28,11 @@
             // Store context boundaries to prevent users from breaking out of intended scope
             this.contextBoundaries = {};
             
+            // State management for preventing concurrent updates
+            this.isUpdating = false;
+            this.pendingUpdate = null;
+            this.updateTimeout = null;
+            
             this.log('Initializing Handy Custom Filters system', 'info');
             this.init();
         }
@@ -97,6 +102,27 @@
             const filterName = $select.attr('name');
             const filterValue = $select.val();
             const contentType = $select.data('content-type');
+            
+            // CRITICAL DEBUG: Log dropdown option details when selected
+            const selectedOption = $select.find('option:selected');
+            const selectedText = selectedOption.text();
+            
+            this.log('DROPDOWN DEBUG: Filter selection made', 'info', {
+                filter: filterName,
+                selectedValue: filterValue,
+                selectedText: selectedText,
+                contentType: contentType,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Log all available options for this select to debug value mismatches
+            if (filterName === 'subcategory') {
+                this.log('DROPDOWN DEBUG: All subcategory options:', 'info');
+                $select.find('option').each((index, option) => {
+                    const $option = $(option);
+                    this.log(`  Option ${index}: value="${$option.val()}", text="${$option.text()}"`, 'info');
+                });
+            }
             
             this.log('Filter changed', 'info', {
                 filter: filterName,
@@ -286,12 +312,49 @@
         }
 
         /**
-         * Trigger content update for matching content shortcodes
+         * Trigger content update for matching content shortcodes with debouncing
          * 
          * @param {string} contentType Content type to update (optional)
          */
         triggerContentUpdate(contentType) {
-            this.log('Triggering content update', 'info', {
+            this.log('Triggering content update with debouncing', 'info', {
+                contentType: contentType || 'all',
+                isCurrentlyUpdating: this.isUpdating,
+                timestamp: new Date().toISOString()
+            });
+            
+            // Clear any existing timeout
+            if (this.updateTimeout) {
+                clearTimeout(this.updateTimeout);
+                this.updateTimeout = null;
+            }
+            
+            // If already updating, store this request as pending
+            if (this.isUpdating) {
+                this.pendingUpdate = { contentType: contentType };
+                this.log('Update already in progress, queuing this request', 'debug');
+                return;
+            }
+            
+            // Debounce the update to prevent rapid-fire calls
+            this.updateTimeout = setTimeout(() => {
+                this.executeContentUpdate(contentType);
+            }, 300); // 300ms debounce delay
+        }
+        
+        /**
+         * Execute the actual content update
+         * 
+         * @param {string} contentType Content type to update (optional)
+         */
+        executeContentUpdate(contentType) {
+            if (this.isUpdating) {
+                this.log('Update already in progress, skipping', 'debug');
+                return;
+            }
+            
+            this.isUpdating = true;
+            this.log('Starting content update execution', 'info', {
                 contentType: contentType || 'all',
                 timestamp: new Date().toISOString()
             });
@@ -487,6 +550,9 @@
                 });
                 this.showErrorMessage('Invalid response received from server.');
             }
+            
+            // Reset update state and process any pending updates
+            this.finishUpdate();
         }
 
         /**
@@ -508,6 +574,30 @@
             });
             
             this.showErrorMessage('Failed to update content. Please refresh the page and try again.');
+            
+            // Reset update state and process any pending updates
+            this.finishUpdate();
+        }
+
+        /**
+         * Complete update process and handle any pending updates
+         */
+        finishUpdate() {
+            this.isUpdating = false;
+            this.log('Update completed, checking for pending updates', 'debug');
+            
+            // Process any pending update
+            if (this.pendingUpdate) {
+                const pendingContentType = this.pendingUpdate.contentType;
+                this.pendingUpdate = null;
+                
+                this.log('Processing pending update', 'info', { contentType: pendingContentType });
+                
+                // Trigger the pending update after a short delay
+                setTimeout(() => {
+                    this.executeContentUpdate(pendingContentType);
+                }, 100);
+            }
         }
 
         /**
