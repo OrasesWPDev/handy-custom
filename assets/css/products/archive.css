@@ -148,21 +148,17 @@
 .category-actions {
     display: flex;
     gap: 12px;
-	/* background: #0145AB; */
-    border-radius: 0px 28px 28px 0px;
-    margin-left: -20px;
     width: 75%;
 }
 
 /* Base styling for category action items - ensures visibility at all screen sizes */
 .category-action-item {
     background: #0145AB;
-    border-radius: 0px 28px 28px 0px;
-    margin-left: -20px;
+    border-radius: 28px 28px 28px 28px;
 }
 
 .btn {
-    padding: 0px 20px;
+    padding: 10px 30px;
     border: none;
     text-decoration: none;
 	font-family: Poppins, sans-serif;
@@ -172,7 +168,6 @@
     transition: all 0.3s ease;
     display: inline-block;
     text-align: center;
-    flex: 1;
 }
 
 .btn-shop {
