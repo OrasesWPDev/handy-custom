@@ -130,6 +130,7 @@ class Handy_Custom {
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-filters.php';
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-display.php';
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-renderer.php';
+		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-category-images-renderer.php';
 		
 		// Featured recipes functionality (needed for both admin and frontend shortcode)
 		require_once HANDY_CUSTOM_PLUGIN_DIR . 'includes/recipes/class-recipes-featured-admin.php';
@@ -188,6 +189,7 @@ class Handy_Custom {
 		$has_filter_shortcode = false;
 		$has_featured_recipes_shortcode = false;
 		$has_product_category_images_shortcode = false;
+		$has_recipe_category_images_shortcode = false;
 		
 		if ($post) {
 			$has_products_shortcode = has_shortcode($post->post_content, 'products');
@@ -196,6 +198,7 @@ class Handy_Custom {
 									has_shortcode($post->post_content, 'filter-recipes');
 			$has_featured_recipes_shortcode = has_shortcode($post->post_content, 'featured-recipes');
 			$has_product_category_images_shortcode = has_shortcode($post->post_content, 'product-category-images');
+			$has_recipe_category_images_shortcode = has_shortcode($post->post_content, 'recipe-category-images');
 		}
 		
 		// Enqueue single product assets if on single product page
@@ -227,9 +230,13 @@ class Handy_Custom {
 			$this->enqueue_featured_recipes_shortcode_assets();
 		}
 		
-		// Enqueue product category images shortcode assets if shortcode is present
+		// Enqueue category images shortcode assets if shortcodes are present
 		if ($has_product_category_images_shortcode) {
 			$this->enqueue_product_category_images_shortcode_assets();
+		}
+		
+		if ($has_recipe_category_images_shortcode) {
+			$this->enqueue_recipe_category_images_shortcode_assets();
 		}
 		
 		// Legacy support - load old custom files if they exist
@@ -498,6 +505,28 @@ class Handy_Custom {
 			Handy_Custom_Logger::log('Product category images shortcode CSS enqueued', 'debug');
 		} else {
 			Handy_Custom_Logger::log('Product category images CSS file not found: ' . $css_file, 'warning');
+		}
+	}
+	
+	/**
+	 * Enqueue recipe category images shortcode assets
+	 */
+	private function enqueue_recipe_category_images_shortcode_assets() {
+		$css_file = HANDY_CUSTOM_PLUGIN_DIR . 'assets/css/recipe-category-images.css';
+		
+		// Enqueue recipe category images CSS
+		if (file_exists($css_file)) {
+			$css_version = filemtime($css_file);
+			wp_enqueue_style(
+				'handy-custom-recipe-category-images',
+				HANDY_CUSTOM_PLUGIN_URL . 'assets/css/recipe-category-images.css',
+				array(),
+				$css_version
+			);
+			
+			Handy_Custom_Logger::log('Recipe category images shortcode CSS enqueued', 'debug');
+		} else {
+			Handy_Custom_Logger::log('Recipe category images CSS file not found: ' . $css_file, 'warning');
 		}
 	}
 	
