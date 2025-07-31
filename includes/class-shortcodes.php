@@ -21,8 +21,9 @@ class Handy_Custom_Shortcodes {
 		// Featured recipes shortcode
 		add_shortcode('featured-recipes', array(__CLASS__, 'featured_recipes_shortcode'));
 		
-		// Product category images shortcode
+		// Category images shortcodes
 		add_shortcode('product-category-images', array(__CLASS__, 'product_category_images_shortcode'));
+		add_shortcode('recipe-category-images', array(__CLASS__, 'recipe_category_images_shortcode'));
 		
 		// New filter shortcodes
 		add_shortcode('filter-products', array(__CLASS__, 'filter_products_shortcode'));
@@ -537,6 +538,31 @@ class Handy_Custom_Shortcodes {
 			return $renderer->render($atts);
 		} catch (Exception $e) {
 			Handy_Custom_Logger::log('Product category images shortcode error: ' . $e->getMessage(), 'error');
+			return '';
+		}
+	}
+
+	/**
+	 * Recipe category images shortcode handler
+	 * Displays recipe categories with featured images linking to recipe filter pages
+	 * Based on design from assets/images/category-images-shortcode-design-example.png
+	 *
+	 * @param array $atts Shortcode attributes
+	 * @return string HTML for recipe category images grid
+	 */
+	public static function recipe_category_images_shortcode($atts) {
+		$atts = shortcode_atts(array(
+			'limit' => 6,
+			'size' => 'medium'
+		), $atts, 'recipe-category-images');
+
+		Handy_Custom_Logger::log('[recipe-category-images] shortcode called with limit: ' . $atts['limit'], 'info');
+
+		try {
+			$renderer = new Handy_Custom_Recipes_Category_Images_Renderer();
+			return $renderer->render($atts);
+		} catch (Exception $e) {
+			Handy_Custom_Logger::log('Recipe category images shortcode error: ' . $e->getMessage(), 'error');
 			return '';
 		}
 	}
