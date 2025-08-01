@@ -21,8 +21,8 @@ class Handy_Custom_Shortcodes {
 		// Featured recipes shortcode
 		add_shortcode('featured-recipes', array(__CLASS__, 'featured_recipes_shortcode'));
 		
-		// Product category images shortcode
-		add_shortcode('product-category-images', array(__CLASS__, 'product_category_images_shortcode'));
+		// Recipe category images shortcode
+		add_shortcode('recipe-category-images', array(__CLASS__, 'recipe_category_images_shortcode'));
 		
 		// New filter shortcodes
 		add_shortcode('filter-products', array(__CLASS__, 'filter_products_shortcode'));
@@ -168,6 +168,10 @@ class Handy_Custom_Shortcodes {
 		if ($atts['page'] < 1) {
 			$atts['page'] = 1;
 		}
+
+		// Merge URL parameters with shortcode attributes (URL takes precedence)
+		$url_params = Handy_Custom_Recipes_Utils::get_current_url_parameters();
+		$atts = array_merge($atts, $url_params);
 
 		// Sanitize attributes
 		$atts = Handy_Custom_Recipes_Utils::sanitize_filters($atts);
@@ -517,26 +521,26 @@ class Handy_Custom_Shortcodes {
 	}
 
 	/**
-	 * Product Category Images shortcode handler
-	 * Displays a grid of circular category featured images with names
+	 * Recipe category images shortcode handler
+	 * Displays recipe categories with featured images linking to recipe filter pages
 	 * Based on design from assets/images/category-images-shortcode-design-example.png
 	 *
 	 * @param array $atts Shortcode attributes
-	 * @return string HTML for category images grid
+	 * @return string HTML for recipe category images grid
 	 */
-	public static function product_category_images_shortcode($atts) {
+	public static function recipe_category_images_shortcode($atts) {
 		$atts = shortcode_atts(array(
 			'limit' => 6,
 			'size' => 'medium'
-		), $atts, 'product-category-images');
+		), $atts, 'recipe-category-images');
 
-		Handy_Custom_Logger::log('[product-category-images] shortcode called with limit: ' . $atts['limit'], 'info');
+		Handy_Custom_Logger::log('[recipe-category-images] shortcode called with limit: ' . $atts['limit'], 'info');
 
 		try {
-			$renderer = new Handy_Custom_Products_Category_Images_Renderer();
+			$renderer = new Handy_Custom_Recipes_Category_Images_Renderer();
 			return $renderer->render($atts);
 		} catch (Exception $e) {
-			Handy_Custom_Logger::log('Product category images shortcode error: ' . $e->getMessage(), 'error');
+			Handy_Custom_Logger::log('Recipe category images shortcode error: ' . $e->getMessage(), 'error');
 			return '';
 		}
 	}

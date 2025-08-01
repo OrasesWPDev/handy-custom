@@ -1,8 +1,8 @@
 <?php
 /**
- * Product Category Images Grid Template
+ * Recipe Category Images Grid Template
  * Simple grid of circular category images with names for Flatsome integration
- * Based on design from assets/images/category-images-shortcode-design-example.png
+ * Links to /recipes/?category={slug} for seamless filter integration
  * 
  * @package Handy_Custom
  */
@@ -16,14 +16,14 @@ if (empty($categories)) {
 }
 ?>
 
-<div class="handy-category-images-grid" data-shortcode="product-category-images">
+<div class="handy-category-images-grid" data-shortcode="recipe-category-images">
     <?php foreach ($categories as $category) : ?>
         <?php 
-        // Use same method as [products] shortcode for image consistency
-        $featured_image = Handy_Custom_Products_Display::get_category_featured_image($category->term_id);
+        // Use same method as recipe display system for image consistency
+        $featured_image = Handy_Custom_Recipes_Display::get_category_featured_image($category->term_id);
         if ($featured_image) :
-            // Build the product archive URL in format: /products/{category-slug}/
-            $category_url = home_url('/products/' . $category->slug . '/');
+            // Build the recipe filter URL in format: /recipes/?category={category-slug}
+            $category_url = home_url('/recipes/?category=' . $category->slug);
         ?>
             <a href="<?php echo esc_url($category_url); ?>" class="category-image-item-link">
                 <div class="category-image-item">
