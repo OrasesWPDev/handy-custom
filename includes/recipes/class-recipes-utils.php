@@ -137,4 +137,76 @@ class Handy_Custom_Recipes_Utils extends Handy_Custom_Base_Utils {
 
 		return $truncated . '...';
 	}
+
+	/**
+	 * Get current URL parameters for recipe filtering
+	 * Based on products utils but adapted for recipe taxonomies
+	 *
+	 * @return array Current URL parameters
+	 */
+	public static function get_current_url_parameters() {
+		// Only apply URL parameters if page has recipe shortcodes
+		// This prevents forcing shortcode behavior on pages meant for UX Builder editing
+		if (!self::page_has_recipe_shortcodes()) {
+			return array();
+		}
+		
+		// Check for URL-based parameters first
+		$url_params = Handy_Custom::get_url_parameters();
+		
+		if (!empty($url_params)) {
+			return $url_params;
+		}
+
+		// Fallback to query parameters
+		$params = array();
+		
+		if (!empty($_GET['category'])) {
+			$params['category'] = sanitize_text_field($_GET['category']);
+		}
+		
+		if (!empty($_GET['cooking_method'])) {
+			$params['cooking_method'] = sanitize_text_field($_GET['cooking_method']);
+		}
+		
+		if (!empty($_GET['menu_occasion'])) {
+			$params['menu_occasion'] = sanitize_text_field($_GET['menu_occasion']);
+		}
+
+		return $params;
+	}
+
+	/**
+	 * Check if current page contains recipe-related shortcodes
+	 *
+	 * @return bool True if page has recipe shortcodes
+	 */
+	public static function page_has_recipe_shortcodes() {
+		global $post;
+		
+		if (!$post || empty($post->post_content)) {
+			return false;
+		}
+		
+		// Check for any recipe-related shortcodes
+		$recipe_shortcodes = array('recipes', 'filter-recipes');
+		
+		foreach ($recipe_shortcodes as $shortcode) {
+			if (has_shortcode($post->post_content, $shortcode)) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+
+	/**
+	 * Check if current page is a recipe category page
+	 *
+	 * @return bool True if on recipe category page
+	 */
+	public static function is_recipe_category_page() {
+		$params = self::get_current_url_parameters();
+		return !empty($params['category']) || !empty($params['cooking_method']) || !empty($params['menu_occasion']);
+	}
 }

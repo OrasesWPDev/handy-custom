@@ -169,6 +169,10 @@ class Handy_Custom_Shortcodes {
 			$atts['page'] = 1;
 		}
 
+		// Merge URL parameters with shortcode attributes (URL takes precedence)
+		$url_params = Handy_Custom_Recipes_Utils::get_current_url_parameters();
+		$atts = array_merge($atts, $url_params);
+
 		// Sanitize attributes
 		$atts = Handy_Custom_Recipes_Utils::sanitize_filters($atts);
 
